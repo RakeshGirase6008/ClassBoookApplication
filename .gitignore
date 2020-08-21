@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/ClassBookApplication/obj
+/.vs/
+/ClassBookApplication/bin/
+/ClassBookApplication/Content/Image/
