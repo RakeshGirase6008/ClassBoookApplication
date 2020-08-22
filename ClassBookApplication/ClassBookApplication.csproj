@@ -2,14 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>d6675f86-20bd-4c9f-a9fd-5dcf3d6ad47e</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="app.yaml" />
     <None Remove="Content\HtmlTemplates\ActivateMyAccount.html" />
     <None Remove="Content\HtmlTemplates\ForgotPassword.html" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="app.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\HtmlTemplates\ActivateMyAccount.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

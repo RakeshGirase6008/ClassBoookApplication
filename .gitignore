@@ -6,3 +6,6 @@
 /.vs/
 /ClassBookApplication/bin/
 /ClassBookApplication/Content/Image/
+/ClassBookApplication/ClassBookApplication.csproj.user
+/ClassBookApplication/Properties/PublishProfiles
+/ClassBookApplication/.config
