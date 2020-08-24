@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClassBookApplication.ActionFilter;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ClassBookApplication.Controllers.API
 {
-    //[ServiceFilter(typeof(ControllerFilterExample))]
+    [ServiceFilter(typeof(ControllerFilterExample))]
     //[Route("api/[controller]")]
     //[Route("api/{v:apiVersion}/[controller]")]
     [Route("api/v{version:apiVersion}/[controller]")]

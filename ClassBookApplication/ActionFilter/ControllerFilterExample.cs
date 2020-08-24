@@ -1,24 +1,50 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using ClassBookApplication.DataContext;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using System.Linq;
 
 namespace ClassBookApplication.ActionFilter
 {
     public class ControllerFilterExample : IActionFilter
     {
+        #region Fields
+
+        private readonly ClassBookManagementContext _context;
+
+        #endregion
+
+        #region Ctor
+        public ControllerFilterExample(ClassBookManagementContext context)
+        {
+            this._context = context;
+        }
+
+        #endregion
+
+        #region Method
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            var secretKey = _context.Settings.Where(x => x.Name == "ApplicationSetting.SecretKey").AsNoTracking().FirstOrDefault();
             StringValues authorizationToken;
-            var status = context.HttpContext.Request.Headers.TryGetValue("Authorization", out authorizationToken);
+            var status = context.HttpContext.Request.Headers.TryGetValue("Secret_Key", out authorizationToken);
             var mySring = authorizationToken.ToString();
-            if (mySring != "123" || status == false)
+            if (secretKey == null || mySring != secretKey.Value.ToString() || status == false)
             {
-                context.HttpContext.Response.StatusCode = 401;
-                context.HttpContext.Abort();
+                var validationError = new
+                {
+                    Message = "Secret_Key is not Valid"
+                };
+                context.Result = new UnauthorizedObjectResult(validationError);
+                return;
             }
         }
         public void OnActionExecuted(ActionExecutedContext context)
         {
             //our code after action executes
         }
+
+        #endregion
     }
 }

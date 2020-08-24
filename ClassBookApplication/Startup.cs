@@ -1,5 +1,6 @@
 using ClassBookApplication.ActionFilter;
 using ClassBookApplication.DataContext;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,6 +47,8 @@ namespace ClassBookApplication
             services.AddTransient<NotificationService, NotificationService>();
             services.AddTransient<LogsService, LogsService>();
 
+
+            services.AddTransient<ClassBookModelFactory, ClassBookModelFactory>();
             #endregion
 
             #region Version Management
@@ -72,6 +75,7 @@ namespace ClassBookApplication
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(name: "v1", new Microsoft.OpenApi.Models.OpenApiInfo() { Title = "ClassBookAPI", Version = "v1" });
+                c.OperationFilter<CustomHeaderSwaggerAttribute>();
             });
 
             #endregion

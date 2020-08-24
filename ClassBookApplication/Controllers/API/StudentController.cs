@@ -57,9 +57,10 @@ namespace ClassBookApplication.Controllers.API
                     {
                         (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.files);
                         string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
-                        string password = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email);
-                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, password, Module.Student.ToString()));
+                        var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email);
+                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString()));
                         exceptionModel.Status = true;
+                        exceptionModel.Data = user;
                         exceptionModel.Message = ClassBookConstantString.Register_Student_Success.ToString();
                     }
                     else

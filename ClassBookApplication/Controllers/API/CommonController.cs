@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.Common;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace ClassBookApplication.Controllers.API
 {
@@ -21,6 +23,8 @@ namespace ClassBookApplication.Controllers.API
         private readonly ClassBookManagementContext _context;
         private readonly LogsService _logsService;
         private readonly ClassBookService _classBookService;
+        private readonly ClassBookModelFactory _classBookModelFactory;
+
 
         #endregion
 
@@ -28,11 +32,13 @@ namespace ClassBookApplication.Controllers.API
 
         public CommonController(ClassBookManagementContext context,
             LogsService logsService,
-            ClassBookService classBookService)
+            ClassBookService classBookService,
+            ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._logsService = logsService;
             this._classBookService = classBookService;
+            this._classBookModelFactory = classBookModelFactory;
         }
         #endregion
 
@@ -130,11 +136,16 @@ namespace ClassBookApplication.Controllers.API
                     {
                         exceptionModel.Status = true;
                         exceptionModel.Message = ClassBookConstantString.Login_Success.ToString();
+                        exceptionModel.Data = _classBookModelFactory.PrepareLoginUserDetail(singleUser.FirstOrDefault());
                     }
                     else
                     {
-                        exceptionModel.Status = false;
-                        exceptionModel.Message = ClassBookConstantString.Login_Failed.ToString();
+                        var authorizeAccess = new
+                        {
+                            Message = "Email & Password not matching for specified data"
+                        };
+                        return StatusCode((int)HttpStatusCode.Unauthorized, authorizeAccess);
+
                     }
                 }
                 return Ok(exceptionModel);
@@ -142,11 +153,7 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Login, exception, "api/Common/Login", 0);
-                exceptionModel.Status = false;
-                exceptionModel.Message = ClassBookConstantString.Login_Failed.ToString();
-                exceptionModel.ErrorMessage.Add(exception?.Message);
-                exceptionModel.ErrorMessage.Add(exception?.InnerException?.ToString());
-                return Ok(exceptionModel);
+                return StatusCode((int)HttpStatusCode.Unauthorized, exception?.Message);
             }
         }
 

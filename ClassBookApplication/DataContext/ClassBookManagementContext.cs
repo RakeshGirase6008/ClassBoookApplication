@@ -17,6 +17,7 @@ namespace ClassBookApplication.DataContext
 
         #region Common
 
+        public DbSet<Settings> Settings { get; set; }
         public DbSet<Board> Board { get; set; }
         public DbSet<States> States { get; set; }
         public DbSet<City> City { get; set; }

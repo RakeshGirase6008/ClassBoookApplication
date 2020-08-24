@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.CareerExpert;
+using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -56,9 +57,10 @@ namespace ClassBookApplication.Controllers.API
                         (int CareerExpertId, string uniqueNo) = _classBookService.SaveCareerExpert(CareerExpertData, model.files);
                         string UserName = CareerExpertData.FirstName + uniqueNo;
                         _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
-                        string password = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email);
-                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, password, Module.CareerExpert.ToString()));
+                        var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email);
+                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, user.Password, Module.CareerExpert.ToString()));
                         exceptionModel.Status = true;
+                        exceptionModel.Data = user;
                         exceptionModel.Message = ClassBookConstantString.Register_CareerExpert_Success.ToString();
                     }
                     else

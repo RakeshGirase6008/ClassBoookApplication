@@ -43,6 +43,18 @@ namespace ClassBookApplication.Service
         #region Common
 
         /// <summary>
+        /// Generate Random Token Key
+        /// </summary>
+        public string GenerateAuthorizeTokenKey()
+        {
+            Guid g = Guid.NewGuid();
+            string GuidString = Convert.ToBase64String(g.ToByteArray());
+            GuidString = GuidString.Replace("=", "");
+            GuidString = GuidString.Replace("+", "");
+            return GuidString;
+        }
+
+        /// <summary>
         /// Generate UniqueNo based on Some parameters
         /// </summary>
         public string GenerateUniqueNo(string uniqueNo, string firstWord, string secondWord)
@@ -187,7 +199,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// SaveUserData
         /// </summary>
-        public string SaveUserData(int userId, Module module, string userName, string email)
+        public Users SaveUserData(int userId, Module module, string userName, string email)
         {
             var password = GeneratePassword(true, true, true, false, false, 16);
             Users user = new Users();
@@ -196,12 +208,13 @@ namespace ClassBookApplication.Service
             user.UserName = userName;
             user.Email = email;
             user.Password = password;
+            user.AuthorizeTokenKey = GenerateAuthorizeTokenKey();
             user.CreatedDate = DateTime.Now;
             user.Active = true;
             user.Deleted = false;
             _context.Users.Add(user);
             _context.SaveChanges();
-            return password;
+            return user;
         }
 
         /// <summary>
