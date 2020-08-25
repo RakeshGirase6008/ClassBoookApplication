@@ -124,9 +124,8 @@ namespace ClassBookApplication.Controllers.API
 
         // POST api/Common/Login
         [HttpPost("Login")]
-        public IActionResult Login(LoginModel model)
+        public IActionResult Login([FromForm] LoginModel model)
         {
-            CommonResponseModel exceptionModel = new CommonResponseModel();
             try
             {
                 if (model != null)
@@ -134,9 +133,22 @@ namespace ClassBookApplication.Controllers.API
                     var singleUser = _context.Users.Where(x => x.Email == model.Email && x.Password == model.Password).AsNoTracking();
                     if (singleUser.Any())
                     {
-                        exceptionModel.Status = true;
-                        exceptionModel.Message = ClassBookConstantString.Login_Success.ToString();
-                        exceptionModel.Data = _classBookModelFactory.PrepareLoginUserDetail(singleUser.FirstOrDefault());
+                        // Update UserData
+                        var user = singleUser.FirstOrDefault();
+                        user.AuthorizeTokenKey = _classBookService.GenerateAuthorizeTokenKey();
+                        user.FCMId = model.FCMId;
+                        _context.Users.Update(user);
+                        _context.SaveChanges();
+
+                        // Save AuthorizationDevice Data
+                        _classBookService.SaveDeviceAuthorizationData(user, model.DeviceId);
+
+                        var exceptionModel = new
+                        {
+                            Message = ClassBookConstantString.Login_Success.ToString(),
+                            Data = _classBookModelFactory.PrepareUserDetail(user)
+                        };
+                        return StatusCode((int)HttpStatusCode.OK, exceptionModel);
                     }
                     else
                     {
@@ -148,7 +160,7 @@ namespace ClassBookApplication.Controllers.API
 
                     }
                 }
-                return Ok(exceptionModel);
+                return Ok();
             }
             catch (Exception exception)
             {

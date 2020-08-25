@@ -31,6 +31,7 @@ namespace ClassBookApplication.DataContext
         public DbSet<Users> Users { get; set; }
         public DbSet<BoardMapping> BoardMapping { get; set; }
         public DbSet<StandardMediumBoardMapping> StandardMediumBoardMapping { get; set; }
+        public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
 
         #endregion
 

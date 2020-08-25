@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.Student;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -10,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ClassBookApplication.Controllers.API
@@ -23,6 +25,7 @@ namespace ClassBookApplication.Controllers.API
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
         private readonly LogsService _logsService;
+        private readonly ClassBookModelFactory _classBookModelFactory;
 
 
         #endregion
@@ -31,11 +34,13 @@ namespace ClassBookApplication.Controllers.API
 
         public StudentController(ClassBookManagementContext context,
             ClassBookService classBookService,
-            LogsService logsService)
+            LogsService logsService,
+            ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._classBookService = classBookService;
             this._logsService = logsService;
+            this._classBookModelFactory = classBookModelFactory;
         }
 
         #endregion
@@ -57,11 +62,15 @@ namespace ClassBookApplication.Controllers.API
                     {
                         (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.files);
                         string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
-                        var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email);
+                        var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email, model.FCMId, model.DeviceId);
                         await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString()));
-                        exceptionModel.Status = true;
-                        exceptionModel.Data = user;
-                        exceptionModel.Message = ClassBookConstantString.Register_Student_Success.ToString();
+                        var succeeModel = new
+                        {
+                            Status = true,
+                            Message = ClassBookConstantString.Register_Student_Success.ToString(),
+                            Data = _classBookModelFactory.PrepareUserDetail(user)
+                        };
+                        return StatusCode((int)HttpStatusCode.OK, succeeModel);
                     }
                     else
                     {
@@ -79,7 +88,8 @@ namespace ClassBookApplication.Controllers.API
                 exceptionModel.Message = ClassBookConstantString.Register_Student_Failed.ToString();
                 exceptionModel.ErrorMessage.Add(exception?.Message);
                 exceptionModel.ErrorMessage.Add(exception?.InnerException?.Message);
-                return Ok(exceptionModel);
+                return StatusCode((int)HttpStatusCode.InternalServerError, exceptionModel);
+
             }
         }
 

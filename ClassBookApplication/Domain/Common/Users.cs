@@ -10,8 +10,8 @@ namespace ClassBookApplication.Domain.Common
         public string Email { get; set; }
         public string Password { get; set; }
         public int NoOfAttempt { get; set; }
-        public string DeviceTokenCode { get; set; }
         public string AuthorizeTokenKey { get; set; }
+        public string FCMId { get; set; }
         public string EmailVerificationCode { get; set; }
         public int CreatedBy { get; set; }
         public int UpdatedBy { get; set; }

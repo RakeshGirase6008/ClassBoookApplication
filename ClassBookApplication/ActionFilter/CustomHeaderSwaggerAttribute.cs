@@ -21,7 +21,17 @@ namespace ClassBookApplication.ActionFilter
                     Type = "String"
                 }
             });
-        }
 
+            operation.Parameters.Add(new OpenApiParameter
+            {
+                Name = "AuthorizeTokenKey",
+                In = ParameterLocation.Header,
+                Required = false,
+                Schema = new OpenApiSchema
+                {
+                    Type = "String"
+                }
+            });
+        }
     }
 }

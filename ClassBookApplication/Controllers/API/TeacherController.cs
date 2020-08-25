@@ -58,7 +58,7 @@ namespace ClassBookApplication.Controllers.API
                         (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.files);
                         string UserName = teacherData.FirstName + uniqueNo;
                         _classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
-                        var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email);
+                        var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email, model.FCMId, model.DeviceId);
                         await Task.Run(() => _classBookService.SendVerificationLinkEmail(teacherData.Email, user.Password, Module.Teacher.ToString()));
                         exceptionModel.Status = true;
                         exceptionModel.Data = user;

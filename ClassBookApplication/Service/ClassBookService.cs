@@ -8,6 +8,7 @@ using ClassBookApplication.Domain.Teacher;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,6 +43,22 @@ namespace ClassBookApplication.Service
 
         #region Common
 
+        /// <summary>
+        /// Save the Device Authorization Data
+        /// </summary>
+        public void SaveDeviceAuthorizationData(Users user, string DeviceId)
+        {
+            if (!_context.AuthorizeDeviceData.Where(x => x.DeviceId == DeviceId && x.UserId == user.Id).AsNoTracking().Any())
+            {
+                var AuthorizeDeviceData = new AuthorizeDeviceData
+                {
+                    UserId = user.Id,
+                    DeviceId = DeviceId
+                };
+                _context.AuthorizeDeviceData.Add(AuthorizeDeviceData);
+                _context.SaveChanges();
+            }
+        }
         /// <summary>
         /// Generate Random Token Key
         /// </summary>
@@ -205,7 +222,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// SaveUserData
         /// </summary>
-        public Users SaveUserData(int userId, Module module, string userName, string email)
+        public Users SaveUserData(int userId, Module module, string userName, string email, string FCMId, string deviceId)
         {
             var password = GeneratePassword(true, true, true, false, false, 16);
             Users user = new Users();
@@ -218,8 +235,10 @@ namespace ClassBookApplication.Service
             user.CreatedDate = DateTime.Now;
             user.Active = true;
             user.Deleted = false;
+            user.FCMId = FCMId;
             _context.Users.Add(user);
             _context.SaveChanges();
+            SaveDeviceAuthorizationData(user, deviceId);
             return user;
         }
 
