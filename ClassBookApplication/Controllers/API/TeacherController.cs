@@ -128,10 +128,21 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/Teacher/GetAllTeacher
         [HttpGet("GetAllTeacher")]
-        public IEnumerable<Teacher> GetAllTeacher()
+        public IEnumerable<ListingModel> GetAllTeacher()
         {
-            var teachers = _context.Teacher.Where(x => x.Active == true && x.Deleted == true).AsEnumerable();
-            return teachers;
+            var teachersData = from teacher in _context.Teacher
+                               where teacher.Active == true
+                               select new ListingModel
+                               {
+                                   Id = teacher.Id,
+                                   Title = teacher.FirstName + " " + teacher.LastName,
+                                   Image = "https://classbookapplication.appspot.com/" + teacher.ProfilePictureUrl.Replace("\\", "/"),
+                                   Rating = 5,
+                                   TotalBoard = 2,
+                                   TotalStandard = 3,
+                                   TotalSubject = 4
+                               };
+            return teachersData;
         }
 
         // GET api/Teacher/GetTeacherById/5

@@ -7,6 +7,7 @@ using ClassBookApplication.Domain.Student;
 using ClassBookApplication.Domain.Teacher;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Utility;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,19 +25,16 @@ namespace ClassBookApplication.Service
 
         private readonly ClassBookManagementContext _context;
         private readonly FileService _fileService;
-        private readonly LogsService _logsService;
 
         #endregion
 
         #region Ctor
 
         public ClassBookService(ClassBookManagementContext context,
-            FileService fileService,
-            LogsService logsService)
+            FileService fileService)
         {
             this._context = context;
             this._fileService = fileService;
-            this._logsService = logsService;
         }
 
         #endregion
@@ -520,7 +518,7 @@ namespace ClassBookApplication.Service
             classes.RegistrationNo = classesData.RegistrationNo;
             if (files?.Count > 0)
             {
-                classes.LogoUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_Classes);
+                //classes.LogoUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_Classes);
                 classes.ClassPhotoUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_Classes);
             }
             classes.EstablishmentDate = classesData.EstablishmentDate;

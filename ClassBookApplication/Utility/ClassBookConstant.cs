@@ -4,11 +4,11 @@
     {
         #region ImagePath
 
-        public const string ImagePath_Student = "Content\\Image\\Student";
-        public const string ImagePath_Teacher = "Content\\Image\\Teacher";
-        public const string ImagePath_Classes = "Content\\Image\\Classes";
-        public const string ImagePath_CareerExpert = "Content\\Image\\CareerExpert";
-        public const string ImagePath_School = "Content\\Image\\School";
+        public const string ImagePath_Student = "image\\Student";
+        public const string ImagePath_Teacher = "image\\Teacher";
+        public const string ImagePath_Classes = "image\\Classes";
+        public const string ImagePath_CareerExpert = "image\\CareerExpert";
+        public const string ImagePath_School = "image\\School";
 
         #endregion
 

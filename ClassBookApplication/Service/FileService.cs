@@ -12,7 +12,7 @@ namespace ClassBookApplication.Service
         public string SaveFile(List<IFormFile> files, string subDirectory)
         {
             subDirectory = subDirectory ?? string.Empty;
-            var target = Path.Combine(Directory.GetCurrentDirectory() + "\\", subDirectory);
+            var target = Path.Combine(Directory.GetCurrentDirectory() + "\\wwwroot\\", subDirectory);
             Directory.CreateDirectory(target);
             string filePath = string.Empty;
             string retunFilePath = string.Empty;

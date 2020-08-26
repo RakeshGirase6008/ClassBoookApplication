@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.Classes;
+using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -126,10 +127,21 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/Classes/GetAllClasses
         [HttpGet("GetAllClasses")]
-        public IEnumerable<Classes> GetAllClasses()
+        public IEnumerable<ListingModel> GetAllClasses()
         {
-            var classes = _context.Classes.Where(x => x.Active == true && x.Deleted == false).AsEnumerable();
-            return classes;
+            var classesData = from classes in _context.Classes
+                              where classes.Active == true
+                              select new ListingModel
+                              {
+                                  Id =classes.Id,
+                                  Title = classes.Name,
+                                  Image = "https://classbookapplication.appspot.com/" + classes.ClassPhotoUrl.Replace("\\","/"),
+                                  Rating = 0,
+                                  TotalBoard = 2,
+                                  TotalStandard = 3,
+                                  TotalSubject = 4
+                              };
+            return classesData;
         }
 
         // GET api/Classes/GetClasById/5

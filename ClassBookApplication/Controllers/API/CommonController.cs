@@ -156,7 +156,7 @@ namespace ClassBookApplication.Controllers.API
                         {
                             Message = "Email & Password not matching for specified data"
                         };
-                        return StatusCode((int)HttpStatusCode.Unauthorized, authorizeAccess);
+                        return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
 
                     }
                 }
@@ -165,7 +165,7 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Login, exception, "api/Common/Login", 0);
-                return StatusCode((int)HttpStatusCode.Unauthorized, exception?.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }
 

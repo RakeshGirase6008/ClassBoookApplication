@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Content\Image\**" />
+    <Content Remove="Content\Image\**" />
+    <EmbeddedResource Remove="Content\Image\**" />
+    <None Remove="Content\Image\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="app.yaml" />
     <None Remove="Content\HtmlTemplates\ActivateMyAccount.html" />
     <None Remove="Content\HtmlTemplates\ForgotPassword.html" />
@@ -29,6 +36,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.7" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.5.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\image\" />
   </ItemGroup>
 
 </Project>
