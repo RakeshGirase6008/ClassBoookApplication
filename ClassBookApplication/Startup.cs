@@ -25,6 +25,8 @@ namespace ClassBookApplication
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            // Add the whole configuration object here.
+            services.AddSingleton<IConfiguration>(Configuration);
 
             #region Inject Database
 

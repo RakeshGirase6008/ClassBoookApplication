@@ -129,19 +129,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetAllClasses")]
         public IEnumerable<ListingModel> GetAllClasses()
         {
-            var classesData = from classes in _context.Classes
-                              where classes.Active == true
-                              select new ListingModel
-                              {
-                                  Id =classes.Id,
-                                  Title = classes.Name,
-                                  Image = "https://classbookapplication.appspot.com/" + classes.ClassPhotoUrl.Replace("\\","/"),
-                                  Rating = 0,
-                                  TotalBoard = 2,
-                                  TotalStandard = 3,
-                                  TotalSubject = 4
-                              };
-            return classesData;
+            return _classBookService.GetAllClassesData();
         }
 
         // GET api/Classes/GetClasById/5

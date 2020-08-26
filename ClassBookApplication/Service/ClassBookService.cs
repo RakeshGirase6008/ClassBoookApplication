@@ -5,13 +5,17 @@ using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Domain.School;
 using ClassBookApplication.Domain.Student;
 using ClassBookApplication.Domain.Teacher;
+using ClassBookApplication.Extension;
 using ClassBookApplication.Models.RequestModels;
+using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Utility;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -25,21 +29,32 @@ namespace ClassBookApplication.Service
 
         private readonly ClassBookManagementContext _context;
         private readonly FileService _fileService;
+        private readonly IConfiguration _configuration;
 
         #endregion
 
         #region Ctor
 
         public ClassBookService(ClassBookManagementContext context,
-            FileService fileService)
+            FileService fileService,
+            IConfiguration configuration)
         {
             this._context = context;
             this._fileService = fileService;
+            this._configuration = configuration;
         }
 
         #endregion
 
         #region Common
+
+        /// <summary>
+        /// Ge the ConnectionString
+        /// </summary>
+        public string GetConnectionString()
+        {
+            return _configuration.GetConnectionString("ClassBookManagementeDatabase");
+        }
 
         /// <summary>
         /// Save the Device Authorization Data
@@ -576,6 +591,48 @@ namespace ClassBookApplication.Service
             _context.Classes.Update(classes);
             _context.SaveChanges();
             return classes.Id;
+        }
+
+        public IList<ListingModel> GetAllClassesData()
+        {
+            IList<ListingModel> incrementalProductList = new List<ListingModel>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = "GetClassesAllData";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = 3;
+                var reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ListingModel ISP = new ListingModel()
+                        {
+                            Id = reader.GetValue<int>("Id"),
+                            Title = reader.GetValue<string>("Name"),
+                            Image = "https://classbookapplication.appspot.com/" + reader.GetValue<string>("ClassPhotoUrl").Replace("\\", "/"),
+                            Rating = 5,
+                            TotalBoard = reader.GetValue<int>("NoOfBoard"),
+                            TotalStandard = reader.GetValue<int>("NoOfStandard"),
+                            TotalSubject = 15
+                        };
+                        incrementalProductList.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return incrementalProductList;
+            }
         }
 
         #endregion
