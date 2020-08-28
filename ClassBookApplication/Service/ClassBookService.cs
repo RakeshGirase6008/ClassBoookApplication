@@ -258,13 +258,35 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
-        public void SaveMappingData(int moduleId, int assignToId, MappingRequestModel mappingData)
+        public void SaveMappingData(int moduleId, int assignToId, MappingRequestModel mappingRequestModel)
         {
-            if (mappingData != null)
+            #region Save Mapping Data
+
+            int mappingId;
+            var retrivedMappingData = _context.MappingData.Where(x => x.AssignToId == assignToId && x.ModuleId == x.ModuleId && x.Active == true).FirstOrDefault();
+            if (retrivedMappingData == null)
             {
-                CourseCategoryMappingData(moduleId, assignToId, mappingData);
-                SubjectSpecialityMappingData(moduleId, assignToId, mappingData);
-                StandardMediumBoardMappingData(moduleId, assignToId, mappingData);
+                MappingData mappingData = new MappingData();
+                mappingData.AssignToId = assignToId;
+                mappingData.ModuleId = moduleId;
+                mappingData.Active = true;
+                _context.MappingData.Add(mappingData);
+                _context.SaveChanges();
+                mappingId = mappingData.Id;
+            }
+            else
+            {
+                mappingId = retrivedMappingData.Id;
+            }
+
+
+            #endregion
+
+            if (mappingRequestModel != null)
+            {
+                CourseCategoryMappingData(moduleId, assignToId, mappingRequestModel);
+                SubjectSpecialityMappingData(moduleId, assignToId, mappingRequestModel);
+                StandardMediumBoardMappingData(mappingId, mappingRequestModel);
             }
         }
 
@@ -342,110 +364,163 @@ namespace ClassBookApplication.Service
             }
         }
 
+
         /// <summary>
         /// Save Board Meduim Standard Mapping
         /// </summary>
-        public void StandardMediumBoardMappingData(int moduleId, int assignToId, MappingRequestModel mappingData)
+        public void StandardMediumBoardMappingData(int mappingId, MappingRequestModel mappingData)
         {
-            List<int> InsertedBoardIds = new List<int>();
-            List<int> InsertedMediumIds = new List<int>();
-
             #region SavingBoardMapping
 
-            if (!string.IsNullOrEmpty(mappingData.BoardIds))
+            var existingMappingData = _context.StandardMediumBoardMapping.Where(x => x.MappingDataId == mappingId).ToList();
+            foreach (var mappData in existingMappingData)
             {
-                var existingBoardIds = _context.BoardMapping.Where(x => x.ModuleId == moduleId && x.AssignToId == assignToId).ToList();
-                var stringBoard = mappingData.BoardIds.Split(",");
-
-                //Deactiving the Board Mapping
-                foreach (var existingBoardId in existingBoardIds)
+                if (!mappingData.StandardMediumBoard.Any(x => x.BoardId == mappData.BoardId && x.MediumId == mappData.MediumId && x.StandardId == x.StandardId))
                 {
-                    if (!stringBoard.Contains(existingBoardId.BoardId.ToString()))
-                    {
-                        existingBoardId.Active = false;
-                        _context.BoardMapping.Update(existingBoardId);
-                        _context.SaveChanges();
-
-                        //// Remove Unwanted Records
-                        var removeStandardBoardMappings = _context.StandardMediumBoardMapping.Where(x => x.BoardMappingId == existingBoardId.Id).ToList();
-                        _context.StandardMediumBoardMapping.RemoveRange(removeStandardBoardMappings);
-                        _context.SaveChanges();
-
-                    }
-                }
-
-                foreach (var boardId in stringBoard)
-                {
-                    var existingBoardMappingRecord = _context.BoardMapping.Where(x => x.ModuleId == moduleId && x.AssignToId == assignToId && x.BoardId == int.Parse(boardId)).FirstOrDefault();
-                    if (existingBoardMappingRecord == null)
-                    {
-                        BoardMapping boardMapping = new BoardMapping();
-                        boardMapping.BoardId = int.Parse(boardId);
-                        boardMapping.ModuleId = moduleId;
-                        boardMapping.AssignToId = assignToId;
-                        boardMapping.Active = true;
-                        _context.BoardMapping.Add(boardMapping);
-                        _context.SaveChanges();
-                        InsertedBoardIds.Add(boardMapping.Id);
-                    }
-                    else
-                    {
-                        InsertedBoardIds.Add(existingBoardMappingRecord.Id);
-                    }
+                    _context.StandardMediumBoardMapping.Remove(mappData);
+                    var removeMappings = _context.SMBSubjectMapping.Where(x => x.SMBId == mappData.Id).ToList();
+                    _context.SMBSubjectMapping.RemoveRange(removeMappings);
                 }
             }
 
-            #endregion
-
-            #region SavingStandardMapping
-
-            if (!string.IsNullOrEmpty(mappingData.MediumIds) && !string.IsNullOrEmpty(mappingData.StandardIds))
+            // Insert the Mapping Data
+            foreach (var data in mappingData.StandardMediumBoard)
             {
-                int mediumIndex = 0;
-                int standardIndex = 0;
-                var stringMedium = mappingData.MediumIds.Split("#");
-                var stringStandard = mappingData.StandardIds.Split("$");
-
-                foreach (var mediumId in stringMedium)
+                if (!_context.StandardMediumBoardMapping.Where(x => x.BoardId == data.BoardId && x.MediumId == data.MediumId && x.StandardId == data.StandardId && x.MappingDataId == mappingId).Any())
                 {
-                    var stringActualMedium = mediumId.Split(",");
-                    foreach (var mdmId in stringActualMedium)
+                    StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
+                    standardMediumBoardMapping.MappingDataId = mappingId;
+                    standardMediumBoardMapping.BoardId = data.BoardId;
+                    standardMediumBoardMapping.MediumId = data.MediumId;
+                    standardMediumBoardMapping.StandardId = data.StandardId;
+                    standardMediumBoardMapping.Active = true;
+                    _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
+                    _context.SaveChanges();
+
+                    int SMBMappingId = standardMediumBoardMapping.Id;
+                    foreach (var subject in data.SubjectIds)
                     {
-                        var stringActualStandard = stringStandard[mediumIndex].Split(",");
-                        foreach (var stdId in stringActualStandard)
+                        if (!_context.SMBSubjectMapping.Where(x => x.SMBId == SMBMappingId && x.SubjectId == subject).Any())
                         {
-                            //delete MediumStandardId
-                            //var existingMediumStandardIds = _context.StandardMediumBoardMapping.Where(x => x.MediumId == int.Parse(mdmId) && x.BoardMappingId == InsertedBoardIds[standardIndex]).ToList();
-                            var existingMediumStandardIds = _context.StandardMediumBoardMapping.Where(x => x.MediumId == int.Parse(mdmId) && x.BoardMappingId == InsertedBoardIds[standardIndex]).ToList();
-                            foreach (var existingMediumStandardId in existingMediumStandardIds)
-                            {
-                                if (!stringActualStandard.Contains(existingMediumStandardId.StandardId.ToString()))
-                                {
-                                    _context.StandardMediumBoardMapping.Remove(existingMediumStandardId);
-                                    _context.SaveChanges();
-                                }
-                            }
-
-                            // Insert the records for Standard Medium Mapping
-                            if (!_context.StandardMediumBoardMapping.Any(x => x.BoardMappingId == InsertedBoardIds[standardIndex] && x.MediumId == int.Parse(mdmId) && x.StandardId == int.Parse(stdId)))
-                            {
-                                StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
-                                standardMediumBoardMapping.BoardMappingId = InsertedBoardIds[standardIndex];
-                                standardMediumBoardMapping.MediumId = int.Parse(mdmId);
-                                standardMediumBoardMapping.StandardId = int.Parse(stdId);
-                                standardMediumBoardMapping.Active = true;
-                                _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
-                                _context.SaveChanges();
-                            }
+                            SMBSubjectMapping sMBSubjectMapping = new SMBSubjectMapping();
+                            sMBSubjectMapping.SMBId = SMBMappingId;
+                            sMBSubjectMapping.SubjectId = subject;
+                            sMBSubjectMapping.Active = true;
+                            _context.SMBSubjectMapping.Add(sMBSubjectMapping);
+                            _context.SaveChanges();
                         }
-                        mediumIndex = mediumIndex + 1;
                     }
-                    standardIndex = standardIndex + 1;
                 }
             }
-
             #endregion
         }
+
+
+
+        /// <summary>
+        /// Save Board Meduim Standard Mapping
+        /// </summary>
+        //public void StandardMediumBoardMappingData1(int mappingId, int assignToId, MappingRequestModel mappingData)
+        //{
+        //    List<int> InsertedBoardIds = new List<int>();
+        //    List<int> InsertedMediumIds = new List<int>();
+
+        //    #region SavingBoardMapping
+
+        //    if (!string.IsNullOrEmpty(mappingData.BoardIds))
+        //    {
+        //        var existingBoardIds = _context.BoardMapping.Where(x => x.ModuleId == moduleId && x.AssignToId == assignToId).ToList();
+        //        var stringBoard = mappingData.BoardIds.Split(",");
+
+        //        //Deactiving the Board Mapping
+        //        foreach (var existingBoardId in existingBoardIds)
+        //        {
+        //            if (!stringBoard.Contains(existingBoardId.BoardId.ToString()))
+        //            {
+        //                existingBoardId.Active = false;
+        //                _context.BoardMapping.Update(existingBoardId);
+        //                _context.SaveChanges();
+
+        //                //// Remove Unwanted Records
+        //                var removeStandardBoardMappings = _context.StandardMediumBoardMapping.Where(x => x.BoardMappingId == existingBoardId.Id).ToList();
+        //                _context.StandardMediumBoardMapping.RemoveRange(removeStandardBoardMappings);
+        //                _context.SaveChanges();
+
+        //            }
+        //        }
+
+        //        foreach (var boardId in stringBoard)
+        //        {
+        //            var existingBoardMappingRecord = _context.BoardMapping.Where(x => x.ModuleId == moduleId && x.AssignToId == assignToId && x.BoardId == int.Parse(boardId)).FirstOrDefault();
+        //            if (existingBoardMappingRecord == null)
+        //            {
+        //                BoardMapping boardMapping = new BoardMapping();
+        //                boardMapping.BoardId = int.Parse(boardId);
+        //                boardMapping.ModuleId = moduleId;
+        //                boardMapping.AssignToId = assignToId;
+        //                boardMapping.Active = true;
+        //                _context.BoardMapping.Add(boardMapping);
+        //                _context.SaveChanges();
+        //                InsertedBoardIds.Add(boardMapping.Id);
+        //            }
+        //            else
+        //            {
+        //                InsertedBoardIds.Add(existingBoardMappingRecord.Id);
+        //            }
+        //        }
+        //    }
+
+        //    #endregion
+
+        //    #region SavingStandardMapping
+
+        //    if (!string.IsNullOrEmpty(mappingData.MediumIds) && !string.IsNullOrEmpty(mappingData.StandardIds))
+        //    {
+        //        int mediumIndex = 0;
+        //        int standardIndex = 0;
+        //        var stringMedium = mappingData.MediumIds.Split("#");
+        //        var stringStandard = mappingData.StandardIds.Split("$");
+
+        //        foreach (var mediumId in stringMedium)
+        //        {
+        //            var stringActualMedium = mediumId.Split(",");
+        //            foreach (var mdmId in stringActualMedium)
+        //            {
+        //                var stringActualStandard = stringStandard[mediumIndex].Split(",");
+        //                foreach (var stdId in stringActualStandard)
+        //                {
+        //                    //delete MediumStandardId
+        //                    //var existingMediumStandardIds = _context.StandardMediumBoardMapping.Where(x => x.MediumId == int.Parse(mdmId) && x.BoardMappingId == InsertedBoardIds[standardIndex]).ToList();
+        //                    var existingMediumStandardIds = _context.StandardMediumBoardMapping.Where(x => x.MediumId == int.Parse(mdmId) && x.BoardMappingId == InsertedBoardIds[standardIndex]).ToList();
+        //                    foreach (var existingMediumStandardId in existingMediumStandardIds)
+        //                    {
+        //                        if (!stringActualStandard.Contains(existingMediumStandardId.StandardId.ToString()))
+        //                        {
+        //                            _context.StandardMediumBoardMapping.Remove(existingMediumStandardId);
+        //                            _context.SaveChanges();
+        //                        }
+        //                    }
+
+        //                    // Insert the records for Standard Medium Mapping
+        //                    if (!_context.StandardMediumBoardMapping.Any(x => x.BoardMappingId == InsertedBoardIds[standardIndex] && x.MediumId == int.Parse(mdmId) && x.StandardId == int.Parse(stdId)))
+        //                    {
+        //                        StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
+        //                        standardMediumBoardMapping.BoardMappingId = InsertedBoardIds[standardIndex];
+        //                        standardMediumBoardMapping.MediumId = int.Parse(mdmId);
+        //                        standardMediumBoardMapping.StandardId = int.Parse(stdId);
+        //                        standardMediumBoardMapping.Active = true;
+        //                        _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
+        //                        _context.SaveChanges();
+        //                    }
+        //                }
+        //                mediumIndex = mediumIndex + 1;
+        //            }
+        //            standardIndex = standardIndex + 1;
+        //        }
+        //    }
+
+        //    #endregion
+        //}
 
         #endregion
 
@@ -607,7 +682,7 @@ namespace ClassBookApplication.Service
                 cmd.CommandText = "GetClassesAllData";
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
-                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = 3;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = (int)Module.Classes;
                 var reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -620,9 +695,9 @@ namespace ClassBookApplication.Service
                             Title = reader.GetValue<string>("Name"),
                             Image = "https://classbookapplication.appspot.com/" + reader.GetValue<string>("ClassPhotoUrl").Replace("\\", "/"),
                             Rating = 5,
-                            TotalBoard = reader.GetValue<int>("NoOfBoard"),
-                            TotalStandard = reader.GetValue<int>("NoOfStandard"),
-                            TotalSubject = 15
+                            TotalBoard = reader.GetValue<int>("BoardCount"),
+                            TotalStandard = reader.GetValue<int>("StandardCount"),
+                            TotalSubject = reader.GetValue<int>("SubjectCount")
                         };
                         incrementalProductList.Add(ISP);
                     }

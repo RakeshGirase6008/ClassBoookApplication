@@ -1,6 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.CareerExpert;
-using ClassBookApplication.Domain.Common;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ClassBookApplication.Controllers.API
@@ -23,6 +24,8 @@ namespace ClassBookApplication.Controllers.API
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
         private readonly LogsService _logsService;
+        private readonly ClassBookModelFactory _classBookModelFactory;
+
 
         #endregion
 
@@ -30,11 +33,13 @@ namespace ClassBookApplication.Controllers.API
 
         public CareerExpertController(ClassBookManagementContext context,
             ClassBookService classBookService,
-            LogsService logsService)
+            LogsService logsService,
+            ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._classBookService = classBookService;
             this._logsService = logsService;
+            this._classBookModelFactory = classBookModelFactory;
         }
 
         #endregion
@@ -45,41 +50,49 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
-            CommonResponseModel exceptionModel = new CommonResponseModel();
             try
             {
-                CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
-                if (CareerExpertData != null)
+                if (ModelState.IsValid)
                 {
-                    var singleUser = _context.CareerExpert.Where(x => x.Email == CareerExpertData.Email).AsNoTracking();
-                    if (!singleUser.Any())
+                    CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
+                    if (CareerExpertData != null)
                     {
-                        (int CareerExpertId, string uniqueNo) = _classBookService.SaveCareerExpert(CareerExpertData, model.files);
-                        string UserName = CareerExpertData.FirstName + uniqueNo;
-                        _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
-                        var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email, model.FCMId, model.DeviceId);
-                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, user.Password, Module.CareerExpert.ToString()));
-                        exceptionModel.Status = true;
-                        exceptionModel.Data = user;
-                        exceptionModel.Message = ClassBookConstantString.Register_CareerExpert_Success.ToString();
+                        var singleUser = _context.CareerExpert.Where(x => x.Email == CareerExpertData.Email).AsNoTracking();
+                        if (!singleUser.Any())
+                        {
+                            (int CareerExpertId, string uniqueNo) = _classBookService.SaveCareerExpert(CareerExpertData, model.files);
+                            string UserName = CareerExpertData.FirstName + uniqueNo;
+                            _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
+                            var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email, model.FCMId, model.DeviceId);
+                            await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, user.Password, Module.CareerExpert.ToString()));
+                            var exceptionModel = new
+                            {
+                                Message = ClassBookConstantString.Register_CareerExpert_Success.ToString(),
+                                Data = _classBookModelFactory.PrepareUserDetail(user)
+                            };
+                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                        }
+                        else
+                        {
+                            var authorizeAccess = new
+                            {
+                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
+                            };
+                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                        }
                     }
-                    else
-                    {
-                        exceptionModel.Status = false;
-                        exceptionModel.Message = ClassBookConstantString.Register_CareerExpert_Failed.ToString();
-                        exceptionModel.ValidationMessage.Add(ClassBookConstantString.Validation_EmailExist.ToString());
-                    }
+                    return Ok();
                 }
-                return Ok(exceptionModel);
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
+                }
+
             }
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_CareerExpert, exception, "api/CareerExpert/Register", 0);
-                exceptionModel.Status = false;
-                exceptionModel.Message = ClassBookConstantString.Register_CareerExpert_Failed.ToString();
-                exceptionModel.ErrorMessage.Add(exception?.Message);
-                exceptionModel.ErrorMessage.Add(exception?.InnerException?.ToString());
-                return Ok(exceptionModel);
+                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }
 
@@ -87,37 +100,45 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("EditCareerExpert")]
         public IActionResult EditCareerExpert([FromForm] CommonRegistrationModel model)
         {
-            CommonResponseModel exceptionModel = new CommonResponseModel();
             try
             {
-                CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
-                if (CareerExpertData != null)
+                if (ModelState.IsValid)
                 {
-                    if (_context.CareerExpert.Count(x => x.Email == CareerExpertData.Email && x.Id != CareerExpertData.Id) > 0)
+                    CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
+                    if (CareerExpertData != null)
                     {
-                        exceptionModel.Status = false;
-                        exceptionModel.Message = ClassBookConstantString.Edit_CareerExpert_Failed;
-                        exceptionModel.ValidationMessage.Add(ClassBookConstantString.Validation_EmailExist);
+                        if (_context.CareerExpert.Count(x => x.Email == CareerExpertData.Email && x.Id != CareerExpertData.Id) > 0)
+                        {
+                            var authorizeAccess = new
+                            {
+                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
+                            };
+                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                        }
+                        else
+                        {
+                            var singleCareerExpert = _context.CareerExpert.Where(x => x.Id == CareerExpertData.Id).AsNoTracking().FirstOrDefault();
+                            int CareerExpertId = _classBookService.UpdateCareerExpert(CareerExpertData, singleCareerExpert, model.files);
+                            _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
+                            var exceptionModel = new
+                            {
+                                Message = ClassBookConstantString.Edit_CareerExpert_Success.ToString(),
+                            };
+                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                        }
                     }
-                    else
-                    {
-                        var singleCareerExpert = _context.CareerExpert.Where(x => x.Id == CareerExpertData.Id).AsNoTracking().FirstOrDefault();
-                        int CareerExpertId = _classBookService.UpdateCareerExpert(CareerExpertData, singleCareerExpert, model.files);
-                        _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
-                        exceptionModel.Status = true;
-                        exceptionModel.Message = ClassBookConstantString.Edit_CareerExpert_Success;
-                    }
+                    return Ok();
                 }
-                return Ok(exceptionModel);
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
+                }
+
             }
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_CareerExpert, exception, "api/CareerExpert/EditCareerExpert", 0);
-                exceptionModel.Status = false;
-                exceptionModel.Message = ClassBookConstantString.Edit_CareerExpert_Failed.ToString();
-                exceptionModel.ErrorMessage.Add(exception?.Message);
-                exceptionModel.ErrorMessage.Add(exception?.InnerException?.Message);
-                return Ok(exceptionModel);
+                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }
 

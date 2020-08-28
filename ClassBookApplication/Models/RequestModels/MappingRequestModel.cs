@@ -1,12 +1,20 @@
-﻿namespace ClassBookApplication.Models.RequestModels
+﻿using System.Collections.Generic;
+
+namespace ClassBookApplication.Models.RequestModels
 {
     public class MappingRequestModel
     {
-        public string BoardIds { get; set; }
-        public string MediumIds { get; set; }
-        public string StandardIds { get; set; }
-        public string SubjectIds { get; set; }
+        public List<StandardMediumBoard> StandardMediumBoard { get; set; }
         public string CourseCategoryIds { get; set; }
         public string SubjectSpecialityIds { get; set; }
     }
+    public class StandardMediumBoard
+    {
+        public int BoardId { get; set; }
+        public int MediumId { get; set; }
+        public int StandardId { get; set; }
+        public List<int> SubjectIds { get; set; }
+    }
 }
+
+

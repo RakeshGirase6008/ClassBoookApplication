@@ -1,7 +1,7 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.School;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
-using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace ClassBookApplication.Controllers.API
@@ -22,6 +23,8 @@ namespace ClassBookApplication.Controllers.API
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
         private readonly LogsService _logsService;
+        private readonly ClassBookModelFactory _classBookModelFactory;
+
 
 
         #endregion
@@ -30,11 +33,13 @@ namespace ClassBookApplication.Controllers.API
 
         public SchoolController(ClassBookManagementContext context,
             ClassBookService classBookService,
-            LogsService logsService)
+            LogsService logsService,
+            ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._classBookService = classBookService;
             this._logsService = logsService;
+            this._classBookModelFactory = classBookModelFactory;
         }
 
         #endregion
@@ -45,41 +50,49 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
-            CommonResponseModel exceptionModel = new CommonResponseModel();
             try
             {
-                School schoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
-                if (schoolData != null)
+                if (ModelState.IsValid)
                 {
-                    var singleUser = _context.School.Where(x => x.Email == schoolData.Email).AsNoTracking();
-                    if (!singleUser.Any())
+                    School schoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
+                    if (schoolData != null)
                     {
-                        (int SchoolId, string uniqueNo) = _classBookService.SaveSchool(schoolData, model.files);
-                        string UserName = schoolData.Name + uniqueNo;
-                        _classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
-                        var user = _classBookService.SaveUserData(SchoolId, Module.School, UserName, schoolData.Email, model.FCMId, model.DeviceId);
-                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(schoolData.Email, user.Password, Module.School.ToString()));
-                        exceptionModel.Status = true;
-                        exceptionModel.Data = user;
-                        exceptionModel.Message = ClassBookConstantString.Register_School_Success.ToString();
+                        var singleUser = _context.School.Where(x => x.Email == schoolData.Email).AsNoTracking();
+                        if (!singleUser.Any())
+                        {
+                            (int SchoolId, string uniqueNo) = _classBookService.SaveSchool(schoolData, model.files);
+                            string UserName = schoolData.Name + uniqueNo;
+                            _classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
+                            var user = _classBookService.SaveUserData(SchoolId, Module.School, UserName, schoolData.Email, model.FCMId, model.DeviceId);
+                            await Task.Run(() => _classBookService.SendVerificationLinkEmail(schoolData.Email, user.Password, Module.School.ToString()));
+                            var exceptionModel = new
+                            {
+                                Message = ClassBookConstantString.Register_School_Success.ToString(),
+                                Data = _classBookModelFactory.PrepareUserDetail(user)
+                            };
+                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                        }
+                        else
+                        {
+                            var authorizeAccess = new
+                            {
+                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
+                            };
+                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                        }
                     }
-                    else
-                    {
-                        exceptionModel.Status = false;
-                        exceptionModel.Message = ClassBookConstantString.Register_School_Failed.ToString();
-                        exceptionModel.ValidationMessage.Add(ClassBookConstantString.Validation_EmailExist.ToString());
-                    }
+                    return Ok();
                 }
-                return Ok(exceptionModel);
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
+                }
+
             }
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_School, exception, "api/School/Register", 0);
-                exceptionModel.Status = false;
-                exceptionModel.Message = ClassBookConstantString.Register_School_Failed.ToString();
-                exceptionModel.ErrorMessage.Add(exception?.Message);
-                exceptionModel.ErrorMessage.Add(exception?.InnerException?.ToString());
-                return Ok(exceptionModel);
+                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }
 
@@ -87,37 +100,45 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("EditSchool")]
         public IActionResult EditSchool([FromForm] CommonRegistrationModel model)
         {
-            CommonResponseModel exceptionModel = new CommonResponseModel();
             try
             {
-                School SchoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
-                if (SchoolData != null)
+                if (ModelState.IsValid)
                 {
-                    if (_context.School.Count(x => x.Email == SchoolData.Email && x.Id != SchoolData.Id) > 0)
+                    School SchoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
+                    if (SchoolData != null)
                     {
-                        exceptionModel.Status = false;
-                        exceptionModel.Message = ClassBookConstantString.Edit_School_Failed;
-                        exceptionModel.ValidationMessage.Add(ClassBookConstantString.Validation_EmailExist);
+                        if (_context.School.Count(x => x.Email == SchoolData.Email && x.Id != SchoolData.Id) > 0)
+                        {
+                            var authorizeAccess = new
+                            {
+                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
+                            };
+                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                        }
+                        else
+                        {
+                            var singleClass = _context.School.Where(x => x.Id == SchoolData.Id).AsNoTracking().FirstOrDefault();
+                            int classId = _classBookService.UpdateSchool(SchoolData, singleClass, model.files);
+                            _classBookService.SaveMappingData((int)Module.School, classId, SchoolData.MappingRequestModel);
+                            var exceptionModel = new
+                            {
+                                Message = ClassBookConstantString.Edit_School_Success.ToString(),
+                            };
+                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                        }
                     }
-                    else
-                    {
-                        var singleClass = _context.School.Where(x => x.Id == SchoolData.Id).AsNoTracking().FirstOrDefault();
-                        int classId = _classBookService.UpdateSchool(SchoolData, singleClass, model.files);
-                        _classBookService.SaveMappingData((int)Module.School, classId, SchoolData.MappingRequestModel);
-                        exceptionModel.Status = true;
-                        exceptionModel.Message = ClassBookConstantString.Edit_School_Success;
-                    }
+                    return Ok();
                 }
-                return Ok(exceptionModel);
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
+                }
+
             }
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_School, exception, "api/School/EditSchool", 0);
-                exceptionModel.Status = false;
-                exceptionModel.Message = ClassBookConstantString.Edit_School_Failed.ToString();
-                exceptionModel.ErrorMessage.Add(exception?.Message);
-                exceptionModel.ErrorMessage.Add(exception?.InnerException?.Message);
-                return Ok(exceptionModel);
+                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }
 
