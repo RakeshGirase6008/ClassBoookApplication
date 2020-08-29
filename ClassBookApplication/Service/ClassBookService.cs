@@ -668,49 +668,6 @@ namespace ClassBookApplication.Service
             return classes.Id;
         }
 
-        public IList<ListingModel> GetAllClassesData()
-        {
-            IList<ListingModel> incrementalProductList = new List<ListingModel>();
-            SqlConnection connection = new SqlConnection(GetConnectionString());
-            if (connection.State == ConnectionState.Closed)
-                connection.Open();
-
-            //create a command object
-            using (var cmd = connection.CreateCommand())
-            {
-                //command to execute
-                cmd.CommandText = "GetModuleDataByModuleId";
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.CommandTimeout = 60;
-                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = (int)Module.Classes;
-                var reader = cmd.ExecuteReader();
-
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        ListingModel ISP = new ListingModel()
-                        {
-                            Id = reader.GetValue<int>("Id"),
-                            Title = reader.GetValue<string>("Name"),
-                            Image = "https://classbookapplication.appspot.com/" + reader.GetValue<string>("ClassPhotoUrl").Replace("\\", "/"),
-                            Rating = 5,
-                            TotalBoard = reader.GetValue<int>("BoardCount"),
-                            TotalStandard = reader.GetValue<int>("StandardCount"),
-                            TotalSubject = reader.GetValue<int>("SubjectCount")
-                        };
-                        incrementalProductList.Add(ISP);
-                    }
-                };
-                //close up the reader, we're done saving results
-                reader.Close();
-                //close connection
-                connection.Close();
-                return incrementalProductList;
-            }
-        }
-
-
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
@@ -740,7 +697,7 @@ namespace ClassBookApplication.Service
                             Id = reader.GetValue<int>("Id"),
                             Title = reader.GetValue<string>("Name"),
                             Image = "https://classbookapplication.appspot.com/" + reader.GetValue<string>("PhotoUrl").Replace("\\", "/"),
-                            Rating = 5,
+                            Rating = reader.GetValue<string>("Rating"),
                             TotalBoard = reader.GetValue<int>("BoardCount"),
                             TotalStandard = reader.GetValue<int>("StandardCount"),
                             TotalSubject = reader.GetValue<int>("SubjectCount")

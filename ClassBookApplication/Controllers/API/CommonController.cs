@@ -46,25 +46,25 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/Common/GetBoard
         [HttpGet("GetBoard")]
-        public IEnumerable<Board> GetBoard()
+        public IEnumerable<object> GetBoard()
         {
-            var boards = _context.Board.Where(x => x.Active == true).AsEnumerable();
+            var boards = _context.Board.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return boards;
         }
 
         // GET api/Common/GetStates
         [HttpGet("GetStates")]
-        public IEnumerable<States> GetStates()
+        public IEnumerable<object> GetStates()
         {
-            var States = _context.States.Where(x => x.Active == true).AsEnumerable();
+            var States = _context.States.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return States;
         }
 
         // GET api/Common/GetCities
         [HttpGet("GetCities")]
-        public IEnumerable<City> GetCities()
+        public IEnumerable<object> GetCities()
         {
-            var cities = _context.City.Where(x => x.Active == true).AsEnumerable();
+            var cities = _context.City.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return cities;
         }
 
@@ -74,15 +74,15 @@ namespace ClassBookApplication.Controllers.API
         {
             var cityData = from city in _context.City
                            where city.StateId == id && city.Active == true
-                           select new { city.Name };
+                           select new { city.Name, city.Id };
             return cityData;
         }
 
         // GET api/Common/GetPincodes
         [HttpGet("GetPincodes")]
-        public IEnumerable<Pincode> GetPincodes()
+        public IEnumerable<object> GetPincodes()
         {
-            var pincodes = _context.Pincode.Where(x => x.Active == true).AsEnumerable();
+            var pincodes = _context.Pincode.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return pincodes;
         }
 
@@ -99,41 +99,41 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/Common/GetStandard
         [HttpGet("GetStandard")]
-        public IEnumerable<Standards> GetStandard()
+        public IEnumerable<object> GetStandard()
         {
-            var standard = _context.Standards.Where(x => x.Active == true).AsEnumerable();
+            var standard = _context.Standards.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return standard;
         }
 
         // GET api/Common/GetMedium
         [HttpGet("GetMedium")]
-        public IEnumerable<Medium> GetMedium()
+        public IEnumerable<object> GetMedium()
         {
-            var medium = _context.Medium.Where(x => x.Active == true).AsEnumerable();
+            var medium = _context.Medium.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return medium;
         }
 
         // GET api/Common/GetSubject
         [HttpGet("GetSubject")]
-        public IEnumerable<Subjects> GetSubject()
+        public IEnumerable<object> GetSubject()
         {
-            var subject = _context.Subjects.Where(x => x.Active == true).AsEnumerable();
+            var subject = _context.Subjects.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return subject;
         }
 
         // GET api/Common/GetSubjectSpeciality
         [HttpGet("GetSubjectSpeciality")]
-        public IEnumerable<SubjectSpeciality> GetSubjectSpeciality()
+        public IEnumerable<object> GetSubjectSpeciality()
         {
-            var subjectSpeciality = _context.SubjectSpeciality.Where(x => x.Active == true).AsEnumerable();
+            var subjectSpeciality = _context.SubjectSpeciality.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return subjectSpeciality;
         }
 
         // GET api/Common/GetCourseCategory
         [HttpGet("GetCourseCategory")]
-        public IEnumerable<CourseCategory> GetCourseCategory()
+        public IEnumerable<object> GetCourseCategory()
         {
-            var courseCategory = _context.CourseCategory.Where(x => x.Active == true).AsEnumerable();
+            var courseCategory = _context.CourseCategory.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return courseCategory;
         }
 

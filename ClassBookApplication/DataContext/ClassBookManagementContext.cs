@@ -34,6 +34,7 @@ namespace ClassBookApplication.DataContext
         public DbSet<StandardMediumBoardMapping> StandardMediumBoardMapping { get; set; }
         public DbSet<SMBSubjectMapping> SMBSubjectMapping { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
+        public DbSet<Ratings> Ratings { get; set; }
 
         #endregion
 
