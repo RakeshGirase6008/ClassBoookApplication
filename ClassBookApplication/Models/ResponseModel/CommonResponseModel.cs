@@ -15,4 +15,9 @@ namespace ClassBookApplication.Models.ResponseModel
         public List<string> ValidationMessage { get; set; }
         public List<string> ErrorMessage { get; set; }
     }
+    public class ResponseModel
+    {
+        public string Message { get; set; }
+        public object Data { get; set; }
+    }
 }

@@ -94,7 +94,11 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Teacher, exception, "api/Teacher/Register", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                var exceptionStatus = new
+                {
+                    Message = exception?.Message
+                };
+                return StatusCode((int)HttpStatusCode.InternalServerError, exceptionStatus);
             }
         }
 

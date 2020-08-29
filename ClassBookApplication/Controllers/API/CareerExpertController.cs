@@ -50,6 +50,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -65,20 +66,14 @@ namespace ClassBookApplication.Controllers.API
                             _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
                             var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email, model.FCMId, model.DeviceId);
                             await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, user.Password, Module.CareerExpert.ToString()));
-                            var exceptionModel = new
-                            {
-                                Message = ClassBookConstantString.Register_CareerExpert_Success.ToString(),
-                                Data = _classBookModelFactory.PrepareUserDetail(user)
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                            responseModel.Message = ClassBookConstantString.Register_CareerExpert_Success.ToString();
+                            responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                         else
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -92,6 +87,7 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_CareerExpert, exception, "api/CareerExpert/Register", 0);
+                responseModel.Message = exception?.Message;
                 return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }
@@ -100,6 +96,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("EditCareerExpert")]
         public IActionResult EditCareerExpert([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -109,22 +106,16 @@ namespace ClassBookApplication.Controllers.API
                     {
                         if (_context.CareerExpert.Count(x => x.Email == CareerExpertData.Email && x.Id != CareerExpertData.Id) > 0)
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                         else
                         {
                             var singleCareerExpert = _context.CareerExpert.Where(x => x.Id == CareerExpertData.Id).AsNoTracking().FirstOrDefault();
                             int CareerExpertId = _classBookService.UpdateCareerExpert(CareerExpertData, singleCareerExpert, model.files);
                             _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
-                            var exceptionModel = new
-                            {
-                                Message = ClassBookConstantString.Edit_CareerExpert_Success.ToString(),
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                            responseModel.Message = ClassBookConstantString.Edit_CareerExpert_Success.ToString();
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -138,6 +129,7 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_CareerExpert, exception, "api/CareerExpert/EditCareerExpert", 0);
+                responseModel.Message = exception?.Message;
                 return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
             }
         }

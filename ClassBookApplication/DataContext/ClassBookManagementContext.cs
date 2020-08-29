@@ -21,6 +21,7 @@ namespace ClassBookApplication.DataContext
         public DbSet<Board> Board { get; set; }
         public DbSet<States> States { get; set; }
         public DbSet<City> City { get; set; }
+        public DbSet<Pincode> Pincode { get; set; }
         public DbSet<Standards> Standards { get; set; }
         public DbSet<Medium> Medium { get; set; }
         public DbSet<Subjects> Subjects { get; set; }

@@ -78,6 +78,25 @@ namespace ClassBookApplication.Controllers.API
             return cityData;
         }
 
+        // GET api/Common/GetPincodes
+        [HttpGet("GetPincodes")]
+        public IEnumerable<Pincode> GetPincodes()
+        {
+            var pincodes = _context.Pincode.Where(x => x.Active == true).AsEnumerable();
+            return pincodes;
+        }
+
+        // GET api/Common/GetPincodeByCityId/6
+        [HttpGet("GetPincodeByCityId/{id:int}")]
+        public IEnumerable<object> GetPincodeByCityId(int id)
+        {
+            var cityData = from pincode in _context.Pincode
+                           where pincode.CityId == id && pincode.Active == true
+                           select new { pincode.Name, pincode.Id };
+            return cityData;
+        }
+
+
         // GET api/Common/GetStandard
         [HttpGet("GetStandard")]
         public IEnumerable<Standards> GetStandard()
