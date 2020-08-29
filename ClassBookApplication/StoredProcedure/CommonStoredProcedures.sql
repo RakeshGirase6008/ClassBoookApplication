@@ -4,16 +4,20 @@ AS
 BEGIN    
 	 IF @ModuleId=2
 	 BEGIN
-		SELECT T.Id,T.[FirstName],T.[ProfilePictureUrl] as PhotoUrl,  
+		SELECT T.Id,
+		T.FirstName + ' ' + T.LastName as [Name],
+		T.[ProfilePictureUrl] as PhotoUrl,
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount  
+		COUNT(SMBS.SubjectId) as SubjectCount,
+		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM Teacher T
+		LEFT JOIN Ratings R ON R.EntityId=T.Id AND R.EntityName='Teacher'
 		LEFT JOIN MappingData MD ON MD.AssignToId=T.Id AND MD.ModuleId=@ModuleId
 		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
 		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
-		GROUP BY T.Id,T.[FirstName],T.[ProfilePictureUrl]
+		GROUP BY T.Id,T.[FirstName],T.LastName,T.[ProfilePictureUrl]
 	 END
 	 ELSE IF @ModuleId=3
 	 BEGIN
@@ -21,8 +25,10 @@ BEGIN
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount  
+		COUNT(SMBS.SubjectId) as SubjectCount,
+		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM Classes C
+		LEFT JOIN Ratings R ON R.EntityId=C.Id AND R.EntityName='Classes'
 		LEFT JOIN MappingData MD ON MD.AssignToId=C.Id AND MD.ModuleId=@ModuleId
 		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
 		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
@@ -30,16 +36,20 @@ BEGIN
 	 END
 	 ELSE IF @ModuleId=4
 	 BEGIN
-		SELECT CE.Id,CE.[FirstName],CE.[ProfilePictureUrl] as PhotoUrl,
+		SELECT CE.Id,
+		CE.FirstName + ' ' + CE.LastName as [Name],
+		CE.[ProfilePictureUrl] as PhotoUrl,
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount  
+		COUNT(SMBS.SubjectId) as SubjectCount,
+		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM CareerExpert CE
+		LEFT JOIN Ratings R ON R.EntityId=CE.Id AND R.EntityName='CareerExpert'
 		LEFT JOIN MappingData MD ON MD.AssignToId=CE.Id AND MD.ModuleId=@ModuleId
 		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
 		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
-		GROUP BY CE.Id,CE.[FirstName],CE.[ProfilePictureUrl]
+		GROUP BY CE.Id,CE.[FirstName],CE.[LastName],CE.[ProfilePictureUrl]
 	 END
 	 ELSE IF @ModuleId=5
 	 BEGIN
@@ -47,8 +57,10 @@ BEGIN
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount  
+		COUNT(SMBS.SubjectId) as SubjectCount,
+		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM School S
+		LEFT JOIN Ratings R ON R.EntityId=S.Id AND R.EntityName='School'
 		LEFT JOIN MappingData MD ON MD.AssignToId=S.Id AND MD.ModuleId=@ModuleId
 		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
 		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
