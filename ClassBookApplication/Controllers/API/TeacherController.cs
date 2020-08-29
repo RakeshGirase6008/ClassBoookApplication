@@ -83,7 +83,7 @@ namespace ClassBookApplication.Controllers.API
                             return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
                         }
                     }
-                    return Ok();
+                    return StatusCode((int)HttpStatusCode.BadRequest);
                 }
                 else
                 {
@@ -129,7 +129,7 @@ namespace ClassBookApplication.Controllers.API
                             return StatusCode((int)HttpStatusCode.OK, exceptionModel);
                         }
                     }
-                    return Ok();
+                    return StatusCode((int)HttpStatusCode.BadRequest);
                 }
                 else
                 {
