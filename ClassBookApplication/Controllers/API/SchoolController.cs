@@ -2,6 +2,7 @@
 using ClassBookApplication.Domain.School;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
+using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
@@ -148,10 +149,10 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/School/GetAllSchool
         [HttpGet("GetAllSchool")]
-        public IEnumerable<School> GetAllSchool()
+        public IEnumerable<ListingModel> GetAllSchool()
         {
-            var school = _context.School.Where(x => x.Active == true && x.Deleted == false).AsEnumerable();
-            return school;
+            return _classBookService.GetModuleDataByModuleId((int)Module.School);
+
         }
 
         // GET api/School/GetSchoolById/5

@@ -142,19 +142,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetAllCareerExpert")]
         public IEnumerable<ListingModel> GetAllCareerExpert()
         {
-            var careerExpertsData = from careerExpert in _context.CareerExpert
-                                    where careerExpert.Active == true
-                                    select new ListingModel
-                                    {
-                                        Id = careerExpert.Id,
-                                        Title = careerExpert.FirstName + " " + careerExpert.LastName,
-                                        Image = "https://classbookapplication.appspot.com/" + careerExpert.ProfilePictureUrl.Replace("\\", "/"),
-                                        Rating = 0,
-                                        TotalBoard = 2,
-                                        TotalStandard = 3,
-                                        TotalSubject = 4
-                                    };
-            return careerExpertsData;
+            return _classBookService.GetModuleDataByModuleId((int)Module.CareerExpert);
         }
 
         // GET api/CareerExpert/GetClasById/5

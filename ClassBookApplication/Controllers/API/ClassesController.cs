@@ -149,7 +149,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetAllClasses")]
         public IEnumerable<ListingModel> GetAllClasses()
         {
-            return _classBookService.GetAllClassesData();
+            return _classBookService.GetModuleDataByModuleId((int)Module.Classes);
         }
 
         // GET api/Classes/GetClasById/5
