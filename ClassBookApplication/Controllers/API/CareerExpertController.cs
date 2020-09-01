@@ -88,7 +88,7 @@ namespace ClassBookApplication.Controllers.API
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_CareerExpert, exception, "api/CareerExpert/Register", 0);
                 responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
 
@@ -130,7 +130,7 @@ namespace ClassBookApplication.Controllers.API
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_CareerExpert, exception, "api/CareerExpert/EditCareerExpert", 0);
                 responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
 

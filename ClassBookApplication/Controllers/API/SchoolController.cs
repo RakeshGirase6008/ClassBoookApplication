@@ -51,6 +51,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -66,20 +67,14 @@ namespace ClassBookApplication.Controllers.API
                             //_classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
                             var user = _classBookService.SaveUserData(SchoolId, Module.School, UserName, schoolData.Email, model.FCMId, model.DeviceId);
                             await Task.Run(() => _classBookService.SendVerificationLinkEmail(schoolData.Email, user.Password, Module.School.ToString()));
-                            var exceptionModel = new
-                            {
-                                Message = ClassBookConstantString.Register_School_Success.ToString(),
-                                Data = _classBookModelFactory.PrepareUserDetail(user)
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                            responseModel.Message = ClassBookConstantString.Register_School_Success.ToString();
+                            responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                         else
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -93,7 +88,8 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_School, exception, "api/School/Register", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
 
@@ -101,6 +97,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("EditSchool")]
         public IActionResult EditSchool([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -110,22 +107,16 @@ namespace ClassBookApplication.Controllers.API
                     {
                         if (_context.Users.Count(x => x.Email == SchoolData.Email && x.UserId != SchoolData.Id) > 0)
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                         else
                         {
                             var singleClass = _context.School.Where(x => x.Id == SchoolData.Id).AsNoTracking().FirstOrDefault();
                             int classId = _classBookService.UpdateSchool(SchoolData, singleClass, model.files);
                             //_classBookService.SaveMappingData((int)Module.School, classId, SchoolData.MappingRequestModel);
-                            var exceptionModel = new
-                            {
-                                Message = ClassBookConstantString.Edit_School_Success.ToString(),
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                            responseModel.Message = ClassBookConstantString.Edit_School_Success.ToString();
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -139,7 +130,8 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_School, exception, "api/School/EditSchool", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
 

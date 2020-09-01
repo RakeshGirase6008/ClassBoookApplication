@@ -2,6 +2,7 @@
 using ClassBookApplication.Domain.Student;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
+using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -64,65 +66,14 @@ namespace ClassBookApplication.Controllers.API
                             string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
                             var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email, model.FCMId, model.DeviceId);
                             await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString()));
-                            var succeeModel = new
-                            {
-                                Message = ClassBookConstantString.Register_Student_Success.ToString(),
-                                Data = _classBookModelFactory.PrepareUserDetail(user)
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, succeeModel);
+                            responseModel.Message = ClassBookConstantString.Register_Student_Success.ToString();
+                            responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                         else
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
-                        }
-                    }
-                    return StatusCode((int)HttpStatusCode.BadRequest);
-                }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-                }
-
-            }
-            catch (Exception exception)
-            {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Student, exception, "api/student/register", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
-            }
-        }
-
-        // POST api/Student/EditStudent
-        [HttpPost("EditStudent")]
-        public IActionResult EditStudent([FromForm] CommonRegistrationModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
-                    if (studentData != null)
-                    {
-                        if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
-                        {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
-                        }
-                        else
-                        {
-                            var singleUser = _context.Student.Where(x => x.Id == studentData.Id).AsNoTracking().FirstOrDefault();
-                            int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.files);
-                            var exceptionModel = new
-                            {
-                                Message = ClassBookConstantString.Edit_Student_Success.ToString(),
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -136,7 +87,49 @@ namespace ClassBookApplication.Controllers.API
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Student, exception, "api/student/EditStudent", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+            }
+        }
+
+        // POST api/Student/EditStudent
+        [HttpPost("EditStudent")]
+        public IActionResult EditStudent([FromForm] CommonRegistrationModel model)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
+                    if (studentData != null)
+                    {
+                        if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
+                        {
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                        }
+                        else
+                        {
+                            var singleUser = _context.Student.Where(x => x.Id == studentData.Id).AsNoTracking().FirstOrDefault();
+                            int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.files);
+                            responseModel.Message = ClassBookConstantString.Edit_Student_Success.ToString();
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
+                        }
+                    }
+                    return StatusCode((int)HttpStatusCode.BadRequest);
+                }
+                else
+                {
+                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
+                }
+
+            }
+            catch (Exception exception)
+            {
+                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Student, exception, "api/student/EditStudent", 0);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
         #endregion

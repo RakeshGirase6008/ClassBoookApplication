@@ -26,8 +26,6 @@ namespace ClassBookApplication.Controllers.API
         private readonly ClassBookService _classBookService;
         private readonly LogsService _logsService;
         private readonly ClassBookModelFactory _classBookModelFactory;
-        
-
 
         #endregion
 
@@ -52,6 +50,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -67,20 +66,14 @@ namespace ClassBookApplication.Controllers.API
                             //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
                             var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email, model.FCMId, model.DeviceId);
                             await Task.Run(() => _classBookService.SendVerificationLinkEmail(teacherData.Email, user.Password, Module.Teacher.ToString()));
-                            var succeeModel = new
-                            {
-                                Message = ClassBookConstantString.Register_Teacher_Success.ToString(),
-                                Data = _classBookModelFactory.PrepareUserDetail(user)
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, succeeModel);
+                            responseModel.Message = ClassBookConstantString.Register_Teacher_Success.ToString();
+                            responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                         else
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -89,16 +82,13 @@ namespace ClassBookApplication.Controllers.API
                 {
                     return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
                 }
-                
+
             }
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Teacher, exception, "api/Teacher/Register", 0);
-                var exceptionStatus = new
-                {
-                    Message = exception?.Message
-                };
-                return StatusCode((int)HttpStatusCode.InternalServerError, exceptionStatus);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
 
@@ -106,6 +96,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("EditTeacher")]
         public IActionResult EditTeacher([FromForm] CommonRegistrationModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (ModelState.IsValid)
@@ -115,22 +106,16 @@ namespace ClassBookApplication.Controllers.API
                     {
                         if (_context.Users.Count(x => x.Email == teacherData.Email && x.UserId != teacherData.Id) > 0)
                         {
-                            var authorizeAccess = new
-                            {
-                                Message = ClassBookConstantString.Validation_EmailExist.ToString()
-                            };
-                            return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                         }
                         else
                         {
                             var singleTeacher = _context.Teacher.Where(x => x.Id == teacherData.Id).AsNoTracking().FirstOrDefault();
                             int teacherId = _classBookService.UpdateTeachers(teacherData, singleTeacher, model.files);
                             //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
-                            var exceptionModel = new
-                            {
-                                Message = ClassBookConstantString.Edit_Teacher_Success.ToString(),
-                            };
-                            return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                            responseModel.Message = ClassBookConstantString.Edit_Teacher_Success.ToString();
+                            return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                     }
                     return StatusCode((int)HttpStatusCode.BadRequest);
@@ -139,12 +124,13 @@ namespace ClassBookApplication.Controllers.API
                 {
                     return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
                 }
-                
+
             }
             catch (Exception exception)
             {
                 _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Teacher, exception, "api/Teacher/EditTeacher", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
 
@@ -157,7 +143,7 @@ namespace ClassBookApplication.Controllers.API
         public IEnumerable<ListingModel> GetAllTeacher()
         {
             return _classBookService.GetModuleDataByModuleId((int)Module.Teacher);
-            
+
         }
 
         // GET api/Teacher/GetTeacherById/5
