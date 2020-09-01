@@ -58,12 +58,12 @@ namespace ClassBookApplication.Controllers.API
                     School schoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
                     if (schoolData != null)
                     {
-                        var singleUser = _context.School.Where(x => x.Email == schoolData.Email).AsNoTracking();
+                        var singleUser = _context.Users.Where(x => x.Email == schoolData.Email).AsNoTracking();
                         if (!singleUser.Any())
                         {
                             (int SchoolId, string uniqueNo) = _classBookService.SaveSchool(schoolData, model.files);
                             string UserName = schoolData.Name + uniqueNo;
-                            _classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
+                            //_classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
                             var user = _classBookService.SaveUserData(SchoolId, Module.School, UserName, schoolData.Email, model.FCMId, model.DeviceId);
                             await Task.Run(() => _classBookService.SendVerificationLinkEmail(schoolData.Email, user.Password, Module.School.ToString()));
                             var exceptionModel = new
@@ -108,7 +108,7 @@ namespace ClassBookApplication.Controllers.API
                     School SchoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
                     if (SchoolData != null)
                     {
-                        if (_context.School.Count(x => x.Email == SchoolData.Email && x.Id != SchoolData.Id) > 0)
+                        if (_context.Users.Count(x => x.Email == SchoolData.Email && x.UserId != SchoolData.Id) > 0)
                         {
                             var authorizeAccess = new
                             {
@@ -120,7 +120,7 @@ namespace ClassBookApplication.Controllers.API
                         {
                             var singleClass = _context.School.Where(x => x.Id == SchoolData.Id).AsNoTracking().FirstOrDefault();
                             int classId = _classBookService.UpdateSchool(SchoolData, singleClass, model.files);
-                            _classBookService.SaveMappingData((int)Module.School, classId, SchoolData.MappingRequestModel);
+                            //_classBookService.SaveMappingData((int)Module.School, classId, SchoolData.MappingRequestModel);
                             var exceptionModel = new
                             {
                                 Message = ClassBookConstantString.Edit_School_Success.ToString(),

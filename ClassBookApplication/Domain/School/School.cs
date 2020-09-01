@@ -1,5 +1,4 @@
-﻿using ClassBookApplication.Models.RequestModels;
-using System;
+﻿using System;
 
 namespace ClassBookApplication.Domain.School
 {
@@ -30,6 +29,5 @@ namespace ClassBookApplication.Domain.School
         public DateTime? UpdatedDate { get; set; }
         public bool Active { get; set; }
         public bool Deleted { get; set; }
-        public MappingRequestModel MappingRequestModel { get; set; }
     }
 }

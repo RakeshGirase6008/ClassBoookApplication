@@ -52,13 +52,8 @@ namespace ClassBookApplication.DataContext
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Classes>().Ignore(t => t.MappingRequestModel);
-            modelBuilder.Entity<Teacher>().Ignore(t => t.MappingRequestModel);
-            modelBuilder.Entity<CareerExpert>().Ignore(t => t.MappingRequestModel);
-            modelBuilder.Entity<School>().Ignore(t => t.MappingRequestModel);
             base.OnModelCreating(modelBuilder);
         }
-
         #endregion
     }
 }

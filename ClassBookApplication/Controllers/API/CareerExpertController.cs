@@ -58,12 +58,12 @@ namespace ClassBookApplication.Controllers.API
                     CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
                     if (CareerExpertData != null)
                     {
-                        var singleUser = _context.CareerExpert.Where(x => x.Email == CareerExpertData.Email).AsNoTracking();
+                        var singleUser = _context.Users.Where(x => x.Email == CareerExpertData.Email).AsNoTracking();
                         if (!singleUser.Any())
                         {
                             (int CareerExpertId, string uniqueNo) = _classBookService.SaveCareerExpert(CareerExpertData, model.files);
                             string UserName = CareerExpertData.FirstName + uniqueNo;
-                            _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
+                            //_classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
                             var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email, model.FCMId, model.DeviceId);
                             await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, user.Password, Module.CareerExpert.ToString()));
                             responseModel.Message = ClassBookConstantString.Register_CareerExpert_Success.ToString();
@@ -104,7 +104,7 @@ namespace ClassBookApplication.Controllers.API
                     CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
                     if (CareerExpertData != null)
                     {
-                        if (_context.CareerExpert.Count(x => x.Email == CareerExpertData.Email && x.Id != CareerExpertData.Id) > 0)
+                        if (_context.Users.Count(x => x.Email == CareerExpertData.Email && x.UserId != CareerExpertData.Id) > 0)
                         {
                             responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
                             return StatusCode((int)HttpStatusCode.Conflict, responseModel);
@@ -113,7 +113,7 @@ namespace ClassBookApplication.Controllers.API
                         {
                             var singleCareerExpert = _context.CareerExpert.Where(x => x.Id == CareerExpertData.Id).AsNoTracking().FirstOrDefault();
                             int CareerExpertId = _classBookService.UpdateCareerExpert(CareerExpertData, singleCareerExpert, model.files);
-                            _classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
+                            //_classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
                             responseModel.Message = ClassBookConstantString.Edit_CareerExpert_Success.ToString();
                             return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
@@ -145,9 +145,9 @@ namespace ClassBookApplication.Controllers.API
             return _classBookService.GetModuleDataByModuleId((int)Module.CareerExpert);
         }
 
-        // GET api/CareerExpert/GetClasById/5
-        [HttpGet("GetClasById/{id:int}")]
-        public IEnumerable<CareerExpert> GetClasById(int id)
+        // GET api/CareerExpert/GetCareerExpertById/5
+        [HttpGet("GetCareerExpertById/{id:int}")]
+        public IEnumerable<CareerExpert> GetCareerExpertById(int id)
         {
             var CareerExpert = _context.CareerExpert.Where(x => x.Id == id).AsEnumerable();
             return CareerExpert;

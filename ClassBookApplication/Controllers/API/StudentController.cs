@@ -57,7 +57,7 @@ namespace ClassBookApplication.Controllers.API
                     Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
                     if (studentData != null)
                     {
-                        var singleUser = _context.Student.Where(x => x.Email == studentData.Email).AsNoTracking();
+                        var singleUser = _context.Users.Where(x => x.Email == studentData.Email).AsNoTracking();
                         if (!singleUser.Any())
                         {
                             (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.files);
@@ -106,7 +106,7 @@ namespace ClassBookApplication.Controllers.API
                     Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
                     if (studentData != null)
                     {
-                        if (_context.Student.Count(x => x.Email == studentData.Email && x.Id != studentData.Id) > 0)
+                        if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
                         {
                             var authorizeAccess = new
                             {
@@ -116,7 +116,7 @@ namespace ClassBookApplication.Controllers.API
                         }
                         else
                         {
-                            var singleUser = _context.Student.Where(x => x.Id == 1).AsNoTracking().FirstOrDefault();
+                            var singleUser = _context.Student.Where(x => x.Id == studentData.Id).AsNoTracking().FirstOrDefault();
                             int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.files);
                             var exceptionModel = new
                             {
