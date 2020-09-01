@@ -124,7 +124,6 @@ namespace ClassBookApplication.Controllers.API
                 {
                     return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
                 }
-
             }
             catch (Exception exception)
             {

@@ -4,6 +4,7 @@ using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Domain.School;
 using ClassBookApplication.Domain.Student;
 using ClassBookApplication.Domain.Teacher;
+using ClassBookApplication.Domain.Topics;
 using Microsoft.EntityFrameworkCore;
 
 namespace ClassBookApplication.DataContext
@@ -35,6 +36,9 @@ namespace ClassBookApplication.DataContext
         public DbSet<SMBSubjectMapping> SMBSubjectMapping { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
+        public DbSet<Topic> Topic { get; set; }
+        public DbSet<SubTopic> SubTopic { get; set; }
+        public DbSet<TopicSubTopicMapping> TopicSubTopicMapping { get; set; }
 
         #endregion
 

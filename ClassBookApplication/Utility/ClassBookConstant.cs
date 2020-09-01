@@ -9,6 +9,7 @@
         public const string ImagePath_Classes = "image\\Classes";
         public const string ImagePath_CareerExpert = "image\\CareerExpert";
         public const string ImagePath_School = "image\\School";
+        public const string ImagePath_Topic = "image\\Topic";
 
         #endregion
 
@@ -20,7 +21,9 @@
         public const string LogLevelModule_CareerExpert = "CareerExpert";
         public const string LogLevelModule_School = "School";
 
+
         public const string LogLevelModule_Login = "Login";
+        public const string LogLevelModule_Topic = "Topic";
 
         #endregion
 
