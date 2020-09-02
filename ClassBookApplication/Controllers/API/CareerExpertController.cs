@@ -146,10 +146,33 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/CareerExpert/GetCareerExpertById/5
         [HttpGet("GetCareerExpertById/{id:int}")]
-        public IEnumerable<CareerExpert> GetCareerExpertById(int id)
+        public object GetCareerExpertById(int id)
         {
-            var CareerExpert = _context.CareerExpert.Where(x => x.Id == id).AsEnumerable();
-            return CareerExpert;
+            var query = from careerExpert in _context.CareerExpert
+                        join city in _context.City on careerExpert.CityId equals city.Id
+                        join state in _context.States on careerExpert.StateId equals state.Id
+                        where careerExpert.Id == id && careerExpert.Active == true
+                        orderby careerExpert.Id
+                        select new
+                        {
+                            FirstName = careerExpert.FirstName,
+                            LastName = careerExpert.LastName,
+                            Address = careerExpert.Address,
+                            Email = careerExpert.Email,
+                            Gender = careerExpert.Gender,
+                            ImageUrl = careerExpert.ProfilePictureUrl,
+                            DOB = careerExpert.DOB,
+                            ContactNo = careerExpert.ContactNo,
+                            AlternateContact = careerExpert.AlternateContact,
+                            Pincode = careerExpert.Pincode,
+                            TeachingExperience = careerExpert.TeachingExperience,
+                            Description = careerExpert.Description,
+                            ReferCode = careerExpert.ReferCode,
+                            StateName = state.Name,
+                            CityName = city.Name,
+                        };
+            var careerExpertData = query.FirstOrDefault();
+            return careerExpertData;
         }
         #endregion
     }

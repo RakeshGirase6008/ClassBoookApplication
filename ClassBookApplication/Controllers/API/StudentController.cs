@@ -146,9 +146,32 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/Student/GetStudentById/5
         [HttpGet("GetStudentById/{id:int}")]
-        public IEnumerable<Student> GetStudentById(int id)
+        public object GetStudentById(int id)
         {
-            var students = _context.Student.Where(x => x.Id == id).AsEnumerable();
+            var query = from stud in _context.Student
+                        join board in _context.Board on stud.BoardId equals board.Id
+                        join medium in _context.Medium on stud.MediumId equals medium.Id
+                        join standard in _context.Standards on stud.StandardId equals standard.Id
+                        join city in _context.City on stud.CityId equals city.Id
+                        join state in _context.States on stud.StateId equals state.Id
+                        where stud.Id == id && stud.Active == true
+                        orderby stud.Id
+                        select new
+                        {
+                            FirstName = stud.FirstName,
+                            LastName = stud.LastName,
+                            Address = stud.Address,
+                            Email = stud.Email,
+                            Gender = stud.Gender,
+                            DOB = stud.DOB,
+                            ImageUrl = stud.ProfilePictureUrl,
+                            StateName = state.Name,
+                            CityName = city.Name,
+                            BoardName = board.Name,
+                            MediumName = medium.Name,
+                            StandardName = standard.Name,
+                        };
+            var students = query.FirstOrDefault();
             return students;
         }
         #endregion

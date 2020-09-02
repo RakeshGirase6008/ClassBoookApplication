@@ -149,10 +149,33 @@ namespace ClassBookApplication.Controllers.API
 
         // GET api/School/GetSchoolById/5
         [HttpGet("GetSchoolById/{id:int}")]
-        public IEnumerable<School> GetSchoolById(int id)
+        public object GetSchoolById(int id)
         {
-            var school = _context.School.Where(x => x.Id == id).AsEnumerable();
-            return school;
+            var query = from school in _context.School
+                        join city in _context.City on school.CityId equals city.Id
+                        join state in _context.States on school.StateId equals state.Id
+                        where school.Id == id && school.Active == true
+                        orderby school.Id
+                        select new
+                        {
+                            Name = school.Name,
+                            Email = school.Email,
+                            ContactNo = school.ContactNo,
+                            AlternateContact = school.AlternateContact,
+                            SchoolPhotoUrl = school.SchoolPhotoUrl,
+                            EstablishmentDate = school.EstablishmentDate,
+                            Address = school.Address,
+                            Pincode = school.Pincode,
+                            TeachingExperience = school.TeachingExperience,
+                            Description = school.Description,
+                            RegistrationNo = school.RegistrationNo,
+                            UniqueNo = school.UniqueNo,
+                            StateName = state.Name,
+                            CityName = city.Name,
+                        };
+            var schoolData = query.FirstOrDefault();
+            return schoolData;
+            
         }
         #endregion
     }

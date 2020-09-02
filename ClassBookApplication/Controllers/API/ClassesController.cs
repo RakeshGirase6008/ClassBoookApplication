@@ -112,7 +112,7 @@ namespace ClassBookApplication.Controllers.API
                             var singleClass = _context.Classes.Where(x => x.Id == classesData.Id).AsNoTracking().FirstOrDefault();
                             int classId = _classBookService.UpdateClasses(classesData, singleClass, model.files);
                             //_classBookService.SaveMappingData((int)Module.Classes, classId, classesData.MappingRequestModel);
-                            responseModel.Message= ClassBookConstantString.Edit_Classes_Success.ToString();
+                            responseModel.Message = ClassBookConstantString.Edit_Classes_Success.ToString();
                             return StatusCode((int)HttpStatusCode.OK, responseModel);
                         }
                     }
@@ -143,12 +143,36 @@ namespace ClassBookApplication.Controllers.API
             return _classBookService.GetModuleDataByModuleId((int)Module.Classes);
         }
 
-        // GET api/Classes/GetClasById/5
-        [HttpGet("GetClasById/{id:int}")]
-        public IEnumerable<Classes> GetClasById(int id)
+        // GET api/Classes/GetClassById/5
+        [HttpGet("GetClassById/{id:int}")]
+        public object GetClassById(int id)
         {
-            var classes = _context.Classes.Where(x => x.Id == id).AsEnumerable();
-            return classes;
+            var query = from classes in _context.Classes
+                        join city in _context.City on classes.CityId equals city.Id
+                        join state in _context.States on classes.StateId equals state.Id
+                        where classes.Id == id && classes.Active == true
+                        orderby classes.Id
+                        select new
+                        {
+                            Name = classes.Name,
+                            Email = classes.Email,
+                            ContactNo = classes.ContactNo,
+                            AlternateContact = classes.AlternateContact,
+                            RegistrationNo = classes.RegistrationNo,
+                            LogoUrl = classes.LogoUrl,
+                            ClassPhotoUrl = classes.ClassPhotoUrl,
+                            EstablishmentDate = classes.EstablishmentDate,
+                            Address = classes.Address,
+                            Pincode = classes.Pincode,
+                            TeachingExperience = classes.TeachingExperience,
+                            Description = classes.Description,
+                            ReferCode = classes.ReferCode,
+                            UniqueNo = classes.UniqueNo,
+                            StateName = state.Name,
+                            CityName = city.Name,
+                        };
+            var ClassData = query.FirstOrDefault();
+            return ClassData;
         }
         #endregion
     }
