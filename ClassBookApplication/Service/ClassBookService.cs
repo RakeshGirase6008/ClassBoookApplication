@@ -206,9 +206,9 @@ namespace ClassBookApplication.Service
         /// </summary>
         public void SendVerificationLinkEmail(string ToEmailId, string GeneratedPassword, string title)
         {
-            var emailBody = CreateBody(ToEmailId, GeneratedPassword, string.Empty, "ActivateMyAccount");
-            title = title.ToString() + " Register";
-            SendEmail(ToEmailId, emailBody, title);
+            //var emailBody = CreateBody(ToEmailId, GeneratedPassword, string.Empty, "ActivateMyAccount");
+            //title = title.ToString() + " Register";
+            //SendEmail(ToEmailId, emailBody, title);
         }
 
         private bool SendEmail(string EmailTo, string EmailBody, string Subject)
