@@ -23,6 +23,8 @@
 
 
         public const string LogLevelModule_Login = "Login";
+        public const string LogLevelModule_ForgotPassword = "ForgotPassword";
+        public const string LogLevelModule_ChangePassword = "ChangePassword";
         public const string LogLevelModule_Topic = "Topic";
 
         #endregion

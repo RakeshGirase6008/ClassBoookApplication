@@ -4,6 +4,7 @@ using ClassBookApplication.Factory;
 using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,7 +50,7 @@ namespace ClassBookApplication
             services.AddTransient<NotificationService, NotificationService>();
             services.AddTransient<LogsService, LogsService>();
 
-
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ClassBookModelFactory, ClassBookModelFactory>();
             #endregion
 

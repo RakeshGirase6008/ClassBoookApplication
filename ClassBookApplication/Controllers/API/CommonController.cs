@@ -1,10 +1,10 @@
 ﻿using ClassBookApplication.DataContext;
-using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,6 +24,7 @@ namespace ClassBookApplication.Controllers.API
         private readonly LogsService _logsService;
         private readonly ClassBookService _classBookService;
         private readonly ClassBookModelFactory _classBookModelFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
         #endregion
@@ -33,12 +34,14 @@ namespace ClassBookApplication.Controllers.API
         public CommonController(ClassBookManagementContext context,
             LogsService logsService,
             ClassBookService classBookService,
-            ClassBookModelFactory classBookModelFactory)
+            ClassBookModelFactory classBookModelFactory,
+            IHttpContextAccessor httpContextAccessor)
         {
             this._context = context;
             this._logsService = logsService;
             this._classBookService = classBookService;
             this._classBookModelFactory = classBookModelFactory;
+            this._httpContextAccessor = httpContextAccessor;
         }
         #endregion
 
@@ -191,35 +194,62 @@ namespace ClassBookApplication.Controllers.API
 
         // POST api/Common/ForgotPassword
         [HttpPost("ForgotPassword")]
-        public IActionResult ForgotPassword(LoginModel model)
+        public IActionResult ForgotPassword([FromForm] ForgotPassword model)
         {
-            CommonResponseModel exceptionModel = new CommonResponseModel();
+            ResponseModel responseModel = new ResponseModel();
             try
             {
-                if (model != null)
+                var singleUser = _context.Users.Where(x => x.Email == model.Email).AsNoTracking();
+                if (singleUser.Any())
                 {
-                    var singleUser = _context.Users.Where(x => x.Email == model.Email).AsNoTracking();
-                    if (singleUser.Any())
-                    {
-                        var user = singleUser.FirstOrDefault();
-                        _classBookService.SendVerificationLinkEmail(model.Email, user.Password, "Forgot Password");
-                        exceptionModel.Status = true;
-                        exceptionModel.Message = "Please check your email Id for password";
-                    }
-                    else
-                    {
-                        exceptionModel.Status = false;
-                    }
+                    var user = singleUser.FirstOrDefault();
+                    _classBookService.SendVerificationLinkEmail(user.Email, user.Password, "Forgot Password");
+                    responseModel.Message = "Please check your email Id for password";
+                    return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
-                return Ok(exceptionModel);
+                else
+                {
+                    responseModel.Message = "Email Id is not exist";
+                    return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                }
             }
             catch (Exception exception)
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Login, exception, "api/Common/ForgotPassword", 0);
-                exceptionModel.Status = false;
-                exceptionModel.ErrorMessage.Add(exception?.Message);
-                exceptionModel.ErrorMessage.Add(exception?.InnerException?.ToString());
-                return Ok(exceptionModel);
+                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_ForgotPassword, exception, "api/Common/ForgotPassword", 0);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+            }
+        }
+
+        // POST api/Common/ChangePassword
+        [HttpPost("ChangePassword")]
+        public IActionResult ChangePassword([FromForm] ChangePassword model)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            try
+            {
+                string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+                var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey && x.Password == model.OldPassword).AsNoTracking();
+                if (singleUser.Any())
+                {
+                    var user = singleUser.FirstOrDefault();
+                    user.Password = model.NewPassword;
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
+                    responseModel.Message = "Password change Successfully";
+                    return StatusCode((int)HttpStatusCode.OK, responseModel);
+                }
+                else
+                {
+                    responseModel.Message = "Old Password is not matching";
+                    return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                }
+            }
+            catch (Exception exception)
+            {
+                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_ChangePassword, exception, "api/Common/ChangePassword", 0);
+                responseModel.Message = exception?.Message;
+                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
             }
         }
         #endregion
