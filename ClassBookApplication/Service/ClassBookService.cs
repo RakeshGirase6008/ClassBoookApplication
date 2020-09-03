@@ -195,7 +195,7 @@ namespace ClassBookApplication.Service
         {
             string webRootPath = _env.WebRootPath;
             string body = string.Empty;
-            var target = Path.Combine(webRootPath + "\\", "Content\\HtmlTemplates\\" + mypageName + ".html");
+            var target = Path.Combine(webRootPath + "/Content/HtmlTemplates/" + mypageName + ".html");
             using (StreamReader reader = new StreamReader(target.ToString()))
             {
                 body = reader.ReadToEnd();
