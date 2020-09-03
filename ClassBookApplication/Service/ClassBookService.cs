@@ -9,6 +9,7 @@ using ClassBookApplication.Extension;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Utility;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ namespace ClassBookApplication.Service
         private readonly ClassBookManagementContext _context;
         private readonly FileService _fileService;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _env;
 
         #endregion
 
@@ -37,11 +39,13 @@ namespace ClassBookApplication.Service
 
         public ClassBookService(ClassBookManagementContext context,
             FileService fileService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IWebHostEnvironment env)
         {
             this._context = context;
             this._fileService = fileService;
             this._configuration = configuration;
+            this._env = env;
         }
 
         #endregion
@@ -189,8 +193,10 @@ namespace ClassBookApplication.Service
         /// </summary>
         private string CreateBody(string username, string password, string link, string mypageName)
         {
+            string contentRootPath = _env.ContentRootPath;
+            string webRootPath = _env.WebRootPath;
             string body = string.Empty;
-            var target = Path.Combine(Directory.GetCurrentDirectory() + "\\", "Content\\HtmlTemplates\\" + mypageName + ".html");
+            var target = Path.Combine(webRootPath + "\\", "Content\\HtmlTemplates\\" + mypageName + ".html");
             using (StreamReader reader = new StreamReader(target.ToString()))
             {
                 body = reader.ReadToEnd();
@@ -199,6 +205,18 @@ namespace ClassBookApplication.Service
             body = body.Replace("{password}", password);
             body = body.Replace("{link}", link);
             return body;
+            
+            //string body = string.Empty;
+            ////var target = "https://classbookapplication.appspot.com/Content/HtmlTemplates/" + mypageName + ".html";
+            //var target = "http://localhost:57299/" + mypageName + ".html";
+            //using (StreamReader reader = new StreamReader(target.ToString()))
+            //{
+            //    body = reader.ReadToEnd();
+            //}
+            //body = body.Replace("{username}", username);
+            //body = body.Replace("{password}", password);
+            //body = body.Replace("{link}", link);
+            //return body;
         }
 
         /// <summary>
@@ -206,9 +224,9 @@ namespace ClassBookApplication.Service
         /// </summary>
         public void SendVerificationLinkEmail(string ToEmailId, string GeneratedPassword, string title)
         {
-            //var emailBody = CreateBody(ToEmailId, GeneratedPassword, string.Empty, "ActivateMyAccount");
-            //title = title.ToString() + " Register";
-            //SendEmail(ToEmailId, emailBody, title);
+            var emailBody = CreateBody(ToEmailId, GeneratedPassword, string.Empty, "ActivateMyAccount");
+            title = title.ToString() + " Register";
+            SendEmail(ToEmailId, emailBody, title);
         }
 
         private bool SendEmail(string EmailTo, string EmailBody, string Subject)

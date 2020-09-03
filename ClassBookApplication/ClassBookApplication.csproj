@@ -6,26 +6,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Content\Image\**" />
-    <Content Remove="Content\Image\**" />
-    <EmbeddedResource Remove="Content\Image\**" />
-    <None Remove="Content\Image\**" />
+    <Compile Remove="wwwroot\Content\Image\**" />
+    <Content Remove="wwwroot\Content\Image\**" />
+    <EmbeddedResource Remove="wwwroot\Content\Image\**" />
+    <None Remove="wwwroot\Content\Image\**" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="app.yaml" />
-    <None Remove="Content\HtmlTemplates\ActivateMyAccount.html" />
-    <None Remove="Content\HtmlTemplates\ForgotPassword.html" />
+    <None Remove="wwwroot\Content\HtmlTemplates\ActivateMyAccount.html" />
+    <None Remove="wwwroot\Content\HtmlTemplates\ForgotPassword.html" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="app.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\HtmlTemplates\ActivateMyAccount.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\HtmlTemplates\ForgotPassword.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -40,6 +34,15 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\image\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\Content\HtmlTemplates\ActivateMyAccount.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Content\HtmlTemplates\ForgotPassword.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
