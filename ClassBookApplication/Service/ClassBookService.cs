@@ -229,6 +229,7 @@ namespace ClassBookApplication.Service
 
                 using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                 {
+                    smtp.UseDefaultCredentials = false;
                     smtp.Credentials = new NetworkCredential("servicesautohub@gmail.com", "@Ganapati20");
                     smtp.EnableSsl = true;
                     smtp.Send(mail);
