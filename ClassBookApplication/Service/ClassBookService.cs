@@ -193,7 +193,6 @@ namespace ClassBookApplication.Service
         /// </summary>
         private string CreateBody(string username, string password, string link, string mypageName)
         {
-            string contentRootPath = _env.ContentRootPath;
             string webRootPath = _env.WebRootPath;
             string body = string.Empty;
             var target = Path.Combine(webRootPath + "\\", "Content\\HtmlTemplates\\" + mypageName + ".html");
@@ -205,18 +204,6 @@ namespace ClassBookApplication.Service
             body = body.Replace("{password}", password);
             body = body.Replace("{link}", link);
             return body;
-            
-            //string body = string.Empty;
-            ////var target = "https://classbookapplication.appspot.com/Content/HtmlTemplates/" + mypageName + ".html";
-            //var target = "http://localhost:57299/" + mypageName + ".html";
-            //using (StreamReader reader = new StreamReader(target.ToString()))
-            //{
-            //    body = reader.ReadToEnd();
-            //}
-            //body = body.Replace("{username}", username);
-            //body = body.Replace("{password}", password);
-            //body = body.Replace("{link}", link);
-            //return body;
         }
 
         /// <summary>
