@@ -32,6 +32,7 @@ namespace ClassBookApplication.Service
         private readonly FileService _fileService;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _env;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
@@ -40,12 +41,14 @@ namespace ClassBookApplication.Service
         public ClassBookService(ClassBookManagementContext context,
             FileService fileService,
             IConfiguration configuration,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            IHttpContextAccessor httpContextAccessor)
         {
             this._context = context;
             this._fileService = fileService;
             this._configuration = configuration;
             this._env = env;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -586,7 +589,7 @@ namespace ClassBookApplication.Service
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = ModuleId;
                 var reader = cmd.ExecuteReader();
-
+                var hostName = _httpContextAccessor.HttpContext.Request.Host.Value;
                 if (reader.HasRows)
                 {
                     while (reader.Read())
@@ -595,7 +598,7 @@ namespace ClassBookApplication.Service
                         {
                             Id = reader.GetValue<int>("Id"),
                             Title = reader.GetValue<string>("Name"),
-                            Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : "https://classbookapplication.appspot.com/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
+                            Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : hostName.ToString() + "/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
                             Rating = reader.GetValue<string>("Rating"),
                             TotalBoard = reader.GetValue<int>("BoardCount"),
                             TotalStandard = reader.GetValue<int>("StandardCount"),
