@@ -148,6 +148,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("Login")]
         public IActionResult Login([FromForm] LoginModel model)
         {
+            ResponseModel responseModel = new ResponseModel();
             try
             {
                 if (model != null)
@@ -164,21 +165,14 @@ namespace ClassBookApplication.Controllers.API
 
                         // Save AuthorizationDevice Data
                         _classBookService.SaveDeviceAuthorizationData(user, model.DeviceId);
-
-                        var exceptionModel = new
-                        {
-                            Message = ClassBookConstantString.Login_Success.ToString(),
-                            Data = _classBookModelFactory.PrepareUserDetail(user)
-                        };
-                        return StatusCode((int)HttpStatusCode.OK, exceptionModel);
+                        responseModel.Message = ClassBookConstantString.Login_Success.ToString();
+                        responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                        return StatusCode((int)HttpStatusCode.OK, responseModel);
                     }
                     else
                     {
-                        var authorizeAccess = new
-                        {
-                            Message = "Email & Password not matching for specified data"
-                        };
-                        return StatusCode((int)HttpStatusCode.Conflict, authorizeAccess);
+                        responseModel.Message = "Email & Password not matching for specified data";
+                        return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
 
                     }
                 }
@@ -210,7 +204,7 @@ namespace ClassBookApplication.Controllers.API
                 else
                 {
                     responseModel.Message = "Email Id is not exist";
-                    return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                    return StatusCode((int)HttpStatusCode.NotFound, responseModel);
                 }
             }
             catch (Exception exception)
@@ -242,7 +236,7 @@ namespace ClassBookApplication.Controllers.API
                 else
                 {
                     responseModel.Message = "Old Password is not matching";
-                    return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                    return StatusCode((int)HttpStatusCode.NotFound, responseModel);
                 }
             }
             catch (Exception exception)

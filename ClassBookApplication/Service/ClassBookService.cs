@@ -227,7 +227,7 @@ namespace ClassBookApplication.Service
                 mail.IsBodyHtml = true;
                 //mail.Attachments.Add(new Attachment("C:\\file.zip"));
 
-                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 465))
                 {
                     smtp.UseDefaultCredentials = false;
                     smtp.Credentials = new NetworkCredential("servicesautohub@gmail.com", "@Ganapati20");
