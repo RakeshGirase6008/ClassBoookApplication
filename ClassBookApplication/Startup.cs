@@ -1,6 +1,7 @@
 using ClassBookApplication.ActionFilter;
 using ClassBookApplication.DataContext;
 using ClassBookApplication.Factory;
+using ClassBookApplication.Infrastructure;
 using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -82,6 +83,7 @@ namespace ClassBookApplication
             });
 
             #endregion
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -95,12 +97,10 @@ namespace ClassBookApplication
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+            app.ConfigureCustomExceptionMiddleware();
             app.UseStaticFiles();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

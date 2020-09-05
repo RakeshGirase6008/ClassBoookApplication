@@ -230,9 +230,8 @@ namespace ClassBookApplication.Service
                 mail.IsBodyHtml = true;
                 //mail.Attachments.Add(new Attachment("C:\\file.zip"));
 
-                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 465))
+                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                 {
-                    smtp.UseDefaultCredentials = false;
                     smtp.Credentials = new NetworkCredential("servicesautohub@gmail.com", "@Ganapati20");
                     smtp.EnableSsl = true;
                     smtp.Send(mail);
@@ -598,7 +597,8 @@ namespace ClassBookApplication.Service
                         {
                             Id = reader.GetValue<int>("Id"),
                             Title = reader.GetValue<string>("Name"),
-                            Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : hostName.ToString() + "/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
+                            //Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : hostName.ToString() + "/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
+                            Image = reader.GetValue<string>("PhotoUrl").Replace("\\", "/"),
                             Rating = reader.GetValue<string>("Rating"),
                             TotalBoard = reader.GetValue<int>("BoardCount"),
                             TotalStandard = reader.GetValue<int>("StandardCount"),

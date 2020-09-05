@@ -13,7 +13,7 @@ namespace ClassBookApplication.Domain.Student
         public int StateId { get; set; }
         public int CityId { get; set; }
         public string ContactNo { get; set; }
-        public string Pincode { get; set; }
+        public int Pincode { get; set; }
         public int BoardId { get; set; }
         public int MediumId { get; set; }
         public int StandardId { get; set; }

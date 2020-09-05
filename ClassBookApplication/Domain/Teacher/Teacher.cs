@@ -15,7 +15,7 @@ namespace ClassBookApplication.Domain.Teacher
         public string Address { get; set; }
         public int StateId { get; set; }
         public int CityId { get; set; }
-        public string Pincode { get; set; }
+        public int Pincode { get; set; }
         public bool ApproveStatus { get; set; }
         public DateTime? ApprovalDate { get; set; }
         public string TeachingExperience { get; set; }
