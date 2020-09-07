@@ -8,7 +8,6 @@ using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -24,7 +23,6 @@ namespace ClassBookApplication.Controllers.API
 
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
-        private readonly LogsService _logsService;
         private readonly ClassBookModelFactory _classBookModelFactory;
 
         #endregion
@@ -38,7 +36,6 @@ namespace ClassBookApplication.Controllers.API
         {
             this._context = context;
             this._classBookService = classBookService;
-            this._logsService = logsService;
             this._classBookModelFactory = classBookModelFactory;
         }
 
@@ -51,44 +48,34 @@ namespace ClassBookApplication.Controllers.API
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.data.ToString());
+                if (teacherData != null)
                 {
-                    Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.data.ToString());
-                    if (teacherData != null)
+                    var singleUser = _context.Users.Where(x => x.Email == teacherData.Email).AsNoTracking();
+                    if (!singleUser.Any())
                     {
-                        var singleUser = _context.Users.Where(x => x.Email == teacherData.Email).AsNoTracking();
-                        if (!singleUser.Any())
-                        {
-                            (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.files);
-                            string UserName = teacherData.FirstName + uniqueNo;
-                            //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
-                            var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email, model.FCMId, model.DeviceId);
-                            await Task.Run(() => _classBookService.SendVerificationLinkEmail(teacherData.Email, user.Password, Module.Teacher.ToString()));
-                            responseModel.Message = ClassBookConstantString.Register_Teacher_Success.ToString();
-                            responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
-                            return StatusCode((int)HttpStatusCode.OK, responseModel);
-                        }
-                        else
-                        {
-                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
-                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
-                        }
+                        (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.files);
+                        string UserName = teacherData.FirstName + uniqueNo;
+                        //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
+                        var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email, model.FCMId, model.DeviceId);
+                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(teacherData.Email, user.Password, Module.Teacher.ToString()));
+                        responseModel.Message = ClassBookConstantString.Register_Teacher_Success.ToString();
+                        responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                        return StatusCode((int)HttpStatusCode.OK, responseModel);
                     }
-                    return StatusCode((int)HttpStatusCode.BadRequest);
+                    else
+                    {
+                        responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                        return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                    }
                 }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-                }
-
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
-            catch (Exception exception)
+            else
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Teacher, exception, "api/Teacher/Register", 0);
-                responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+                return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
             }
         }
 
@@ -97,40 +84,30 @@ namespace ClassBookApplication.Controllers.API
         public IActionResult EditTeacher([FromForm] CommonRegistrationModel model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.data.ToString());
+                if (teacherData != null)
                 {
-                    Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.data.ToString());
-                    if (teacherData != null)
+                    if (_context.Users.Count(x => x.Email == teacherData.Email && x.UserId != teacherData.Id) > 0)
                     {
-                        if (_context.Users.Count(x => x.Email == teacherData.Email && x.UserId != teacherData.Id) > 0)
-                        {
-                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
-                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
-                        }
-                        else
-                        {
-                            var singleTeacher = _context.Teacher.Where(x => x.Id == teacherData.Id).AsNoTracking().FirstOrDefault();
-                            int teacherId = _classBookService.UpdateTeachers(teacherData, singleTeacher, model.files);
-                            //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
-                            responseModel.Message = ClassBookConstantString.Edit_Teacher_Success.ToString();
-                            return StatusCode((int)HttpStatusCode.OK, responseModel);
-                        }
+                        responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                        return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                     }
-                    return StatusCode((int)HttpStatusCode.BadRequest);
+                    else
+                    {
+                        var singleTeacher = _context.Teacher.Where(x => x.Id == teacherData.Id).AsNoTracking().FirstOrDefault();
+                        int teacherId = _classBookService.UpdateTeachers(teacherData, singleTeacher, model.files);
+                        //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
+                        responseModel.Message = ClassBookConstantString.Edit_Teacher_Success.ToString();
+                        return StatusCode((int)HttpStatusCode.OK, responseModel);
+                    }
                 }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-                }
-
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
-            catch (Exception exception)
+            else
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Teacher, exception, "api/Teacher/EditTeacher", 0);
-                responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+                return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
             }
         }
 
@@ -151,8 +128,9 @@ namespace ClassBookApplication.Controllers.API
         public object GetTeacherById(int id)
         {
             var query = from teacher in _context.Teacher
-                        join city in _context.City on teacher.CityId equals city.Id
                         join state in _context.States on teacher.StateId equals state.Id
+                        join city in _context.City on teacher.CityId equals city.Id
+                        join pincode in _context.Pincode on teacher.Pincode equals pincode.Id
                         where teacher.Id == id && teacher.Active == true
                         orderby teacher.Id
                         select new
@@ -166,13 +144,13 @@ namespace ClassBookApplication.Controllers.API
                             ProfilePictureUrl = teacher.ProfilePictureUrl,
                             DOB = teacher.DOB,
                             Address = teacher.Address,
-                            Pincode = teacher.Pincode,
                             TeachingExperience = teacher.TeachingExperience,
                             Description = teacher.Description,
                             ReferCode = teacher.ReferCode,
                             UniqueNo = teacher.UniqueNo,
                             StateName = state.Name,
                             CityName = city.Name,
+                            Pincode = pincode.Name
                         };
             var teacherData = query.FirstOrDefault();
             return teacherData;

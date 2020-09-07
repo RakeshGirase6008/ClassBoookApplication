@@ -8,7 +8,6 @@ using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -24,7 +23,6 @@ namespace ClassBookApplication.Controllers.API
 
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
-        private readonly LogsService _logsService;
         private readonly ClassBookModelFactory _classBookModelFactory;
 
 
@@ -34,12 +32,10 @@ namespace ClassBookApplication.Controllers.API
 
         public StudentController(ClassBookManagementContext context,
             ClassBookService classBookService,
-            LogsService logsService,
             ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._classBookService = classBookService;
-            this._logsService = logsService;
             this._classBookModelFactory = classBookModelFactory;
         }
 
@@ -52,43 +48,33 @@ namespace ClassBookApplication.Controllers.API
         public async Task<IActionResult> Register([FromForm] CommonRegistrationModel model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
+                if (studentData != null)
                 {
-                    Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
-                    if (studentData != null)
+                    var singleUser = _context.Users.Where(x => x.Email == studentData.Email).AsNoTracking();
+                    if (!singleUser.Any())
                     {
-                        var singleUser = _context.Users.Where(x => x.Email == studentData.Email).AsNoTracking();
-                        if (!singleUser.Any())
-                        {
-                            (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.files);
-                            string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
-                            var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email, model.FCMId, model.DeviceId);
-                            await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString()));
-                            responseModel.Message = ClassBookConstantString.Register_Student_Success.ToString();
-                            responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
-                            return StatusCode((int)HttpStatusCode.OK, responseModel);
-                        }
-                        else
-                        {
-                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
-                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
-                        }
+                        (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.files);
+                        string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
+                        var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email, model.FCMId, model.DeviceId);
+                        await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString()));
+                        responseModel.Message = ClassBookConstantString.Register_Student_Success.ToString();
+                        responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                        return StatusCode((int)HttpStatusCode.OK, responseModel);
                     }
-                    return StatusCode((int)HttpStatusCode.BadRequest);
+                    else
+                    {
+                        responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                        return StatusCode((int)HttpStatusCode.Conflict, responseModel);
+                    }
                 }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-                }
-
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
-            catch (Exception exception)
+            else
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Student, exception, "api/student/EditStudent", 0);
-                responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+                return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
             }
         }
 
@@ -97,39 +83,29 @@ namespace ClassBookApplication.Controllers.API
         public IActionResult EditStudent([FromForm] CommonRegistrationModel model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
+                if (studentData != null)
                 {
-                    Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
-                    if (studentData != null)
+                    if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
                     {
-                        if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
-                        {
-                            responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
-                            return StatusCode((int)HttpStatusCode.Conflict, responseModel);
-                        }
-                        else
-                        {
-                            var singleUser = _context.Student.Where(x => x.Id == studentData.Id).AsNoTracking().FirstOrDefault();
-                            int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.files);
-                            responseModel.Message = ClassBookConstantString.Edit_Student_Success.ToString();
-                            return StatusCode((int)HttpStatusCode.OK, responseModel);
-                        }
+                        responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
+                        return StatusCode((int)HttpStatusCode.Conflict, responseModel);
                     }
-                    return StatusCode((int)HttpStatusCode.BadRequest);
+                    else
+                    {
+                        var singleUser = _context.Student.Where(x => x.Id == studentData.Id).AsNoTracking().FirstOrDefault();
+                        int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.files);
+                        responseModel.Message = ClassBookConstantString.Edit_Student_Success.ToString();
+                        return StatusCode((int)HttpStatusCode.OK, responseModel);
+                    }
                 }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-                }
-
+                return StatusCode((int)HttpStatusCode.BadRequest);
             }
-            catch (Exception exception)
+            else
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Student, exception, "api/student/EditStudent", 0);
-                responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+                return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
             }
         }
         #endregion
@@ -152,8 +128,9 @@ namespace ClassBookApplication.Controllers.API
                         join board in _context.Board on stud.BoardId equals board.Id
                         join medium in _context.Medium on stud.MediumId equals medium.Id
                         join standard in _context.Standards on stud.StandardId equals standard.Id
-                        join city in _context.City on stud.CityId equals city.Id
                         join state in _context.States on stud.StateId equals state.Id
+                        join city in _context.City on stud.CityId equals city.Id
+                        join pincode in _context.Pincode on stud.Pincode equals pincode.Id
                         where stud.Id == id && stud.Active == true
                         orderby stud.Id
                         select new
@@ -167,6 +144,7 @@ namespace ClassBookApplication.Controllers.API
                             ImageUrl = stud.ProfilePictureUrl,
                             StateName = state.Name,
                             CityName = city.Name,
+                            Pincode = pincode.Name,
                             BoardName = board.Name,
                             MediumName = medium.Name,
                             StandardName = standard.Name,

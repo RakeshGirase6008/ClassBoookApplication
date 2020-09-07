@@ -7,7 +7,6 @@ using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -149,40 +148,34 @@ namespace ClassBookApplication.Controllers.API
         public IActionResult Login([FromForm] LoginModel model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+
+            if (model != null)
             {
-                if (model != null)
+                var singleUser = _context.Users.Where(x => x.Email == model.Email && x.Password == model.Password).AsNoTracking();
+                if (singleUser.Any())
                 {
-                    var singleUser = _context.Users.Where(x => x.Email == model.Email && x.Password == model.Password).AsNoTracking();
-                    if (singleUser.Any())
-                    {
-                        // Update UserData
-                        var user = singleUser.FirstOrDefault();
-                        user.AuthorizeTokenKey = _classBookService.GenerateAuthorizeTokenKey();
-                        user.FCMId = model.FCMId;
-                        _context.Users.Update(user);
-                        _context.SaveChanges();
+                    // Update UserData
+                    var user = singleUser.FirstOrDefault();
+                    user.AuthorizeTokenKey = _classBookService.GenerateAuthorizeTokenKey();
+                    user.FCMId = model.FCMId;
+                    _context.Users.Update(user);
+                    _context.SaveChanges();
 
-                        // Save AuthorizationDevice Data
-                        _classBookService.SaveDeviceAuthorizationData(user, model.DeviceId);
-                        responseModel.Message = ClassBookConstantString.Login_Success.ToString();
-                        responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
-                        return StatusCode((int)HttpStatusCode.OK, responseModel);
-                    }
-                    else
-                    {
-                        responseModel.Message = "Email & Password not matching for specified data";
-                        return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
-
-                    }
+                    // Save AuthorizationDevice Data
+                    _classBookService.SaveDeviceAuthorizationData(user, model.DeviceId);
+                    responseModel.Message = ClassBookConstantString.Login_Success.ToString();
+                    responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
+                    return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
-                return Ok();
+                else
+                {
+                    responseModel.Message = "Email & Password not matching for specified data";
+                    return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
+
+                }
             }
-            catch (Exception exception)
-            {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_Login, exception, "api/Common/Login", 0);
-                return StatusCode((int)HttpStatusCode.InternalServerError, exception?.Message);
-            }
+            return Ok();
+
         }
 
 
@@ -191,28 +184,20 @@ namespace ClassBookApplication.Controllers.API
         public IActionResult ForgotPassword([FromForm] ForgotPassword model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+            var singleUser = _context.Users.Where(x => x.Email == model.Email).AsNoTracking();
+            if (singleUser.Any())
             {
-                var singleUser = _context.Users.Where(x => x.Email == model.Email).AsNoTracking();
-                if (singleUser.Any())
-                {
-                    var user = singleUser.FirstOrDefault();
-                    _classBookService.SendVerificationLinkEmail(user.Email, user.Password, "Forgot Password");
-                    responseModel.Message = "Please check your email Id for password";
-                    return StatusCode((int)HttpStatusCode.OK, responseModel);
-                }
-                else
-                {
-                    responseModel.Message = "Email Id is not exist";
-                    return StatusCode((int)HttpStatusCode.NotFound, responseModel);
-                }
+                var user = singleUser.FirstOrDefault();
+                _classBookService.SendVerificationLinkEmail(user.Email, user.Password, "Forgot Password");
+                responseModel.Message = "Please check your email Id for password";
+                return StatusCode((int)HttpStatusCode.OK, responseModel);
             }
-            catch (Exception exception)
+            else
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_ForgotPassword, exception, "api/Common/ForgotPassword", 0);
-                responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+                responseModel.Message = "Email Id is not exist";
+                return StatusCode((int)HttpStatusCode.NotFound, responseModel);
             }
+
         }
 
         // POST api/Common/ChangePassword
@@ -220,30 +205,21 @@ namespace ClassBookApplication.Controllers.API
         public IActionResult ChangePassword([FromForm] ChangePassword model)
         {
             ResponseModel responseModel = new ResponseModel();
-            try
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey && x.Password == model.OldPassword).AsNoTracking();
+            if (singleUser.Any())
             {
-                string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
-                var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey && x.Password == model.OldPassword).AsNoTracking();
-                if (singleUser.Any())
-                {
-                    var user = singleUser.FirstOrDefault();
-                    user.Password = model.NewPassword;
-                    _context.Users.Update(user);
-                    _context.SaveChanges();
-                    responseModel.Message = "Password change Successfully";
-                    return StatusCode((int)HttpStatusCode.OK, responseModel);
-                }
-                else
-                {
-                    responseModel.Message = "Old Password is not matching";
-                    return StatusCode((int)HttpStatusCode.NotFound, responseModel);
-                }
+                var user = singleUser.FirstOrDefault();
+                user.Password = model.NewPassword;
+                _context.Users.Update(user);
+                _context.SaveChanges();
+                responseModel.Message = "Password change Successfully";
+                return StatusCode((int)HttpStatusCode.OK, responseModel);
             }
-            catch (Exception exception)
+            else
             {
-                _logsService.InsertLogs(ClassBookConstant.LogLevelModule_ChangePassword, exception, "api/Common/ChangePassword", 0);
-                responseModel.Message = exception?.Message;
-                return StatusCode((int)HttpStatusCode.InternalServerError, responseModel);
+                responseModel.Message = "Old Password is not matching";
+                return StatusCode((int)HttpStatusCode.NotFound, responseModel);
             }
         }
         #endregion
