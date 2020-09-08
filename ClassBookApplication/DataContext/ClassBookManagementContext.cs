@@ -31,9 +31,8 @@ namespace ClassBookApplication.DataContext
         public DbSet<CourseCategory> CourseCategory { get; set; }
         public DbSet<CourseCategoryMapping> CourseCategoryMapping { get; set; }
         public DbSet<Users> Users { get; set; }
-        public DbSet<MappingData> MappingData { get; set; }
         public DbSet<StandardMediumBoardMapping> StandardMediumBoardMapping { get; set; }
-        public DbSet<SMBSubjectMapping> SMBSubjectMapping { get; set; }
+        public DbSet<ShoppingCartItem> ShoppingCartItem { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
         public DbSet<Topic> Topic { get; set; }

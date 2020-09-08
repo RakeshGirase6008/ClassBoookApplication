@@ -266,36 +266,106 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
-        public void SaveMappingData(int moduleId, int assignToId, MappingRequestModel mappingRequestModel)
+        //public void SaveMappingData(int moduleId, int assignToId, MappingRequestModel mappingRequestModel)
+        //{
+        //    #region Save Mapping Data
+
+        //    int mappingId;
+        //    var retrivedMappingData = _context.MappingData.Where(x => x.AssignToId == assignToId && x.ModuleId == x.ModuleId && x.Active == true).FirstOrDefault();
+        //    if (retrivedMappingData == null)
+        //    {
+        //        MappingData mappingData = new MappingData();
+        //        mappingData.AssignToId = assignToId;
+        //        mappingData.ModuleId = moduleId;
+        //        mappingData.Active = true;
+        //        _context.MappingData.Add(mappingData);
+        //        _context.SaveChanges();
+        //        mappingId = mappingData.Id;
+        //    }
+        //    else
+        //    {
+        //        mappingId = retrivedMappingData.Id;
+        //    }
+
+
+        //    #endregion
+
+        //    if (mappingRequestModel != null)
+        //    {
+        //        CourseCategoryMappingData(moduleId, assignToId, mappingRequestModel);
+        //        SubjectSpecialityMappingData(moduleId, assignToId, mappingRequestModel);
+        //        StandardMediumBoardMappingData(mappingId, mappingRequestModel);
+        //    }
+        //}
+
+        /// <summary>
+        /// Save All Mapping Data
+        /// </summary>
+        public string SaveShoppingCart(int moduleId, int assignToId, AddToCartModel model, bool isRemove = false)
         {
             #region Save Mapping Data
 
             int mappingId;
-            var retrivedMappingData = _context.MappingData.Where(x => x.AssignToId == assignToId && x.ModuleId == x.ModuleId && x.Active == true).FirstOrDefault();
+            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.UserId == assignToId && x.ModuleId == x.ModuleId && x.Active == true
+                && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
+
             if (retrivedMappingData == null)
             {
-                MappingData mappingData = new MappingData();
-                mappingData.AssignToId = assignToId;
-                mappingData.ModuleId = moduleId;
-                mappingData.Active = true;
-                _context.MappingData.Add(mappingData);
+                if (isRemove)
+                {
+                    return "Subject is not in the cart";
+                }
+                StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
+                standardMediumBoardMapping.ModuleId = moduleId;
+                standardMediumBoardMapping.UserId = assignToId;
+                standardMediumBoardMapping.BoardId = model.BoardId;
+                standardMediumBoardMapping.MediumId = model.MediumId;
+                standardMediumBoardMapping.StandardId = model.StandardId;
+                standardMediumBoardMapping.Active = true;
+                _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
                 _context.SaveChanges();
-                mappingId = mappingData.Id;
+                mappingId = standardMediumBoardMapping.Id;
             }
             else
             {
                 mappingId = retrivedMappingData.Id;
             }
 
+            if (isRemove)
+            {
+                var subjectMappingData = _context.ShoppingCartItem.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                if (subjectMappingData.Any())
+                {
+                    _context.ShoppingCartItem.Remove(subjectMappingData.FirstOrDefault());
+                    _context.SaveChanges();
+                    return "Subject Removed Successfully";
+                }
+                else
+                {
+                    return "Subject is not in the cart";
+                }
+            }
+            else
+            {
+                var shoppingCartData = _context.ShoppingCartItem.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                if (!shoppingCartData.Any())
+                {
+                    var levelId = shoppingCartData.Count() + 1;
+                    ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
+                    shoppingCartItem.SMBId = retrivedMappingData.Id;
+                    shoppingCartItem.SubjectId = model.SubjectId;
+                    shoppingCartItem.LevelId = levelId;
+                    _context.ShoppingCartItem.Add(shoppingCartItem);
+                    _context.SaveChanges();
+                    return "Subject Added Successfully";
+                }
+                else
+                {
+                    return "Subject is already in the cart";
+                }
+            }
 
             #endregion
-
-            if (mappingRequestModel != null)
-            {
-                CourseCategoryMappingData(moduleId, assignToId, mappingRequestModel);
-                SubjectSpecialityMappingData(moduleId, assignToId, mappingRequestModel);
-                StandardMediumBoardMappingData(mappingId, mappingRequestModel);
-            }
         }
 
         /// <summary>
@@ -370,57 +440,6 @@ namespace ClassBookApplication.Service
                     }
                 }
             }
-        }
-
-
-        /// <summary>
-        /// Save Board Meduim Standard Mapping
-        /// </summary>
-        public void StandardMediumBoardMappingData(int mappingId, MappingRequestModel mappingData)
-        {
-            #region SavingBoardMapping
-
-            var existingMappingData = _context.StandardMediumBoardMapping.Where(x => x.MappingDataId == mappingId).ToList();
-            foreach (var mappData in existingMappingData)
-            {
-                if (!mappingData.StandardMediumBoard.Any(x => x.BoardId == mappData.BoardId && x.MediumId == mappData.MediumId && x.StandardId == x.StandardId))
-                {
-                    _context.StandardMediumBoardMapping.Remove(mappData);
-                    var removeMappings = _context.SMBSubjectMapping.Where(x => x.SMBId == mappData.Id).ToList();
-                    _context.SMBSubjectMapping.RemoveRange(removeMappings);
-                }
-            }
-
-            // Insert the Mapping Data
-            foreach (var data in mappingData.StandardMediumBoard)
-            {
-                if (!_context.StandardMediumBoardMapping.Where(x => x.BoardId == data.BoardId && x.MediumId == data.MediumId && x.StandardId == data.StandardId && x.MappingDataId == mappingId).Any())
-                {
-                    StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
-                    standardMediumBoardMapping.MappingDataId = mappingId;
-                    standardMediumBoardMapping.BoardId = data.BoardId;
-                    standardMediumBoardMapping.MediumId = data.MediumId;
-                    standardMediumBoardMapping.StandardId = data.StandardId;
-                    standardMediumBoardMapping.Active = true;
-                    _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
-                    _context.SaveChanges();
-
-                    int SMBMappingId = standardMediumBoardMapping.Id;
-                    foreach (var subject in data.SubjectIds)
-                    {
-                        if (!_context.SMBSubjectMapping.Where(x => x.SMBId == SMBMappingId && x.SubjectId == subject).Any())
-                        {
-                            SMBSubjectMapping sMBSubjectMapping = new SMBSubjectMapping();
-                            sMBSubjectMapping.SMBId = SMBMappingId;
-                            sMBSubjectMapping.SubjectId = subject;
-                            sMBSubjectMapping.Active = true;
-                            _context.SMBSubjectMapping.Add(sMBSubjectMapping);
-                            _context.SaveChanges();
-                        }
-                    }
-                }
-            }
-            #endregion
         }
 
         #endregion
