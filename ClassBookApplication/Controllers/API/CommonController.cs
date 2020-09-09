@@ -238,7 +238,7 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    var message=_classBookService.SaveShoppingCart(user.ModuleId, user.Id, model);
+                    var message = _classBookService.SaveShoppingCart(user.Id, model);
                     responseModel.Message = message;
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
@@ -265,7 +265,7 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    var message=_classBookService.SaveShoppingCart(user.ModuleId, user.Id, model,true);
+                    var message = _classBookService.SaveShoppingCart(user.Id, model, true);
                     responseModel.Message = message;
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
@@ -278,6 +278,16 @@ namespace ClassBookApplication.Controllers.API
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
             }
+        }
+
+
+        // POST api/Common/GetCartDetail
+        [HttpPost("GetCartDetail")]
+        public IEnumerable<CartDetailModel> GetCartDetail()
+        {
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
+            return _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId);
         }
 
         #endregion

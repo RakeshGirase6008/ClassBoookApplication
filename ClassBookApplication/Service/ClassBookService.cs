@@ -266,57 +266,20 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
-        //public void SaveMappingData(int moduleId, int assignToId, MappingRequestModel mappingRequestModel)
-        //{
-        //    #region Save Mapping Data
-
-        //    int mappingId;
-        //    var retrivedMappingData = _context.MappingData.Where(x => x.AssignToId == assignToId && x.ModuleId == x.ModuleId && x.Active == true).FirstOrDefault();
-        //    if (retrivedMappingData == null)
-        //    {
-        //        MappingData mappingData = new MappingData();
-        //        mappingData.AssignToId = assignToId;
-        //        mappingData.ModuleId = moduleId;
-        //        mappingData.Active = true;
-        //        _context.MappingData.Add(mappingData);
-        //        _context.SaveChanges();
-        //        mappingId = mappingData.Id;
-        //    }
-        //    else
-        //    {
-        //        mappingId = retrivedMappingData.Id;
-        //    }
-
-
-        //    #endregion
-
-        //    if (mappingRequestModel != null)
-        //    {
-        //        CourseCategoryMappingData(moduleId, assignToId, mappingRequestModel);
-        //        SubjectSpecialityMappingData(moduleId, assignToId, mappingRequestModel);
-        //        StandardMediumBoardMappingData(mappingId, mappingRequestModel);
-        //    }
-        //}
-
-        /// <summary>
-        /// Save All Mapping Data
-        /// </summary>
-        public string SaveShoppingCart(int moduleId, int assignToId, AddToCartModel model, bool isRemove = false)
+        public string SaveShoppingCart(int assignToId, AddToCartModel model, bool isRemove = false)
         {
             #region Save Mapping Data
 
             int mappingId;
-            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.UserId == assignToId && x.ModuleId == x.ModuleId && x.Active == true
+            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.UserId == assignToId && x.Active == true
                 && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
 
             if (retrivedMappingData == null)
             {
                 if (isRemove)
-                {
                     return "Subject is not in the cart";
-                }
+
                 StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
-                standardMediumBoardMapping.ModuleId = moduleId;
                 standardMediumBoardMapping.UserId = assignToId;
                 standardMediumBoardMapping.BoardId = model.BoardId;
                 standardMediumBoardMapping.MediumId = model.MediumId;
@@ -336,8 +299,19 @@ namespace ClassBookApplication.Service
                 var subjectMappingData = _context.ShoppingCartItem.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
                 if (subjectMappingData.Any())
                 {
-                    _context.ShoppingCartItem.Remove(subjectMappingData.FirstOrDefault());
+                    var subMap = subjectMappingData.FirstOrDefault();
+                    _context.ShoppingCartItem.Remove(subMap);
                     _context.SaveChanges();
+
+                    var levelCart = _context.ShoppingCartItem.Where(x => x.UserId == assignToId && x.LevelId > subMap.LevelId).ToList();
+                    foreach(var item in levelCart)
+                    {
+                        int levId= item.LevelId - 1;
+                        item.LevelId = levId;
+                        _context.ShoppingCartItem.Update(item);
+                        _context.SaveChanges();
+                    }
+                    // Update the LevelIds
                     return "Subject Removed Successfully";
                 }
                 else
@@ -347,12 +321,14 @@ namespace ClassBookApplication.Service
             }
             else
             {
+                var cartItems = _context.ShoppingCartItem.Where(x => x.UserId == assignToId);
                 var shoppingCartData = _context.ShoppingCartItem.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
                 if (!shoppingCartData.Any())
                 {
-                    var levelId = shoppingCartData.Count() + 1;
+                    var levelId = cartItems.Count() + 1;
                     ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
-                    shoppingCartItem.SMBId = retrivedMappingData.Id;
+                    shoppingCartItem.SMBId = mappingId;
+                    shoppingCartItem.UserId = assignToId;
                     shoppingCartItem.SubjectId = model.SubjectId;
                     shoppingCartItem.LevelId = levelId;
                     _context.ShoppingCartItem.Add(shoppingCartItem);
@@ -630,6 +606,51 @@ namespace ClassBookApplication.Service
                 //close connection
                 connection.Close();
                 return listingModels;
+            }
+        }
+
+
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
+        public IList<CartDetailModel> GetCartDetailByUserId(int UserId, int moduleId)
+        {
+            IList<CartDetailModel> cartDetailModels = new List<CartDetailModel>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = "GetCartDetailByUserId";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
+                var reader = cmd.ExecuteReader();
+                var hostName = _httpContextAccessor.HttpContext.Request.Host.Value;
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        CartDetailModel ISP = new CartDetailModel()
+                        {
+                            Board = reader.GetValue<string>("BoardName"),
+                            Medium = reader.GetValue<string>("MediumName"),
+                            Standard = reader.GetValue<string>("StandardsName"),
+                            Subject = reader.GetValue<string>("SubjectName"),
+                            Amount = reader.GetValue<decimal>("Amount")
+                        };
+                        cartDetailModels.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return cartDetailModels;
             }
         }
 

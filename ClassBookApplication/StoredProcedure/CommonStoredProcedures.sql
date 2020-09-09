@@ -67,3 +67,24 @@ BEGIN
 		GROUP BY S.Id,S.[Name],S.[SchoolPhotoUrl]
 	 END
 END
+
+GO
+CREATE PROCEDURE [dbo].[GetCartDetailByUserId]
+@UserId INT,
+@ModuleId INT
+AS       
+BEGIN  
+	SELECT B.[Name] as BoardName,
+	M.[Name] AS MediumName,
+	S.[Name] AS StandardsName,
+	Sub.[Name] AS SubjectName,
+	PL.Amount
+	FROM StandardMediumBoardMapping SMB
+	INNER JOIN Board B ON B.Id=SMB.BoardId
+	INNER JOIN [Medium] M ON M.Id=SMB.MediumId
+	INNER JOIN Standards S ON S.Id=SMB.StandardId
+	INNER JOIN ShoppingCartItem SCI ON SCI.SMBId=SMB.Id
+	INNER JOIN Subjects Sub ON Sub.Id=SCI.SubjectId
+	INNER JOIN PackageLevel PL ON PL.EntityLevel=SCI.LevelId AND PL.ModuleId=@ModuleId
+	WHERE SMB.UserId=@UserId
+END
