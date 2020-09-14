@@ -88,3 +88,20 @@ BEGIN
 	INNER JOIN PackageLevel PL ON PL.EntityLevel=SCI.LevelId AND PL.ModuleId=@ModuleId
 	WHERE SMB.UserId=@UserId
 END
+
+GO
+CREATE PROCEDURE GetSubjects
+@ModuleId INT,
+@UserId INT,
+@BoardId INT,
+@MediumId INT,
+@StandardId INT
+AS
+BEGIN
+	select S.Id,S.[Name] from Classes C
+	INNER JOIN Users U ON C.Id=U.UserId AND U.ModuleId=@ModuleId
+	INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
+	INNER JOIN ShoppingCartItem SCI ON SCI.SMBId=SMB.Id
+	INNER JOIN Subjects S ON S.Id=SCI.SubjectId
+	WHERE U.UserId=@UserId
+END
