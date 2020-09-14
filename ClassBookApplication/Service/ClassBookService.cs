@@ -221,7 +221,7 @@ namespace ClassBookApplication.Service
 
         private bool SendEmail(string EmailTo, string EmailBody, string Subject)
         {
-            using (MailMessage mail = new MailMessage())
+            using(MailMessage mail = new MailMessage())
             {
                 mail.From = new MailAddress("servicesautohub@gmail.com");
                 mail.To.Add(EmailTo);
@@ -229,14 +229,30 @@ namespace ClassBookApplication.Service
                 mail.Body = EmailBody;
                 mail.IsBodyHtml = true;
                 //mail.Attachments.Add(new Attachment("C:\\file.zip"));
-
                 using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                 {
+                    smtp.UseDefaultCredentials = false;
                     smtp.Credentials = new NetworkCredential("servicesautohub@gmail.com", "@Ganapati20");
                     smtp.EnableSsl = true;
                     smtp.Send(mail);
                 }
             }
+            //using (MailMessage mail = new MailMessage())
+            //{
+            //    mail.From = new MailAddress("servicesautohub@gmail.com");
+            //    mail.To.Add(EmailTo);
+            //    mail.Subject = Subject;
+            //    mail.Body = EmailBody;
+            //    mail.IsBodyHtml = true;
+            //    //mail.Attachments.Add(new Attachment("C:\\file.zip"));
+
+            //    using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+            //    {
+            //        smtp.Credentials = new NetworkCredential("servicesautohub@gmail.com", "@Ganapati20");
+            //        smtp.EnableSsl = true;
+            //        smtp.Send(mail);
+            //    }
+            //}
             return true;
         }
 
@@ -630,7 +646,6 @@ namespace ClassBookApplication.Service
                 cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
                 var reader = cmd.ExecuteReader();
-                var hostName = _httpContextAccessor.HttpContext.Request.Host.Value;
                 if (reader.HasRows)
                 {
                     while (reader.Read())
@@ -651,6 +666,94 @@ namespace ClassBookApplication.Service
                 //close connection
                 connection.Close();
                 return cartDetailModels;
+            }
+        }
+
+
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
+        public IList<ClassDetailModels> GetClassDetailByClassId(int classId)
+        {
+            IList<ClassDetailModels> classDetailModels = new List<ClassDetailModels>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = "GetDetailByClassId";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@ClassId", SqlDbType.Int).Value = classId;
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ClassDetailModels ISP = new ClassDetailModels()
+                        {
+                            Board = reader.GetValue<string>("BoardName"),
+                            BoardId = reader.GetValue<int>("BoardId"),
+                            Medium = reader.GetValue<string>("MediumName"),
+                            MediumId = reader.GetValue<int>("MediumId"),
+                            Standard = reader.GetValue<string>("StandardsName"),
+                            StandardsId = reader.GetValue<int>("StandardsId"),
+
+                        };
+                        classDetailModels.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return classDetailModels;
+            }
+        }
+
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
+        public IList<SubjectDetails> GetSubjects(SubjectRequestDetails subjectRequestDetails,int moduleId)
+        {
+            IList<SubjectDetails> subjectDetails = new List<SubjectDetails>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = "GetSubjects";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = subjectRequestDetails.ClassId;
+                cmd.Parameters.Add("@BoardId", SqlDbType.Int).Value = subjectRequestDetails.BoardId;
+                cmd.Parameters.Add("@MediumId", SqlDbType.Int).Value = subjectRequestDetails.MediumId;
+                cmd.Parameters.Add("@StandardId", SqlDbType.Int).Value = subjectRequestDetails.StandardId;
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        SubjectDetails ISP = new SubjectDetails()
+                        {
+                            Id = reader.GetValue<int>("Id"),
+                            Name = reader.GetValue<string>("Name")
+                        };
+                        subjectDetails.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return subjectDetails;
             }
         }
 

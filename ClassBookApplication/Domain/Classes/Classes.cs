@@ -23,6 +23,7 @@ namespace ClassBookApplication.Domain.Classes
         public string ReferCode { get; set; }
         public string UniqueNo { get; set; }
         public string QRcodeImageURL { get; set; }
+        public string IntroductionURL { get; set; }
         public int RegistrationFromTypeId { get; set; }
         public int RegistrationByTypeId { get; set; }
         public int CreatedBy { get; set; }

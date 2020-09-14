@@ -33,6 +33,8 @@ namespace ClassBookApplication.DataContext
         public DbSet<Users> Users { get; set; }
         public DbSet<StandardMediumBoardMapping> StandardMediumBoardMapping { get; set; }
         public DbSet<ShoppingCartItem> ShoppingCartItem { get; set; }
+        //public DbSet<Order> Order { get; set; }
+        //public DbSet<OrderItems> OrderItems { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
         public DbSet<Topic> Topic { get; set; }
