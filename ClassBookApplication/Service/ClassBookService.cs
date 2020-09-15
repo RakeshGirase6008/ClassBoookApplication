@@ -237,22 +237,6 @@ namespace ClassBookApplication.Service
                     smtp.Send(mail);
                 }
             }
-            //using (MailMessage mail = new MailMessage())
-            //{
-            //    mail.From = new MailAddress("servicesautohub@gmail.com");
-            //    mail.To.Add(EmailTo);
-            //    mail.Subject = Subject;
-            //    mail.Body = EmailBody;
-            //    mail.IsBodyHtml = true;
-            //    //mail.Attachments.Add(new Attachment("C:\\file.zip"));
-
-            //    using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
-            //    {
-            //        smtp.Credentials = new NetworkCredential("servicesautohub@gmail.com", "@Ganapati20");
-            //        smtp.EnableSsl = true;
-            //        smtp.Send(mail);
-            //    }
-            //}
             return true;
         }
 
@@ -650,7 +634,7 @@ namespace ClassBookApplication.Service
                 {
                     while (reader.Read())
                     {
-                        CartDetailModel ISP = new CartDetailModel()
+                        CartDetailModel cartDetailModel = new CartDetailModel()
                         {
                             Board = reader.GetValue<string>("BoardName"),
                             Medium = reader.GetValue<string>("MediumName"),
@@ -658,7 +642,7 @@ namespace ClassBookApplication.Service
                             Subject = reader.GetValue<string>("SubjectName"),
                             Amount = reader.GetValue<decimal>("Amount")
                         };
-                        cartDetailModels.Add(ISP);
+                        cartDetailModels.Add(cartDetailModel);
                     }
                 };
                 //close up the reader, we're done saving results
@@ -673,9 +657,9 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public IList<ClassDetailModels> GetClassDetailByClassId(int classId)
+        public IList<BoardMediumStandardModel> GetDetailById(int Id,int moduleId)
         {
-            IList<ClassDetailModels> classDetailModels = new List<ClassDetailModels>();
+            IList<BoardMediumStandardModel> boardMediumStandardModel = new List<BoardMediumStandardModel>();
             SqlConnection connection = new SqlConnection(GetConnectionString());
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
@@ -684,16 +668,17 @@ namespace ClassBookApplication.Service
             using (var cmd = connection.CreateCommand())
             {
                 //command to execute
-                cmd.CommandText = "GetDetailByClassId";
+                cmd.CommandText = "GetDetailById";
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
-                cmd.Parameters.Add("@ClassId", SqlDbType.Int).Value = classId;
+                cmd.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
                 var reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
-                        ClassDetailModels ISP = new ClassDetailModels()
+                        BoardMediumStandardModel ISP = new BoardMediumStandardModel()
                         {
                             Board = reader.GetValue<string>("BoardName"),
                             BoardId = reader.GetValue<int>("BoardId"),
@@ -701,23 +686,22 @@ namespace ClassBookApplication.Service
                             MediumId = reader.GetValue<int>("MediumId"),
                             Standard = reader.GetValue<string>("StandardsName"),
                             StandardsId = reader.GetValue<int>("StandardsId"),
-
                         };
-                        classDetailModels.Add(ISP);
+                        boardMediumStandardModel.Add(ISP);
                     }
                 };
                 //close up the reader, we're done saving results
                 reader.Close();
                 //close connection
                 connection.Close();
-                return classDetailModels;
+                return boardMediumStandardModel;
             }
         }
 
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public IList<SubjectDetails> GetSubjects(SubjectRequestDetails subjectRequestDetails,int moduleId)
+        public IList<SubjectDetails> GetSubjects(SubjectRequestDetails subjectRequestDetails)
         {
             IList<SubjectDetails> subjectDetails = new List<SubjectDetails>();
             SqlConnection connection = new SqlConnection(GetConnectionString());
@@ -731,8 +715,8 @@ namespace ClassBookApplication.Service
                 cmd.CommandText = "GetSubjects";
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
-                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
-                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = subjectRequestDetails.ClassId;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = subjectRequestDetails.ModuleId;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = subjectRequestDetails.Id;
                 cmd.Parameters.Add("@BoardId", SqlDbType.Int).Value = subjectRequestDetails.BoardId;
                 cmd.Parameters.Add("@MediumId", SqlDbType.Int).Value = subjectRequestDetails.MediumId;
                 cmd.Parameters.Add("@StandardId", SqlDbType.Int).Value = subjectRequestDetails.StandardId;
@@ -754,6 +738,32 @@ namespace ClassBookApplication.Service
                 //close connection
                 connection.Close();
                 return subjectDetails;
+            }
+        }
+
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
+        public bool OrderPaid(int UserId,int ModuleId,string PaymentType)
+        {
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = "OrderPaid";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = ModuleId;
+                cmd.Parameters.Add("@PaymentType", SqlDbType.VarChar).Value = PaymentType;
+                var reader = cmd.ExecuteNonQuery();
+                //close connection
+                connection.Close();
+                return true;
             }
         }
 

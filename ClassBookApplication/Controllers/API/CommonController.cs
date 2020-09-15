@@ -224,73 +224,7 @@ namespace ClassBookApplication.Controllers.API
         }
         #endregion
 
-        #region ShoppingCart
-
-        // POST api/Common/AddToCart
-        [HttpPost("AddToCart")]
-        public IActionResult AddToCart([FromForm] AddToCartModel model)
-        {
-            ResponseModel responseModel = new ResponseModel();
-            if (ModelState.IsValid)
-            {
-                string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
-                var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).AsNoTracking();
-                if (singleUser.Any())
-                {
-                    var user = singleUser.FirstOrDefault();
-                    var message = _classBookService.SaveShoppingCart(user.Id, model);
-                    responseModel.Message = message;
-                    return StatusCode((int)HttpStatusCode.OK, responseModel);
-                }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
-                }
-            }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-            }
-        }
-
-        // POST api/Common/RemoveFromCart
-        [HttpPost("RemoveFromCart")]
-        public IActionResult RemoveFromCart([FromForm] AddToCartModel model)
-        {
-            ResponseModel responseModel = new ResponseModel();
-            if (ModelState.IsValid)
-            {
-                string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
-                var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).AsNoTracking();
-                if (singleUser.Any())
-                {
-                    var user = singleUser.FirstOrDefault();
-                    var message = _classBookService.SaveShoppingCart(user.Id, model, true);
-                    responseModel.Message = message;
-                    return StatusCode((int)HttpStatusCode.OK, responseModel);
-                }
-                else
-                {
-                    return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
-                }
-            }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
-            }
-        }
-
-
-        // POST api/Common/GetCartDetail
-        [HttpPost("GetCartDetail")]
-        public IEnumerable<CartDetailModel> GetCartDetail()
-        {
-            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
-            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
-            return _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId);
-        }
-
-        #endregion
+        
 
         //#region Version Sample Only
 

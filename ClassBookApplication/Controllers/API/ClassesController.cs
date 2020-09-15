@@ -126,26 +126,32 @@ namespace ClassBookApplication.Controllers.API
         public object GetClassById(int id)
         {
             var query = from classes in _context.Classes
+                        join state in _context.States on classes.StateId equals state.Id
                         join city in _context.City on classes.CityId equals city.Id
+                        join pincode in _context.Pincode on classes.Pincode equals pincode.Id
                         where classes.Id == id && classes.Active == true
                         orderby classes.Id
-                        select new ClassDetailModel
+                        select new
                         {
-                            Id = classes.Id,
                             Name = classes.Name,
+                            Email = classes.Email,
+                            ContactNo = classes.ContactNo,
+                            AlternateContact = classes.AlternateContact,
+                            RegistrationNo = classes.RegistrationNo,
+                            LogoUrl = classes.LogoUrl,
+                            ClassPhotoUrl = classes.ClassPhotoUrl,
+                            EstablishmentDate = classes.EstablishmentDate,
+                            Address = classes.Address,
+                            TeachingExperience = classes.TeachingExperience,
+                            Description = classes.Description,
+                            ReferCode = classes.ReferCode,
+                            UniqueNo = classes.UniqueNo,
+                            StateName = state.Name,
                             CityName = city.Name,
-                            IntroductionURL = classes.IntroductionURL
+                            Pincode = pincode.Name,
                         };
             var ClassData = query.FirstOrDefault();
-            ClassData.ClassDetailModels = _classBookService.GetClassDetailByClassId(ClassData.Id);
             return ClassData;
-        }
-
-        // GET api/Classes/GetClassById/5
-        [HttpPost("GetSubjects")]
-        public object GetSubjects([FromForm] SubjectRequestDetails subjectRequestDetails)
-        {
-            return _classBookService.GetSubjects(subjectRequestDetails, (int)Module.Classes);
         }
 
         #endregion

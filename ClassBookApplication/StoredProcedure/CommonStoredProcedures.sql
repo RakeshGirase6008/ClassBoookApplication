@@ -69,39 +69,96 @@ BEGIN
 END
 
 GO
-CREATE PROCEDURE [dbo].[GetCartDetailByUserId]
-@UserId INT,
-@ModuleId INT
-AS       
-BEGIN  
-	SELECT B.[Name] as BoardName,
-	M.[Name] AS MediumName,
-	S.[Name] AS StandardsName,
-	Sub.[Name] AS SubjectName,
-	PL.Amount
-	FROM StandardMediumBoardMapping SMB
-	INNER JOIN Board B ON B.Id=SMB.BoardId
-	INNER JOIN [Medium] M ON M.Id=SMB.MediumId
-	INNER JOIN Standards S ON S.Id=SMB.StandardId
-	INNER JOIN ShoppingCartItem SCI ON SCI.SMBId=SMB.Id
-	INNER JOIN Subjects Sub ON Sub.Id=SCI.SubjectId
-	INNER JOIN PackageLevel PL ON PL.EntityLevel=SCI.LevelId AND PL.ModuleId=@ModuleId
-	WHERE SMB.UserId=@UserId
+CREATE PROCEDURE [GetSubjects]
+@ModuleId INT,    
+@UserId INT,    
+@BoardId INT,    
+@MediumId INT,    
+@StandardId INT    
+AS    
+BEGIN    
+ IF @ModuleId=3  
+ BEGIN  
+  select S.Id,S.[Name] from Classes C    
+  INNER JOIN Users U ON C.Id=U.UserId AND U.ModuleId=@ModuleId    
+  INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId    
+  INNER JOIN [OrderItems] OI ON OI.SMBId=SMB.Id
+  INNER JOIN Subjects S ON S.Id=OI.SubjectId    
+  WHERE U.UserId=@UserId    
+ END  
+  
+ IF @ModuleId=2  
+ BEGIN  
+  select S.Id,S.[Name] from Teacher T    
+  INNER JOIN Users U ON T.Id=U.UserId AND U.ModuleId=@ModuleId    
+  INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId    
+  INNER JOIN [OrderItems] OI ON OI.SMBId=SMB.Id
+  INNER JOIN Subjects S ON S.Id=OI.SubjectId    
+  WHERE U.UserId=@UserId  
+ END  
+   
+END 
+
+Go
+CREATE PROCEDURE [OrderPaid] 
+@UserId INT,  
+@ModuleId INT,  
+@PaymentType VARCHAR(100)  
+AS    
+BEGIN   
+ DECLARE @Id INT  
+ DECLARE @TotalAmount DECIMAL  
+
+ --Insert Data for Order Table
+ INSERT INTO [Order] VALUES(@UserId,@PaymentType,GETDATE(),GETDATE(),1,0)  
+ SET @Id=SCOPE_IDENTITY()  
+  
+ --Add the ShoppingCartData into OrderItems with Amount
+ INSERT INTO OrderItems  
+ SELECT @Id,SMB.Id,Sub.Id,ISNULL(PL.Amount,0)  
+ FROM StandardMediumBoardMapping SMB    
+ INNER JOIN ShoppingCartItem SCI ON SCI.SMBId=SMB.Id    
+ INNER JOIN Subjects Sub ON Sub.Id=SCI.SubjectId    
+ INNER JOIN PackageLevel PL ON PL.EntityLevel=SCI.LevelId AND PL.ModuleId=@ModuleId  
+ WHERE SMB.UserId=@UserId    
+  
+  --Updae the TotalAmount for Order Table
+ SELECT @TotalAmount=ISNULL(SUM(Amount),0)  
+ FROM OrderItems WHERE OrderId=@Id  
+  
+ UPDATE [Order]  
+ SET TotalAmount=@TotalAmount  
+ WHERE Id=@Id
+
+ --Remove the ShoppingCartItem Data once the Order is Paid
+ DELETE SCI 
+ FROM Users U
+ INNER JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
+ INNER JOIN ShoppingCartItem SCI ON SCI.SMBId=SMB.Id
+ WHERE U.Id=@UserId
+
 END
 
-GO
-CREATE PROCEDURE GetSubjects
-@ModuleId INT,
-@UserId INT,
-@BoardId INT,
-@MediumId INT,
-@StandardId INT
-AS
-BEGIN
-	select S.Id,S.[Name] from Classes C
-	INNER JOIN Users U ON C.Id=U.UserId AND U.ModuleId=@ModuleId
-	INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
-	INNER JOIN ShoppingCartItem SCI ON SCI.SMBId=SMB.Id
-	INNER JOIN Subjects S ON S.Id=SCI.SubjectId
-	WHERE U.UserId=@UserId
+Go
+CREATE PROCEDURE [dbo].[GetDetailById]
+@Id INT,  
+@ModuleId INT  
+AS           
+BEGIN      
+
+DECLARE @UserId INT
+SELECT @UserId=Id from Users where UserId=@Id AND ModuleId=@ModuleId
+
+SELECT     
+   B.[Name] as BoardName,    
+   B.[Id] As BoardId,    
+   M.[Name] AS MediumName,    
+   M.[Id] As MediumId,    
+   S.[Name] AS StandardsName,    
+   S.[Id] As StandardsId    
+  FROM StandardMediumBoardMapping SMB
+  INNER JOIN Board B ON B.Id=SMB.BoardId    
+  INNER JOIN [Medium] M ON M.Id=SMB.MediumId    
+  INNER JOIN Standards S ON S.Id=SMB.StandardId   
+  WHERE SMB.UserId=@UserId
 END

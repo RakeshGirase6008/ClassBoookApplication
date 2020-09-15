@@ -153,5 +153,57 @@ namespace ClassBookApplication.Controllers.API
             return students;
         }
         #endregion
+
+        #region Student another record
+
+        // GET api/Student/GetClassById/5
+        [HttpGet("GetClassById/{id:int}")]
+        public object GetClassById(int id)
+        {
+            var query = from classes in _context.Classes
+                        join city in _context.City on classes.CityId equals city.Id
+                        where classes.Id == id && classes.Active == true
+                        orderby classes.Id
+                        select new CommonDetailModel
+                        {
+                            Id = classes.Id,
+                            Name = classes.Name,
+                            CityName = city.Name,
+                            IntroductionURL = classes.IntroductionURL
+                        };
+            var ClassData = query.FirstOrDefault();
+            if (ClassData != null)
+                ClassData.BoardMediumStandardModel = _classBookService.GetDetailById(ClassData.Id, (int)Module.Classes);
+            return ClassData;
+        }
+
+
+        // GET api/Student/GetTeacherById/5
+        [HttpGet("GetTeacherById/{id:int}")]
+        public object GetTeacherById(int id)
+        {
+            var query = from teacher in _context.Teacher
+                        join city in _context.City on teacher.CityId equals city.Id
+                        where teacher.Id == id && teacher.Active == true
+                        orderby teacher.Id
+                        select new CommonDetailModel
+                        {
+                            Id = teacher.Id,
+                            Name = teacher.FirstName + " " + teacher.LastName,
+                            CityName = city.Name,
+                            IntroductionURL = teacher.IntroductionURL
+                        };
+            var teacherData = query.FirstOrDefault();
+            if(teacherData!=null)
+                teacherData.BoardMediumStandardModel = _classBookService.GetDetailById(teacherData.Id,(int)Module.Teacher);
+            return teacherData;
+        }
+        // POST api/Student/GetSubjects
+        [HttpPost("GetSubjects")]
+        public object GetSubjects([FromForm] SubjectRequestDetails subjectRequestDetails)
+        {
+            return _classBookService.GetSubjects(subjectRequestDetails);
+        }
+        #endregion
     }
 }
