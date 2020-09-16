@@ -50,13 +50,13 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
+                Student studentData = JsonConvert.DeserializeObject<Student>(model.Data.ToString());
                 if (studentData != null)
                 {
                     var singleUser = _context.Users.Where(x => x.Email == studentData.Email).AsNoTracking();
                     if (!singleUser.Any())
                     {
-                        (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.files);
+                        (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, model.Files);
                         string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
                         var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email, model.FCMId, model.DeviceId);
                         await Task.Run(() => _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString()));
@@ -85,7 +85,7 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                Student studentData = JsonConvert.DeserializeObject<Student>(model.data.ToString());
+                Student studentData = JsonConvert.DeserializeObject<Student>(model.Data.ToString());
                 if (studentData != null)
                 {
                     if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
@@ -96,7 +96,7 @@ namespace ClassBookApplication.Controllers.API
                     else
                     {
                         var singleUser = _context.Student.Where(x => x.Id == studentData.Id).AsNoTracking().FirstOrDefault();
-                        int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.files);
+                        int studentId = _classBookService.UpdateStudent(studentData, singleUser, model.Files);
                         responseModel.Message = ClassBookConstantString.Edit_Student_Success.ToString();
                         return StatusCode((int)HttpStatusCode.OK, responseModel);
                     }
@@ -116,7 +116,7 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetAllStudents")]
         public IEnumerable<Student> GetAllStudents()
         {
-            var students = _context.Student.Where(x => x.Active == true && x.Deleted == true).AsEnumerable();
+            var students = _context.Student.Where(x => x.Active == true && x.Deleted == false).AsEnumerable();
             return students;
         }
 

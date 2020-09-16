@@ -214,14 +214,14 @@ namespace ClassBookApplication.Service
         /// </summary>
         public void SendVerificationLinkEmail(string ToEmailId, string GeneratedPassword, string title)
         {
-            var emailBody = CreateBody(ToEmailId, GeneratedPassword, string.Empty, "ActivateMyAccount");
-            title = title.ToString() + " Register";
-            SendEmail(ToEmailId, emailBody, title);
+            //var emailBody = CreateBody(ToEmailId, GeneratedPassword, string.Empty, "ActivateMyAccount");
+            //title = title.ToString() + " Register";
+            //SendEmail(ToEmailId, emailBody, title);
         }
 
         private bool SendEmail(string EmailTo, string EmailBody, string Subject)
         {
-            using(MailMessage mail = new MailMessage())
+            using (MailMessage mail = new MailMessage())
             {
                 mail.From = new MailAddress("servicesautohub@gmail.com");
                 mail.To.Add(EmailTo);
@@ -304,9 +304,9 @@ namespace ClassBookApplication.Service
                     _context.SaveChanges();
 
                     var levelCart = _context.ShoppingCartItem.Where(x => x.UserId == assignToId && x.LevelId > subMap.LevelId).ToList();
-                    foreach(var item in levelCart)
+                    foreach (var item in levelCart)
                     {
-                        int levId= item.LevelId - 1;
+                        int levId = item.LevelId - 1;
                         item.LevelId = levId;
                         _context.ShoppingCartItem.Update(item);
                         _context.SaveChanges();
@@ -657,7 +657,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public IList<BoardMediumStandardModel> GetDetailById(int Id,int moduleId)
+        public IList<BoardMediumStandardModel> GetDetailById(int Id, int moduleId)
         {
             IList<BoardMediumStandardModel> boardMediumStandardModel = new List<BoardMediumStandardModel>();
             SqlConnection connection = new SqlConnection(GetConnectionString());
@@ -744,7 +744,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public bool OrderPaid(int UserId,int ModuleId,string PaymentType)
+        public bool OrderPaid(int UserId, int ModuleId, string PaymentType)
         {
             SqlConnection connection = new SqlConnection(GetConnectionString());
             if (connection.State == ConnectionState.Closed)

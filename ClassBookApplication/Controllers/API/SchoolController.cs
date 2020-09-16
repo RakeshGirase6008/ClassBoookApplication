@@ -50,13 +50,13 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                School schoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
+                School schoolData = JsonConvert.DeserializeObject<School>(model.Data.ToString());
                 if (schoolData != null)
                 {
                     var singleUser = _context.Users.Where(x => x.Email == schoolData.Email).AsNoTracking();
                     if (!singleUser.Any())
                     {
-                        (int SchoolId, string uniqueNo) = _classBookService.SaveSchool(schoolData, model.files);
+                        (int SchoolId, string uniqueNo) = _classBookService.SaveSchool(schoolData, model.Files);
                         string UserName = schoolData.Name + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(SchoolId, Module.School, UserName, schoolData.Email, model.FCMId, model.DeviceId);
@@ -87,7 +87,7 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                School SchoolData = JsonConvert.DeserializeObject<School>(model.data.ToString());
+                School SchoolData = JsonConvert.DeserializeObject<School>(model.Data.ToString());
                 if (SchoolData != null)
                 {
                     if (_context.Users.Count(x => x.Email == SchoolData.Email && x.UserId != SchoolData.Id) > 0)
@@ -98,7 +98,7 @@ namespace ClassBookApplication.Controllers.API
                     else
                     {
                         var singleClass = _context.School.Where(x => x.Id == SchoolData.Id).AsNoTracking().FirstOrDefault();
-                        int classId = _classBookService.UpdateSchool(SchoolData, singleClass, model.files);
+                        int classId = _classBookService.UpdateSchool(SchoolData, singleClass, model.Files);
                         //_classBookService.SaveMappingData((int)Module.School, classId, SchoolData.MappingRequestModel);
                         responseModel.Message = ClassBookConstantString.Edit_School_Success.ToString();
                         return StatusCode((int)HttpStatusCode.OK, responseModel);

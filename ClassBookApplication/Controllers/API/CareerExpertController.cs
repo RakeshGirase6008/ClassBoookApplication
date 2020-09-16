@@ -49,13 +49,13 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
+                CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.Data.ToString());
                 if (CareerExpertData != null)
                 {
                     var singleUser = _context.Users.Where(x => x.Email == CareerExpertData.Email).AsNoTracking();
                     if (!singleUser.Any())
                     {
-                        (int CareerExpertId, string uniqueNo) = _classBookService.SaveCareerExpert(CareerExpertData, model.files);
+                        (int CareerExpertId, string uniqueNo) = _classBookService.SaveCareerExpert(CareerExpertData, model.Files);
                         string UserName = CareerExpertData.FirstName + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email, model.FCMId, model.DeviceId);
@@ -86,7 +86,7 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.data.ToString());
+                CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.Data.ToString());
                 if (CareerExpertData != null)
                 {
                     if (_context.Users.Count(x => x.Email == CareerExpertData.Email && x.UserId != CareerExpertData.Id) > 0)
@@ -97,7 +97,7 @@ namespace ClassBookApplication.Controllers.API
                     else
                     {
                         var singleCareerExpert = _context.CareerExpert.Where(x => x.Id == CareerExpertData.Id).AsNoTracking().FirstOrDefault();
-                        int CareerExpertId = _classBookService.UpdateCareerExpert(CareerExpertData, singleCareerExpert, model.files);
+                        int CareerExpertId = _classBookService.UpdateCareerExpert(CareerExpertData, singleCareerExpert, model.Files);
                         //_classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
                         responseModel.Message = ClassBookConstantString.Edit_CareerExpert_Success.ToString();
                         return StatusCode((int)HttpStatusCode.OK, responseModel);

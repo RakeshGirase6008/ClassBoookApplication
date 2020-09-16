@@ -2,6 +2,9 @@ CREATE PROCEDURE [dbo].[GetModuleDataByModuleId]
 @ModuleId INT    
 AS     
 BEGIN    
+	DECLARE @TopProducts INT
+	SET @TopProducts=5
+
 	 IF @ModuleId=2
 	 BEGIN
 		SELECT T.Id,
@@ -10,29 +13,31 @@ BEGIN
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount,
+		COUNT(OI.SubjectId) as SubjectCount,
 		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM Teacher T
 		LEFT JOIN Ratings R ON R.EntityId=T.Id AND R.EntityName='Teacher'
-		LEFT JOIN MappingData MD ON MD.AssignToId=T.Id AND MD.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
-		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
+		LEFT JOIN Users U ON U.UserId=T.Id AND U.ModuleId=@ModuleId
+		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
+		LEFT JOIN OrderItems OI ON  SMB.Id=OI.SMBId
 		GROUP BY T.Id,T.[FirstName],T.LastName,T.[ProfilePictureUrl]
+		ORDER BY Rating DESC
 	 END
 	 ELSE IF @ModuleId=3
 	 BEGIN
-		SELECT C.Id,C.[Name],C.[ClassPhotoUrl] as PhotoUrl,
+		SELECT Top(@TopProducts) C.Id,C.[Name],C.[ClassPhotoUrl] as PhotoUrl,
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
-		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount,
+		COUNT(StandardId) as StandardCount,
+		COUNT(OI.SubjectId) as SubjectCount,
 		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
-		FROM Classes C
+		FROM Classes C 
 		LEFT JOIN Ratings R ON R.EntityId=C.Id AND R.EntityName='Classes'
-		LEFT JOIN MappingData MD ON MD.AssignToId=C.Id AND MD.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
-		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
+		LEFT JOIN Users U ON U.UserId=C.Id AND U.ModuleId=@ModuleId
+		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
+		LEFT JOIN OrderItems OI ON  SMB.Id=OI.SMBId
 		GROUP BY C.Id,C.[Name],C.[ClassPhotoUrl]
+		ORDER BY Rating DESC
 	 END
 	 ELSE IF @ModuleId=4
 	 BEGIN
@@ -42,14 +47,15 @@ BEGIN
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount,
+		COUNT(OI.SubjectId) as SubjectCount,
 		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM CareerExpert CE
 		LEFT JOIN Ratings R ON R.EntityId=CE.Id AND R.EntityName='CareerExpert'
-		LEFT JOIN MappingData MD ON MD.AssignToId=CE.Id AND MD.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
-		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
+		LEFT JOIN Users U ON U.UserId=CE.Id AND U.ModuleId=@ModuleId
+		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
+		LEFT JOIN OrderItems OI ON  SMB.Id=OI.SMBId
 		GROUP BY CE.Id,CE.[FirstName],CE.[LastName],CE.[ProfilePictureUrl]
+		ORDER BY Rating DESC
 	 END
 	 ELSE IF @ModuleId=5
 	 BEGIN
@@ -57,14 +63,15 @@ BEGIN
 		COUNT(DISTINCT(BoardId)) as BoardCount,  
 		COUNT(DISTINCT(MediumId)) as MediumCount,  
 		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(SMBS.SubjectId) as SubjectCount,
+		COUNT(OI.SubjectId) as SubjectCount,
 		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM School S
 		LEFT JOIN Ratings R ON R.EntityId=S.Id AND R.EntityName='School'
-		LEFT JOIN MappingData MD ON MD.AssignToId=S.Id AND MD.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON MD.Id=SMB.MappingDataId
-		LEFT JOIN SMBSubjectMapping SMBS ON  SMBS.SMBId=SMB.Id
+		LEFT JOIN Users U ON U.UserId=S.Id AND U.ModuleId=@ModuleId
+		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
+		LEFT JOIN OrderItems OI ON  SMB.Id=OI.SMBId
 		GROUP BY S.Id,S.[Name],S.[SchoolPhotoUrl]
+		ORDER BY Rating DESC
 	 END
 END
 

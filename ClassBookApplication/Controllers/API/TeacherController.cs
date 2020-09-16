@@ -50,13 +50,13 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.data.ToString());
+                Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.Data.ToString());
                 if (teacherData != null)
                 {
                     var singleUser = _context.Users.Where(x => x.Email == teacherData.Email).AsNoTracking();
                     if (!singleUser.Any())
                     {
-                        (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.files);
+                        (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.Files);
                         string UserName = teacherData.FirstName + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email, model.FCMId, model.DeviceId);
@@ -86,7 +86,7 @@ namespace ClassBookApplication.Controllers.API
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
             {
-                Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.data.ToString());
+                Teacher teacherData = JsonConvert.DeserializeObject<Teacher>(model.Data.ToString());
                 if (teacherData != null)
                 {
                     if (_context.Users.Count(x => x.Email == teacherData.Email && x.UserId != teacherData.Id) > 0)
@@ -97,7 +97,7 @@ namespace ClassBookApplication.Controllers.API
                     else
                     {
                         var singleTeacher = _context.Teacher.Where(x => x.Id == teacherData.Id).AsNoTracking().FirstOrDefault();
-                        int teacherId = _classBookService.UpdateTeachers(teacherData, singleTeacher, model.files);
+                        int teacherId = _classBookService.UpdateTeachers(teacherData, singleTeacher, model.Files);
                         //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
                         responseModel.Message = ClassBookConstantString.Edit_Teacher_Success.ToString();
                         return StatusCode((int)HttpStatusCode.OK, responseModel);

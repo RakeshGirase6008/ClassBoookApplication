@@ -6,9 +6,10 @@ namespace ClassBookApplication.Models.RequestModels
 {
     public class CommonRegistrationModel
     {
-        public List<IFormFile> files { get; set; }
-        public IFormFile file { get; set; }
-        public string data { get; set; }
+        public List<IFormFile> Files { get; set; }
+        public IFormFile File { get; set; }
+        public string Data { get; set; }
+
         [Required]
         public string DeviceId { get; set; }
         [Required]
