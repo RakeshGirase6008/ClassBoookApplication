@@ -1,6 +1,6 @@
 ﻿namespace ClassBookApplication.Domain.Common
 {
-    public class ShoppingCartItem :BaseEntity
+    public class ShoppingCartSubjects :BaseEntity
     {
         public int SMBId { get; set; }
         public int UserId { get; set; }

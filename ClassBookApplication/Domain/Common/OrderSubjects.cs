@@ -1,6 +1,6 @@
 ﻿namespace ClassBookApplication.Domain.Common
 {
-    public class OrderItems :BaseEntity
+    public class OrderSubjects :BaseEntity
     {
         public int OrderId { get; set; }
         public int SMBId { get; set; }

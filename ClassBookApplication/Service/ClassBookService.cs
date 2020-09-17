@@ -296,19 +296,19 @@ namespace ClassBookApplication.Service
 
             if (isRemove)
             {
-                var subjectMappingData = _context.ShoppingCartItem.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                var subjectMappingData = _context.ShoppingCartSubjects.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
                 if (subjectMappingData.Any())
                 {
                     var subMap = subjectMappingData.FirstOrDefault();
-                    _context.ShoppingCartItem.Remove(subMap);
+                    _context.ShoppingCartSubjects.Remove(subMap);
                     _context.SaveChanges();
 
-                    var levelCart = _context.ShoppingCartItem.Where(x => x.UserId == assignToId && x.LevelId > subMap.LevelId).ToList();
+                    var levelCart = _context.ShoppingCartSubjects.Where(x => x.UserId == assignToId && x.LevelId > subMap.LevelId).ToList();
                     foreach (var item in levelCart)
                     {
                         int levId = item.LevelId - 1;
                         item.LevelId = levId;
-                        _context.ShoppingCartItem.Update(item);
+                        _context.ShoppingCartSubjects.Update(item);
                         _context.SaveChanges();
                     }
                     // Update the LevelIds
@@ -321,17 +321,26 @@ namespace ClassBookApplication.Service
             }
             else
             {
-                var cartItems = _context.ShoppingCartItem.Where(x => x.UserId == assignToId);
-                var shoppingCartData = _context.ShoppingCartItem.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                var shoppingCartData = _context.ShoppingCartSubjects.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
                 if (!shoppingCartData.Any())
                 {
-                    var levelId = cartItems.Count() + 1;
-                    ShoppingCartItem shoppingCartItem = new ShoppingCartItem();
+                    var cartItems = _context.ShoppingCartSubjects.Where(x => x.UserId == assignToId);
+                    var orderCartItems = from order in _context.Order
+                                         join oi in _context.OrderSubjects on order.Id equals oi.OrderId
+                                         where order.UserId == assignToId
+                                         select new
+                                         {
+                                             id = oi.Id
+                                         };
+                    var listCount = orderCartItems.ToList().Count();
+
+                    var levelId = cartItems.Count() + listCount + 1;
+                    ShoppingCartSubjects shoppingCartItem = new ShoppingCartSubjects();
                     shoppingCartItem.SMBId = mappingId;
                     shoppingCartItem.UserId = assignToId;
                     shoppingCartItem.SubjectId = model.SubjectId;
                     shoppingCartItem.LevelId = levelId;
-                    _context.ShoppingCartItem.Add(shoppingCartItem);
+                    _context.ShoppingCartSubjects.Add(shoppingCartItem);
                     _context.SaveChanges();
                     return "Subject Added Successfully";
                 }
@@ -578,7 +587,7 @@ namespace ClassBookApplication.Service
             using (var cmd = connection.CreateCommand())
             {
                 //command to execute
-                cmd.CommandText = "GetModuleDataByModuleId";
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetModuleDataByModuleId.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = ModuleId;
@@ -624,10 +633,10 @@ namespace ClassBookApplication.Service
             using (var cmd = connection.CreateCommand())
             {
                 //command to execute
-                cmd.CommandText = "GetCartDetailByUserId";
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetCartDetailByUserId.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
-                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
+                cmd.Parameters.Add("@Id", SqlDbType.Int).Value = UserId;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
                 var reader = cmd.ExecuteReader();
                 if (reader.HasRows)
@@ -668,7 +677,7 @@ namespace ClassBookApplication.Service
             using (var cmd = connection.CreateCommand())
             {
                 //command to execute
-                cmd.CommandText = "GetDetailById";
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetDetailById.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@Id", SqlDbType.Int).Value = Id;
@@ -712,7 +721,7 @@ namespace ClassBookApplication.Service
             using (var cmd = connection.CreateCommand())
             {
                 //command to execute
-                cmd.CommandText = "GetSubjects";
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetSubjects.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = subjectRequestDetails.ModuleId;
@@ -754,7 +763,7 @@ namespace ClassBookApplication.Service
             using (var cmd = connection.CreateCommand())
             {
                 //command to execute
-                cmd.CommandText = "OrderPaid";
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_OrderPaid.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
