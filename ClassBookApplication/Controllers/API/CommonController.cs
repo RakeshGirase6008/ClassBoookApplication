@@ -222,9 +222,18 @@ namespace ClassBookApplication.Controllers.API
                 return StatusCode((int)HttpStatusCode.NotFound, responseModel);
             }
         }
+
         #endregion
 
-        
+        #region GetAllCommonData
+
+        // POST api/Common/GetSubjectsByModuleId
+        [HttpPost("GetSubjectsByModuleId")]
+        public object GetSubjectsByModuleId([FromForm] SubjectRequestDetails subjectRequestDetails)
+        {
+            return _classBookService.GetSubjects(subjectRequestDetails);
+        }
+        #endregion
 
         //#region Version Sample Only
 

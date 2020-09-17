@@ -128,6 +128,27 @@ namespace ClassBookApplication.Controllers.API
         public object GetTeacherById(int id)
         {
             var query = from teacher in _context.Teacher
+                        join city in _context.City on teacher.CityId equals city.Id
+                        where teacher.Id == id && teacher.Active == true
+                        orderby teacher.Id
+                        select new CommonDetailModel
+                        {
+                            Id = teacher.Id,
+                            Name = teacher.FirstName + " " + teacher.LastName,
+                            CityName = city.Name,
+                            IntroductionURL = teacher.IntroductionURL
+                        };
+            var teacherData = query.FirstOrDefault();
+            if (teacherData != null)
+                teacherData.BoardMediumStandardModel = _classBookService.GetDetailById(teacherData.Id, (int)Module.Teacher);
+            return teacherData;
+        }
+
+        // GET api/Teacher/EditProfileForTeacher/5
+        [HttpGet("EditProfileForTeacher/{id:int}")]
+        public object EditProfileForTeacher(int id)
+        {
+            var query = from teacher in _context.Teacher
                         join state in _context.States on teacher.StateId equals state.Id
                         join city in _context.City on teacher.CityId equals city.Id
                         join pincode in _context.Pincode on teacher.Pincode equals pincode.Id

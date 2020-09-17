@@ -126,6 +126,27 @@ namespace ClassBookApplication.Controllers.API
         public object GetClassById(int id)
         {
             var query = from classes in _context.Classes
+                        join city in _context.City on classes.CityId equals city.Id
+                        where classes.Id == id && classes.Active == true
+                        orderby classes.Id
+                        select new CommonDetailModel
+                        {
+                            Id = classes.Id,
+                            Name = classes.Name,
+                            CityName = city.Name,
+                            IntroductionURL = classes.IntroductionURL
+                        };
+            var ClassData = query.FirstOrDefault();
+            if (ClassData != null)
+                ClassData.BoardMediumStandardModel = _classBookService.GetDetailById(ClassData.Id, (int)Module.Classes);
+            return ClassData;
+        }
+
+        // GET api/Classes/EditProfileForClass/5
+        [HttpGet("EditProfileForClass/{id:int}")]
+        public object EditProfileForClass(int id)
+        {
+            var query = from classes in _context.Classes
                         join state in _context.States on classes.StateId equals state.Id
                         join city in _context.City on classes.CityId equals city.Id
                         join pincode in _context.Pincode on classes.Pincode equals pincode.Id
