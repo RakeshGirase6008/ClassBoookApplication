@@ -13,6 +13,15 @@
 
         #endregion
 
+        #region VideoPath
+
+        public const string VideoPath_Topic = "video\\Topic";
+        public const string VideoPath_Teacher = "video\\Teacher";
+        public const string VideoPath_Classes = "video\\Classes";
+
+        #endregion
+
+
         #region LogLevel Module
 
         public const string LogLevelModule_Student = "Student";
@@ -38,7 +47,6 @@
         public const string Module_School = "School";
 
         #endregion
-
 
         #region StoredProcedure
 

@@ -6,11 +6,13 @@ namespace ClassBookApplication.Models.RequestModels
 {
     public class TopicCommonRequestModel
     {
-        public List<IFormFile> files { get; set; }
         public int Id { get; set; }
+        public List<IFormFile> Files { get; set; }
+        public List<IFormFile> Video { get; set; }
+        public int OrderSubjectId { get; set; }
+        public int TopicId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string VideoLink { get; set; }
         public DateTime? DateOfUpload { get; set; }
         public DateTime? DateOfActivation { get; set; }
         public int UploadedByUserId { get; set; }

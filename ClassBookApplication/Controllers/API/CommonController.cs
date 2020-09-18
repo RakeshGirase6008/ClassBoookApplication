@@ -233,6 +233,7 @@ namespace ClassBookApplication.Controllers.API
         {
             return _classBookService.GetSubjects(subjectRequestDetails);
         }
+
         #endregion
 
         //#region Version Sample Only

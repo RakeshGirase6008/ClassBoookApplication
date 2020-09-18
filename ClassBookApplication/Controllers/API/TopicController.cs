@@ -6,6 +6,7 @@ using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -33,8 +34,8 @@ namespace ClassBookApplication.Controllers.API
 
         #endregion
 
-        // POST api/Topic/AddTopic
-        [HttpPost("AddTopic")]
+        // POST api/Topic/AddEditTopic
+        [HttpPost("AddEditTopic")]
         public IActionResult AddEditTopic([FromForm] TopicCommonRequestModel model)
         {
             ResponseModel responseModel = new ResponseModel();
@@ -43,10 +44,12 @@ namespace ClassBookApplication.Controllers.API
             {
                 if (model.Id == 0)
                 {
+                    // Adding New Topic
                     Topic topic = new Topic();
+                    topic.OrderSubjectId = model.OrderSubjectId;
                     topic.Name = model.Name;
                     topic.Description = model.Description;
-                    topic.ImageUrl = _fileService.SaveFile(model.files, ClassBookConstant.ImagePath_Topic);
+                    topic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
                     topic.Deleted = false;
                     topic.Active = true;
                     _context.Topic.Add(topic);
@@ -58,10 +61,8 @@ namespace ClassBookApplication.Controllers.API
                     var topic = _context.Topic.Where(x => x.Id == model.Id).FirstOrDefault();
                     topic.Name = model.Name;
                     topic.Description = model.Description;
-                    if (model.files.Count > 0)
-                    {
-                        topic.ImageUrl = _fileService.SaveFile(model.files, ClassBookConstant.ImagePath_Topic);
-                    }
+                    if (model.Files.Count > 0)
+                        topic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
                     _context.Topic.Update(topic);
                     _context.SaveChanges();
                     return StatusCode((int)HttpStatusCode.OK);
@@ -74,9 +75,9 @@ namespace ClassBookApplication.Controllers.API
         }
 
 
-        // POST api/Topic/AddSubTopic
-        [HttpPost("AddSubTopic")]
-        public IActionResult AddSubTopic([FromForm] TopicCommonRequestModel model)
+        // POST api/Topic/AddEditSubTopic
+        [HttpPost("AddEditSubTopic")]
+        public IActionResult AddEditSubTopic([FromForm] TopicCommonRequestModel model)
         {
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
@@ -84,11 +85,13 @@ namespace ClassBookApplication.Controllers.API
                 if (model.Id == 0)
                 {
                     SubTopic subTopic = new SubTopic();
+                    subTopic.TopicId = model.TopicId;
                     subTopic.Name = model.Name;
                     subTopic.Description = model.Description;
-                    subTopic.ImageUrl = _fileService.SaveFile(model.files, ClassBookConstant.ImagePath_Topic);
-                    subTopic.VideoLink = model.VideoLink;
+                    subTopic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
+                    subTopic.VideoLink = _fileService.SaveFile(model.Video, ClassBookConstant.VideoPath_Topic);
                     subTopic.DateOfUpload = DateTime.Now;
+                    subTopic.DateOfActivation = model.DateOfActivation;
                     subTopic.Deleted = false;
                     subTopic.Active = true;
                     _context.SubTopic.Add(subTopic);
@@ -100,11 +103,11 @@ namespace ClassBookApplication.Controllers.API
                     var subTopic = _context.SubTopic.Where(x => x.Id == model.Id).FirstOrDefault();
                     subTopic.Name = model.Name;
                     subTopic.Description = model.Description;
-                    subTopic.VideoLink = model.VideoLink;
-                    if (model.files.Count > 0)
-                    {
-                        subTopic.ImageUrl = _fileService.SaveFile(model.files, ClassBookConstant.ImagePath_Topic);
-                    }
+                    subTopic.DateOfActivation = model.DateOfActivation;
+                    if (model.Files.Count > 0)
+                        subTopic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
+                    if (model.Video.Count > 0)
+                        subTopic.VideoLink = _fileService.SaveFile(model.Video, ClassBookConstant.VideoPath_Topic);
                     _context.SubTopic.Update(subTopic);
                     _context.SaveChanges();
                     return StatusCode((int)HttpStatusCode.OK);
@@ -114,6 +117,44 @@ namespace ClassBookApplication.Controllers.API
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, ModelState);
             }
+        }
+
+
+        // GET api/Topic/GetTopicData/6
+        [HttpGet("GetTopicData/{id:int}")]
+        public IEnumerable<object> GetTopicData(int id)
+        {
+            List<TopicResponseModel> allTopicList = new List<TopicResponseModel>();
+            var allTopics = _context.Topic.Where(x => x.OrderSubjectId == id).ToList();
+            if (allTopics != null)
+            {
+                foreach (var topic in allTopics)
+                {
+                    TopicResponseModel topicResponseModel = new TopicResponseModel();
+                    topicResponseModel.Name = topic.Name;
+                    topicResponseModel.Description = topic.Description;
+                    topicResponseModel.ImageUrl = topic.ImageUrl;
+
+                    
+                    var allSubjectTopics = _context.SubTopic.Where(x => x.TopicId == topic.Id).ToList();
+                    if (allSubjectTopics != null)
+                    {
+                        topicResponseModel.SubTopicCount = allSubjectTopics.Count;
+                        List<SubTopicResponseModel> allSubTopci = new List<SubTopicResponseModel>();
+                        foreach (var subTopic in allSubjectTopics)
+                        {
+                            SubTopicResponseModel subTopicResponseModel = new SubTopicResponseModel();
+                            subTopicResponseModel.Name = subTopic.Name;
+                            subTopicResponseModel.Description = subTopic.Description;
+                            subTopicResponseModel.ImageUrl = subTopic.ImageUrl;
+                            allSubTopci.Add(subTopicResponseModel);
+                        }
+                        topicResponseModel.subTopicResponseModel = allSubTopci;
+                    }
+                    allTopicList.Add(topicResponseModel);
+                }
+            }
+            return allTopicList;
         }
     }
 }

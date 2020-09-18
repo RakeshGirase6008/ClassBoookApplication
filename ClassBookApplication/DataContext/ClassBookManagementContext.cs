@@ -35,11 +35,10 @@ namespace ClassBookApplication.DataContext
         public DbSet<ShoppingCartSubjects> ShoppingCartSubjects { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderSubjects> OrderSubjects { get; set; }
-        public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
-        public DbSet<Ratings> Ratings { get; set; }
         public DbSet<Topic> Topic { get; set; }
         public DbSet<SubTopic> SubTopic { get; set; }
-        public DbSet<TopicSubTopicMapping> TopicSubTopicMapping { get; set; }
+        public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
+        public DbSet<Ratings> Ratings { get; set; }
 
         #endregion
 

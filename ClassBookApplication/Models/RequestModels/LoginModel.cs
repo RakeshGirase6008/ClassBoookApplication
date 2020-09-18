@@ -13,7 +13,6 @@
         public string Email { get; set; }
     }
 
-
     public class ChangePassword
     {
         public string OldPassword { get; set; }
