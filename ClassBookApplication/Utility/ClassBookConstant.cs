@@ -2,6 +2,12 @@
 {
     public class ClassBookConstant
     {
+        #region Common Constant
+
+        public const string WebSite_HostURL = "https://classbookapplication.appspot.com";
+
+        #endregion
+
         #region ImagePath
 
         public const string ImagePath_Student = "image\\Student";
@@ -10,6 +16,9 @@
         public const string ImagePath_CareerExpert = "image\\CareerExpert";
         public const string ImagePath_School = "image\\School";
         public const string ImagePath_Topic = "image\\Topic";
+        public const string ImagePath_Courses = "image\\Courses";
+        public const string ImagePath_CourseCategory = "image\\CourseCategory";
+        public const string ImagePath_AdvertisementBanner = "image\\AdvertisementBanner";
 
         #endregion
 

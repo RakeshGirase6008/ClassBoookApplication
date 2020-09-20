@@ -28,6 +28,7 @@ namespace ClassBookApplication.DataContext
         public DbSet<Subjects> Subjects { get; set; }
         public DbSet<SubjectSpeciality> SubjectSpeciality { get; set; }
         public DbSet<SubjectSpecialityMapping> SubjectSpecialityMapping { get; set; }
+        public DbSet<Courses> Courses { get; set; }
         public DbSet<CourseCategory> CourseCategory { get; set; }
         public DbSet<CourseCategoryMapping> CourseCategoryMapping { get; set; }
         public DbSet<Users> Users { get; set; }
@@ -39,6 +40,9 @@ namespace ClassBookApplication.DataContext
         public DbSet<SubTopic> SubTopic { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
+        
+        public DbSet<AdvertisementBanner> AdvertisementBanner { get; set; }
+        public DbSet<Favourites> Favourites { get; set; }
 
         #endregion
 

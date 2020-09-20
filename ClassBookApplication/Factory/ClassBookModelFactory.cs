@@ -1,4 +1,5 @@
 ﻿using ClassBookApplication.Domain.Common;
+using ClassBookApplication.Utility;
 
 namespace ClassBookApplication.Factory
 {
@@ -12,6 +13,12 @@ namespace ClassBookApplication.Factory
                 Email = user.Email,
                 AuthorizeTokenKey = user.AuthorizeTokenKey
             };
+        }
+        public string PrepareImageUrl(string ImageUrl)
+        {
+            if (!string.IsNullOrEmpty(ImageUrl))
+                return ClassBookConstant.WebSite_HostURL.ToString() + "/" + ImageUrl.Replace("\\", "/");
+            return string.Empty;
         }
     }
 }

@@ -601,7 +601,7 @@ namespace ClassBookApplication.Service
                         {
                             Id = reader.GetValue<int>("Id"),
                             Title = reader.GetValue<string>("Name"),
-                            Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : hostName.ToString() + "/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
+                            Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : ClassBookConstant.WebSite_HostURL.ToString() + "/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
                             Rating = reader.GetValue<string>("Rating"),
                             TotalBoard = reader.GetValue<int>("BoardCount"),
                             TotalStandard = reader.GetValue<int>("StandardCount"),

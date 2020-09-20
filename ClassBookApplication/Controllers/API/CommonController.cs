@@ -1,4 +1,5 @@
 ﻿using ClassBookApplication.DataContext;
+using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
@@ -20,10 +21,10 @@ namespace ClassBookApplication.Controllers.API
         #region Fields
 
         private readonly ClassBookManagementContext _context;
-        private readonly LogsService _logsService;
         private readonly ClassBookService _classBookService;
         private readonly ClassBookModelFactory _classBookModelFactory;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly FileService _fileService;
 
 
         #endregion
@@ -31,16 +32,16 @@ namespace ClassBookApplication.Controllers.API
         #region Ctor
 
         public CommonController(ClassBookManagementContext context,
-            LogsService logsService,
             ClassBookService classBookService,
             ClassBookModelFactory classBookModelFactory,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            FileService fileService)
         {
             this._context = context;
-            this._logsService = logsService;
             this._classBookService = classBookService;
             this._classBookModelFactory = classBookModelFactory;
             this._httpContextAccessor = httpContextAccessor;
+            this._fileService = fileService;
         }
         #endregion
 
@@ -127,7 +128,8 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetSubjectSpeciality")]
         public IEnumerable<object> GetSubjectSpeciality()
         {
-            var subjectSpeciality = _context.SubjectSpeciality.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
+            var subjectSpeciality = _context.SubjectSpeciality.Where(x => x.Active == true).
+                                    Select(x => new { x.Name, x.Id });
             return subjectSpeciality;
         }
 
@@ -135,8 +137,28 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetCourseCategory")]
         public IEnumerable<object> GetCourseCategory()
         {
-            var courseCategory = _context.CourseCategory.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
+            var courseCategory = _context.CourseCategory.Where(x => x.Active == true).
+                                    Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareImageUrl(x.ImageUrl) });
             return courseCategory;
+        }
+
+        // GET api/Common/GetCourses/6
+        [HttpGet("GetCourses/{id:int}")]
+        public IEnumerable<object> GetCourses(int id)
+        {
+            var courses = _context.Courses.Where(x => x.Active == true && x.CategoryId == id).
+                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareImageUrl(x.ImageUrl) });
+            return courses;
+        }
+
+        // GET api/Common/GetAdvertisementBanner
+        [HttpGet("GetAdvertisementBanner")]
+        public IEnumerable<object> GetAdvertisementBanner()
+        {
+            var advertisementBanner = _context.AdvertisementBanner.Where(x => x.Active == true).
+                                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareImageUrl(x.ImageUrl) });
+
+            return advertisementBanner;
         }
 
         #endregion
@@ -236,6 +258,71 @@ namespace ClassBookApplication.Controllers.API
 
         #endregion
 
+        #region Courses & Categories
+
+        // POST api/Common/AddCourseCategory
+        [HttpPost("AddCourseCategory")]
+        public IActionResult AddCourseCategory([FromForm] CommonCourseCategoryBannerModel model)
+        {
+            CourseCategory courseCategory = new CourseCategory();
+            courseCategory.Name = model.Name;
+            if (model.Files.Count > 0)
+                courseCategory.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_CourseCategory);
+            courseCategory.Active = true;
+            _context.CourseCategory.Add(courseCategory);
+            _context.SaveChanges();
+            return Ok();
+
+        }
+
+        // POST api/Common/AddCourses
+        [HttpPost("AddCourses")]
+        public IActionResult AddCourses([FromForm] CommonCourseCategoryBannerModel model)
+        {
+            Courses courses = new Courses();
+            courses.Name = model.Name;
+            courses.CategoryId = model.CategoryId;
+            courses.Description = model.Description;
+            if (model.Files.Count > 0)
+                courses.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Courses);
+            courses.Active = true;
+            _context.Courses.Add(courses);
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        // POST api/Common/AddAdvertisementBanner
+        [HttpPost("AddAdvertisementBanner")]
+        public IActionResult AddAdvertisementBanner([FromForm] CommonCourseCategoryBannerModel model)
+        {
+            AdvertisementBanner advertisementBanner = new AdvertisementBanner();
+            advertisementBanner.Name = model.Name;
+            advertisementBanner.Description = model.Description;
+            if (model.Files.Count > 0)
+                advertisementBanner.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_AdvertisementBanner);
+            advertisementBanner.Active = true;
+            _context.AdvertisementBanner.Add(advertisementBanner);
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        // POST api/Common/AddToFavourite
+        [HttpPost("AddToFavourite")]
+        public IActionResult AddToFavourite([FromForm] AddToFavouriteRequestModel model)
+        {
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).AsNoTracking();
+            Favourites favourites = new Favourites();
+            favourites.EntityId = model.EntityId;
+            favourites.EntityName = model.EntityName;
+            if (singleUser.Any())
+                favourites.UserId = singleUser.FirstOrDefault().Id;
+            _context.Favourites.Add(favourites);
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        #endregion
         //#region Version Sample Only
 
         //// GET api/Common/GetBoardSample
