@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.Topics;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -19,6 +20,7 @@ namespace ClassBookApplication.Controllers.API
 
         private readonly ClassBookManagementContext _context;
         private readonly FileService _fileService;
+        private readonly ClassBookModelFactory _classBookModelFactory;
 
 
         #endregion
@@ -26,10 +28,12 @@ namespace ClassBookApplication.Controllers.API
         #region Ctor
 
         public TopicController(ClassBookManagementContext context,
-            FileService fileService)
+            FileService fileService,
+            ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._fileService = fileService;
+            this._classBookModelFactory = classBookModelFactory;
         }
 
         #endregion
@@ -133,7 +137,7 @@ namespace ClassBookApplication.Controllers.API
                     TopicResponseModel topicResponseModel = new TopicResponseModel();
                     topicResponseModel.Name = topic.Name;
                     topicResponseModel.Description = topic.Description;
-                    topicResponseModel.ImageUrl = topic.ImageUrl;
+                    topicResponseModel.ImageUrl = _classBookModelFactory.PrepareURL(topic.ImageUrl);
 
                     
                     var allSubjectTopics = _context.SubTopic.Where(x => x.TopicId == topic.Id).ToList();
@@ -147,6 +151,8 @@ namespace ClassBookApplication.Controllers.API
                             subTopicResponseModel.Name = subTopic.Name;
                             subTopicResponseModel.Description = subTopic.Description;
                             subTopicResponseModel.ImageUrl = subTopic.ImageUrl;
+                            subTopicResponseModel.VideoLink = _classBookModelFactory.PrepareURL(subTopic.VideoLink);
+
                             allSubTopci.Add(subTopicResponseModel);
                         }
                         topicResponseModel.subTopicResponseModel = allSubTopci;

@@ -138,7 +138,7 @@ namespace ClassBookApplication.Controllers.API
         public IEnumerable<object> GetCourseCategory()
         {
             var courseCategory = _context.CourseCategory.Where(x => x.Active == true).
-                                    Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareImageUrl(x.ImageUrl) });
+                                    Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) });
             return courseCategory;
         }
 
@@ -147,7 +147,7 @@ namespace ClassBookApplication.Controllers.API
         public IEnumerable<object> GetCourses(int id)
         {
             var courses = _context.Courses.Where(x => x.Active == true && x.CategoryId == id).
-                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareImageUrl(x.ImageUrl) });
+                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) });
             return courses;
         }
 
@@ -156,7 +156,7 @@ namespace ClassBookApplication.Controllers.API
         public IEnumerable<object> GetAdvertisementBanner()
         {
             var advertisementBanner = _context.AdvertisementBanner.Where(x => x.Active == true).
-                                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareImageUrl(x.ImageUrl) });
+                                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) });
 
             return advertisementBanner;
         }

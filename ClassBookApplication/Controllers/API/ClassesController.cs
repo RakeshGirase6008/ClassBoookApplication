@@ -134,7 +134,7 @@ namespace ClassBookApplication.Controllers.API
                             Id = classes.Id,
                             Name = classes.Name,
                             CityName = city.Name,
-                            IntroductionURL = classes.IntroductionURL
+                            IntroductionURL = _classBookModelFactory.PrepareURL(classes.IntroductionURL)
                         };
             var ClassData = query.FirstOrDefault();
             if (ClassData != null)

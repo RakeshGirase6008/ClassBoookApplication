@@ -14,7 +14,7 @@ namespace ClassBookApplication.Factory
                 AuthorizeTokenKey = user.AuthorizeTokenKey
             };
         }
-        public string PrepareImageUrl(string ImageUrl)
+        public string PrepareURL(string ImageUrl)
         {
             if (!string.IsNullOrEmpty(ImageUrl))
                 return ClassBookConstant.WebSite_HostURL.ToString() + "/" + ImageUrl.Replace("\\", "/");
