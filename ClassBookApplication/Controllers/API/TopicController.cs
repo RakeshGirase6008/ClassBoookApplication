@@ -150,7 +150,7 @@ namespace ClassBookApplication.Controllers.API
                             SubTopicResponseModel subTopicResponseModel = new SubTopicResponseModel();
                             subTopicResponseModel.Name = subTopic.Name;
                             subTopicResponseModel.Description = subTopic.Description;
-                            subTopicResponseModel.ImageUrl = subTopic.ImageUrl;
+                            subTopicResponseModel.ImageUrl = _classBookModelFactory.PrepareURL(subTopic.ImageUrl);
                             subTopicResponseModel.VideoLink = _classBookModelFactory.PrepareURL(subTopic.VideoLink);
 
                             allSubTopci.Add(subTopicResponseModel);
