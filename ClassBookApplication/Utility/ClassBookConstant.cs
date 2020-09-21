@@ -30,7 +30,6 @@
 
         #endregion
 
-
         #region LogLevel Module
 
         public const string LogLevelModule_Student = "Student";

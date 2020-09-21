@@ -503,7 +503,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save the Classes Record
         /// </summary>
-        public (int classId, string UniqueNo) SaveClasses(Classes classesData, List<IFormFile> files)
+        public (int classId, string UniqueNo) SaveClasses(Classes classesData, List<IFormFile> files, List<IFormFile> video)
         {
             Classes classes = new Classes();
             classes.Name = classesData.Name;
@@ -516,6 +516,8 @@ namespace ClassBookApplication.Service
                 //classes.LogoUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_Classes);
                 classes.ClassPhotoUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_Classes);
             }
+            if (video?.Count > 0)
+                classes.IntroductionURL = _fileService.SaveFile(video, ClassBookConstant.VideoPath_Classes);
             classes.EstablishmentDate = classesData.EstablishmentDate;
             classes.RegistrationNo = classesData.RegistrationNo;
             classes.Address = classesData.Address;
@@ -783,7 +785,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save the Teacher Record
         /// </summary>
-        public (int teacherId, string UniqueNo) SaveTeacher(Teacher teacherData, List<IFormFile> files)
+        public (int teacherId, string UniqueNo) SaveTeacher(Teacher teacherData, List<IFormFile> files, List<IFormFile> video)
         {
             Teacher teachers = new Teacher();
             teachers.FirstName = teacherData.FirstName;
@@ -793,9 +795,9 @@ namespace ClassBookApplication.Service
             teachers.AlternateContact = teacherData.AlternateContact;
             teachers.Gender = teacherData.Gender;
             if (files?.Count > 0)
-            {
                 teachers.ProfilePictureUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_Teacher);
-            }
+            if (video?.Count > 0)
+                teachers.IntroductionURL = _fileService.SaveFile(video, ClassBookConstant.VideoPath_Teacher);
             teachers.DOB = teacherData.DOB;
             teachers.Address = teacherData.Address;
             teachers.StateId = teacherData.StateId;

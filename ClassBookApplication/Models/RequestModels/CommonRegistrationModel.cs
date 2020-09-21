@@ -7,6 +7,7 @@ namespace ClassBookApplication.Models.RequestModels
     public class CommonRegistrationModel
     {
         public List<IFormFile> Files { get; set; }
+        public List<IFormFile> Video { get; set; }
         public IFormFile File { get; set; }
         public string Data { get; set; }
 

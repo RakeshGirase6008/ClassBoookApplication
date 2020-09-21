@@ -56,7 +56,7 @@ namespace ClassBookApplication.Controllers.API
                     var singleUser = _context.Users.Where(x => x.Email == teacherData.Email).AsNoTracking();
                     if (!singleUser.Any())
                     {
-                        (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.Files);
+                        (int teacherId, string uniqueNo) = _classBookService.SaveTeacher(teacherData, model.Files, model.Video);
                         string UserName = teacherData.FirstName + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.Teacher, teacherId, teacherData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(teacherId, Module.Teacher, UserName, teacherData.Email, model.FCMId, model.DeviceId);
