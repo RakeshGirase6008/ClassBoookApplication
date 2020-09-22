@@ -20,5 +20,6 @@ namespace ClassBookApplication.Models.ResponseModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int SMBMappingId { get; set; }
     }
 }

@@ -263,10 +263,24 @@ namespace ClassBookApplication.Service
             return user;
         }
 
+        //public (string Type, string Name) GetModuleTypeName(int UserId)
+        //{
+        //    var model
+        //    var user = _context.Users.Where(x => x.Id == UserId);
+        //    if (user.Any())
+        //    {
+        //        var u = user.FirstOrDefault();
+        //        if (u.ModuleId == 2)
+        //        {
+                    
+        //        }
+        //    }
+        //    return (string.Empty, string.Empty);
+        //}
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
-        public string SaveShoppingCart(int assignToId, AddToCartModel model, bool isRemove = false)
+        public string SaveShoppingCartClassTeacher(int assignToId, AddToCartModelClassTeacher model, bool isRemove = false)
         {
             #region Save Mapping Data
 
@@ -293,6 +307,77 @@ namespace ClassBookApplication.Service
             {
                 mappingId = retrivedMappingData.Id;
             }
+
+            if (isRemove)
+            {
+                var subjectMappingData = _context.ShoppingCartSubjects.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                if (subjectMappingData.Any())
+                {
+                    var subMap = subjectMappingData.FirstOrDefault();
+                    _context.ShoppingCartSubjects.Remove(subMap);
+                    _context.SaveChanges();
+
+                    var levelCart = _context.ShoppingCartSubjects.Where(x => x.UserId == assignToId && x.LevelId > subMap.LevelId).ToList();
+                    foreach (var item in levelCart)
+                    {
+                        int levId = item.LevelId - 1;
+                        item.LevelId = levId;
+                        _context.ShoppingCartSubjects.Update(item);
+                        _context.SaveChanges();
+                    }
+                    // Update the LevelIds
+                    return "Subject Removed Successfully";
+                }
+                else
+                {
+                    return "Subject is not in the cart";
+                }
+            }
+            else
+            {
+                var shoppingCartData = _context.ShoppingCartSubjects.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                if (!shoppingCartData.Any())
+                {
+                    var cartItems = _context.ShoppingCartSubjects.Where(x => x.UserId == assignToId);
+                    var orderCartItems = from order in _context.Order
+                                         join oi in _context.OrderSubjects on order.Id equals oi.OrderId
+                                         where order.UserId == assignToId
+                                         select new
+                                         {
+                                             id = oi.Id
+                                         };
+                    var listCount = orderCartItems.ToList().Count();
+
+                    var levelId = cartItems.Count() + listCount + 1;
+                    ShoppingCartSubjects shoppingCartItem = new ShoppingCartSubjects();
+                    shoppingCartItem.SMBId = mappingId;
+                    shoppingCartItem.UserId = assignToId;
+                    shoppingCartItem.SubjectId = model.SubjectId;
+                    shoppingCartItem.LevelId = levelId;
+                    _context.ShoppingCartSubjects.Add(shoppingCartItem);
+                    _context.SaveChanges();
+                    return "Subject Added Successfully";
+                }
+                else
+                {
+                    return "Subject is already in the cart";
+                }
+            }
+
+            #endregion
+        }
+
+        /// <summary>
+        /// Save All Mapping Data
+        /// </summary>
+        public string SaveShoppingCart(int assignToId, AddToCartModel model, bool isRemove = false)
+        {
+            #region Save Mapping Data
+
+            int mappingId = 0;
+            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.Id == model.SMBMappingId).FirstOrDefault();
+            if (retrivedMappingData != null)
+                mappingId = retrivedMappingData.Id;
 
             if (isRemove)
             {
@@ -647,6 +732,8 @@ namespace ClassBookApplication.Service
                     {
                         CartDetailModel cartDetailModel = new CartDetailModel()
                         {
+                            ClassName = reader.GetValue<string>("ClassName"),
+                            TeacherName = reader.GetValue<string>("TeacherName"),
                             Board = reader.GetValue<string>("BoardName"),
                             Medium = reader.GetValue<string>("MediumName"),
                             Standard = reader.GetValue<string>("StandardsName"),
@@ -739,7 +826,8 @@ namespace ClassBookApplication.Service
                         SubjectDetails ISP = new SubjectDetails()
                         {
                             Id = reader.GetValue<int>("Id"),
-                            Name = reader.GetValue<string>("Name")
+                            Name = reader.GetValue<string>("Name"),
+                            SMBMappingId = reader.GetValue<int>("SMBMappingId"),
                         };
                         subjectDetails.Add(ISP);
                     }

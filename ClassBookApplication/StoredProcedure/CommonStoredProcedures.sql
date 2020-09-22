@@ -104,7 +104,9 @@ CREATE PROCEDURE [ClassBook_GetCartDetailByUserId]
 @ModuleId INT=0
 As
 BEGIN
-	SELECT 
+	SELECT
+		C.[Name] as ClassName,
+		T.[FirstName] + ' ' + T.[LastName] as TeacherName,
 		B.[Name] as BoardName,  
 		M.[Name] AS MediumName,  
 		S.[Name] AS StandardsName,  
@@ -114,10 +116,13 @@ BEGIN
 		INNER JOIN Board B ON B.Id=SMB.BoardId  
 		INNER JOIN [Medium] M ON M.Id=SMB.MediumId  
 		INNER JOIN Standards S ON S.Id=SMB.StandardId  
-		INNER JOIN ShoppingCartSubjects SCS ON SCS.SMBId=SMB.Id  
+		INNER JOIN ShoppingCartSubjects SCS ON SCS.SMBId=SMB.Id
+		INNER JOIN USers U ON U.Id=SMB.UserId
 		INNER JOIN Subjects Sub ON Sub.Id=SCS.SubjectId
-		LEFT JOIN PackageLevel PL ON PL.EntityLevel=SCS.LevelId  AND PL.ModuleId=@ModuleId  
-	WHERE SMB.UserId=@Id
+		LEFT JOIN PackageLevel PL ON PL.EntityLevel=SCS.LevelId  AND PL.ModuleId=@ModuleId
+		LEFT JOIN Classes C ON C.Id=U.UserId AND U.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=U.UserId AND U.ModuleId=2
+	WHERE SCS.UserId=@Id
 END
 
 GO
@@ -162,7 +167,7 @@ BEGIN
 
  --Insert Data for Order Table
  INSERT INTO [Order] VALUES(@UserId,@PaymentType,GETDATE(),GETDATE(),1,0)  
- SET @Id=SCOPE_IDENTITY()  
+ SET @Id=SCOPE_IDENTITY()
   
  --Add the ShoppingCartData into OrderSubjects with Amount
  INSERT INTO OrderSubjects  
@@ -171,7 +176,7 @@ BEGIN
  INNER JOIN ShoppingCartSubjects SCS ON SCS.SMBId=SMB.Id    
  INNER JOIN Subjects Sub ON Sub.Id=SCS.SubjectId    
  INNER JOIN PackageLevel PL ON PL.EntityLevel=SCS.LevelId AND PL.ModuleId=@ModuleId  
- WHERE SMB.UserId=@UserId    
+ WHERE SCS.UserId=@UserId    
   
   --Updae the TotalAmount for Order Table
  SELECT @TotalAmount=ISNULL(SUM(Amount),0)  
@@ -182,10 +187,7 @@ BEGIN
  WHERE Id=@Id
 
  --Remove the ShoppingCartSubjects Data once the Order is Paid
- DELETE SCS 
- FROM Users U
- INNER JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
- INNER JOIN ShoppingCartSubjects SCS ON SCS.SMBId=SMB.Id
- WHERE U.Id=@UserId
+ DELETE FROM ShoppingCartSubjects
+ WHERE UserId=@UserId
 
 END
