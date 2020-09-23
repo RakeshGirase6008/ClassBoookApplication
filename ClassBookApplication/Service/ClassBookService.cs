@@ -713,7 +713,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public IList<CartDetailModel> GetCartDetailByUserId(int? UserId, int? moduleId)
+        public IList<CartDetailModel> GetCartDetailByUserId(int UserId, int moduleId)
         {
             IList<CartDetailModel> cartDetailModels = new List<CartDetailModel>();
             SqlConnection connection = new SqlConnection(GetConnectionString());
