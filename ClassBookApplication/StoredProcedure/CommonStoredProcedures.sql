@@ -105,8 +105,12 @@ CREATE PROCEDURE [ClassBook_GetCartDetailByUserId]
 As
 BEGIN
 	SELECT
-		C.[Name] as ClassName,
-		T.[FirstName] + ' ' + T.[LastName] as TeacherName,
+		CASE
+			WHEN U.ModuleId = 2 THEN 'Teacher'
+		    WHEN U.ModuleId = 3 THEN 'Class'
+			ELSE 'Class'
+		END AS [Type],
+		ISNULL(C.[Name],T.[FirstName] + ' ' + T.[LastName]) AS ProviderName,
 		B.[Name] as BoardName,  
 		M.[Name] AS MediumName,  
 		S.[Name] AS StandardsName,  
@@ -124,6 +128,7 @@ BEGIN
 		LEFT JOIN Teacher T ON T.Id=U.UserId AND U.ModuleId=2
 	WHERE SCS.UserId=@Id
 END
+
 
 GO
 CREATE PROCEDURE [ClassBook_GetSubjects]

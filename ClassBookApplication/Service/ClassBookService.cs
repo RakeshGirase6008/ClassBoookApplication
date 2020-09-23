@@ -736,8 +736,8 @@ namespace ClassBookApplication.Service
                     {
                         CartDetailModel cartDetailModel = new CartDetailModel()
                         {
-                            ClassName = reader.GetValue<string>("ClassName"),
-                            TeacherName = reader.GetValue<string>("TeacherName"),
+                            Type = reader.GetValue<string>("Type"),
+                            ProviderName = reader.GetValue<string>("ProviderName"),
                             Board = reader.GetValue<string>("BoardName"),
                             Medium = reader.GetValue<string>("MediumName"),
                             Standard = reader.GetValue<string>("StandardsName"),
