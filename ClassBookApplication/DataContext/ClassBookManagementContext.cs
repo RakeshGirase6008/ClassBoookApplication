@@ -40,9 +40,9 @@ namespace ClassBookApplication.DataContext
         public DbSet<SubTopic> SubTopic { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
-        
         public DbSet<AdvertisementBanner> AdvertisementBanner { get; set; }
         public DbSet<Favourites> Favourites { get; set; }
+        public DbSet<CourseMapping> CourseMapping { get; set; }
 
         #endregion
 

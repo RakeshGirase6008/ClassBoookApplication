@@ -191,3 +191,20 @@ BEGIN
  WHERE UserId=@UserId
 
 END
+
+GO
+CREATE PROCEDURE [ClassBook_GetCourses]
+AS
+BEGIN	
+	SELECT 
+		CS.[Name] as CourseName,
+		ISNULL(C.Name,T.[FirstName] + ' ' + T.[LastName]) as CourseProviderName,
+		CS.ImageUrl,
+		0 As Rating,
+		CC.[Name] as CategoryName
+	FROM Courses CS
+	INNER JOIN CourseCategory CC ON CS.CategoryId=CC.Id
+	LEFT JOIN CourseMapping CM ON CM.CourseId=CS.Id
+	LEFT JOIN Classes C ON C.Id=CM.UserId AND CM.ModuleId=3
+	LEFT JOIN Teacher T ON T.Id=CM.UserId AND CM.ModuleId=2
+END

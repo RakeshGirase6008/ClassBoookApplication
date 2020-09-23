@@ -62,6 +62,7 @@
         public const string SP_ClassBook_GetCartDetailByUserId = "ClassBook_GetCartDetailByUserId";
         public const string SP_ClassBook_GetDetailById = "ClassBook_GetDetailById";
         public const string SP_ClassBook_GetSubjects = "ClassBook_GetSubjects";
+        public const string SP_ClassBook_GetCourses = "ClassBook_GetCourses";
         public const string SP_ClassBook_OrderPaid = "ClassBook_OrderPaid";
 
         #endregion

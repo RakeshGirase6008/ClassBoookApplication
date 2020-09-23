@@ -6,6 +6,7 @@ using ClassBookApplication.Domain.School;
 using ClassBookApplication.Domain.Student;
 using ClassBookApplication.Domain.Teacher;
 using ClassBookApplication.Extension;
+using ClassBookApplication.Factory;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Utility;
@@ -33,6 +34,7 @@ namespace ClassBookApplication.Service
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _env;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ClassBookModelFactory _classBookModelFactory;
 
         #endregion
 
@@ -42,13 +44,15 @@ namespace ClassBookApplication.Service
             FileService fileService,
             IConfiguration configuration,
             IWebHostEnvironment env,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
             this._fileService = fileService;
             this._configuration = configuration;
             this._env = env;
             this._httpContextAccessor = httpContextAccessor;
+            this._classBookModelFactory = classBookModelFactory;
         }
 
         #endregion
@@ -793,6 +797,44 @@ namespace ClassBookApplication.Service
                 //close connection
                 connection.Close();
                 return boardMediumStandardModel;
+            }
+        }
+
+        public IList<CourseDetailsList> GetCourses()
+        {
+            IList<CourseDetailsList> courseDetailsList = new List<CourseDetailsList>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetCourses.ToString();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        CourseDetailsList ISP = new CourseDetailsList()
+                        {
+                            CourseName = reader.GetValue<string>("CourseName"),
+                            CourseProviderName = reader.GetValue<string>("CourseProviderName"),
+                            ImageUrl = _classBookModelFactory.PrepareURL(reader.GetValue<string>("ImageUrl")),
+                            Rating = reader.GetValue<int>("Rating"),
+                            CategoryName = reader.GetValue<string>("CategoryName"),
+                        };
+                        courseDetailsList.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return courseDetailsList;
             }
         }
 

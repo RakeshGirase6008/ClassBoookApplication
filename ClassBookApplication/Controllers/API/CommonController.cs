@@ -155,9 +155,10 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetCourses")]
         public IEnumerable<object> GetCourses()
         {
-            var courses = _context.Courses.Where(x => x.Active == true).
-                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) }).Take(5);
-            return courses;
+            return _classBookService.GetCourses();
+            //var courses = _context.Courses.Where(x => x.Active == true).
+            //            Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) }).Take(5);
+            //return courses;
         }
 
         // GET api/Common/GetAdvertisementBanner
