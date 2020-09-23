@@ -95,22 +95,32 @@ namespace ClassBookApplication.Controllers.API
 
         // POST api/ShoppingCart/GetCartDetail
         [HttpPost("GetCartDetail")]
-        public IEnumerable<CartDetailModel> GetCartDetail()
+        public IActionResult GetCartDetail()
         {
             string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
-            return _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId);
+            if (singleUser != null)
+                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId));
+            else
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
         }
 
 
         // POST api/ShoppingCart/CompleteOrder
         [HttpPost("CompleteOrder")]
-        public bool CompleteOrder([FromForm] string PaymentType)
+        public IActionResult CompleteOrder([FromForm] string PaymentType)
         {
             string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
-            var status = _classBookService.OrderPaid(singleUser.Id, singleUser.ModuleId, PaymentType);
-            return status;
+            if (singleUser != null)
+            {
+                var status = _classBookService.OrderPaid(singleUser.Id, singleUser.ModuleId, PaymentType);
+                return StatusCode((int)HttpStatusCode.OK, status);
+            }
+            else
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong Authencation Key", StatusCode = (int)HttpStatusCode.InternalServerError });
+            }
         }
 
         #endregion
@@ -192,6 +202,6 @@ namespace ClassBookApplication.Controllers.API
             return status;
         }
 
-#endregion
+        #endregion
     }
 }
