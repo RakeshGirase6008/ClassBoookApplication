@@ -202,6 +202,11 @@ CREATE PROCEDURE [ClassBook_GetCourses]
 AS
 BEGIN	
 	SELECT 
+		CASE
+			WHEN CM.ModuleId = 2 THEN 'Teacher'
+		    WHEN CM.ModuleId = 3 THEN 'Class'
+			ELSE 'Class'
+		END AS [Type],
 		CS.[Name] as CourseName,
 		ISNULL(C.Name,T.[FirstName] + ' ' + T.[LastName]) as CourseProviderName,
 		CS.ImageUrl,
@@ -210,6 +215,6 @@ BEGIN
 	FROM Courses CS
 	INNER JOIN CourseCategory CC ON CS.CategoryId=CC.Id
 	LEFT JOIN CourseMapping CM ON CM.CourseId=CS.Id
-	LEFT JOIN Classes C ON C.Id=CM.UserId AND CM.ModuleId=3
-	LEFT JOIN Teacher T ON T.Id=CM.UserId AND CM.ModuleId=2
+	LEFT JOIN Classes C ON C.Id=CM.EntityId AND CM.ModuleId=3
+	LEFT JOIN Teacher T ON T.Id=CM.EntityId AND CM.ModuleId=2
 END

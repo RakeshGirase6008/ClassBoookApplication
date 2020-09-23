@@ -821,6 +821,7 @@ namespace ClassBookApplication.Service
                     {
                         CourseDetailsList ISP = new CourseDetailsList()
                         {
+                            Type = reader.GetValue<string>("Type"),
                             CourseName = reader.GetValue<string>("CourseName"),
                             CourseProviderName = reader.GetValue<string>("CourseProviderName"),
                             ImageUrl = _classBookModelFactory.PrepareURL(reader.GetValue<string>("ImageUrl")),
