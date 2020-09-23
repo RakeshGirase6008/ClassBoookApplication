@@ -142,12 +142,21 @@ namespace ClassBookApplication.Controllers.API
             return courseCategory;
         }
 
-        // GET api/Common/GetCourses/6
-        [HttpGet("GetCourses/{id:int}")]
-        public IEnumerable<object> GetCourses(int id)
+        // GET api/Common/GetCoursesByCategoryId/6
+        [HttpGet("GetCoursesByCategoryId/{id:int}")]
+        public IEnumerable<object> GetCoursesByCategoryId(int id)
         {
             var courses = _context.Courses.Where(x => x.Active == true && x.CategoryId == id).
                         Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) });
+            return courses;
+        }
+
+        // GET api/Common/GetCourses/6
+        [HttpGet("GetCourses")]
+        public IEnumerable<object> GetCourses()
+        {
+            var courses = _context.Courses.Where(x => x.Active == true).
+                        Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) }).Take(5);
             return courses;
         }
 
