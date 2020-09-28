@@ -29,20 +29,23 @@ namespace ClassBookApplication.DataContext
         public DbSet<SubjectSpeciality> SubjectSpeciality { get; set; }
         public DbSet<SubjectSpecialityMapping> SubjectSpecialityMapping { get; set; }
         public DbSet<Courses> Courses { get; set; }
+        public DbSet<CourseMapping> CourseMapping { get; set; }
         public DbSet<CourseCategory> CourseCategory { get; set; }
         public DbSet<CourseCategoryMapping> CourseCategoryMapping { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<StandardMediumBoardMapping> StandardMediumBoardMapping { get; set; }
-        public DbSet<ShoppingCartSubjects> ShoppingCartSubjects { get; set; }
+        public DbSet<SubjectMapping> SubjectMapping { get; set; }
         public DbSet<Order> Order { get; set; }
-        public DbSet<OrderSubjects> OrderSubjects { get; set; }
+        public DbSet<ShoppingCartItems> ShoppingCartItems { get; set; }
+        public DbSet<OrderCartItems> OrderCartItems { get; set; }
         public DbSet<Topic> Topic { get; set; }
         public DbSet<SubTopic> SubTopic { get; set; }
         public DbSet<AuthorizeDeviceData> AuthorizeDeviceData { get; set; }
         public DbSet<Ratings> Ratings { get; set; }
         public DbSet<AdvertisementBanner> AdvertisementBanner { get; set; }
         public DbSet<Favourites> Favourites { get; set; }
-        public DbSet<CourseMapping> CourseMapping { get; set; }
+        public DbSet<Expertise> Expertise { get; set; }
+        public DbSet<ExpertiseMapping> ExpertiseMapping { get; set; }
 
         #endregion
 

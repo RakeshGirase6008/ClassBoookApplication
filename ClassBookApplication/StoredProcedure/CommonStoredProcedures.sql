@@ -7,69 +7,86 @@ BEGIN
 
 	 IF @ModuleId=2
 	 BEGIN
-		SELECT T.Id,
-		T.FirstName + ' ' + T.LastName as [Name],
-		T.[ProfilePictureUrl] as PhotoUrl,
-		COUNT(DISTINCT(BoardId)) as BoardCount,  
-		COUNT(DISTINCT(MediumId)) as MediumCount,  
-		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(OS.SubjectId) as SubjectCount,
-		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
+		WITH #TempRating(EntityId, EntityName,Ratings) as (
+			SELECT 
+			EntityId,EntityName,AVG(Rating) as Ratings
+			FROM Ratings WHERE EntityName='Teacher'
+			GROUP BY EntityId,EntityName
+		)
+		SELECT Top(@TopProducts) 
+			T.Id,
+			T.FirstName + ' ' + T.LastName as [Name],
+			T.[ProfilePictureUrl] as PhotoUrl,
+			COUNT(DISTINCT(BoardId)) as BoardCount,  
+			COUNT(DISTINCT(MediumId)) as MediumCount,  
+			COUNT(DISTINCT(StandardId)) as StandardCount,  
+			COUNT(SM.SubjectId) as SubjectCount,
+			FORMAT(ISNULL(AVG(R.Ratings),0.0),'N2') as Rating
 		FROM Teacher T
-		LEFT JOIN Ratings R ON R.EntityId=T.Id AND R.EntityName='Teacher'
-		LEFT JOIN Users U ON U.UserId=T.Id AND U.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
-		LEFT JOIN OrderSubjects OS ON  SMB.Id=OS.SMBId
+			LEFT JOIN StandardMediumBoardMapping SMB ON SMB.EnityId=T.Id AND SMB.ModuleId=2
+			LEFT JOIN SubjectMapping SM ON  SMB.Id=SM.SMBId
+			LEFT JOIN #TempRating R ON R.EntityId=T.Id
 		GROUP BY T.Id,T.[FirstName],T.LastName,T.[ProfilePictureUrl]
 		ORDER BY Rating DESC
+		
+
 	 END
 	 ELSE IF @ModuleId=3
 	 BEGIN
-		SELECT Top(@TopProducts) C.Id,C.[Name],C.[ClassPhotoUrl] as PhotoUrl,
-		COUNT(DISTINCT(BoardId)) as BoardCount,  
-		COUNT(DISTINCT(MediumId)) as MediumCount,  
-		COUNT(StandardId) as StandardCount,
-		COUNT(OS.SubjectId) as SubjectCount,
-		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
+		WITH #TempRating(EntityId, EntityName,Ratings) as (
+			SELECT 
+			EntityId,EntityName,AVG(Rating) as Ratings
+			FROM Ratings WHERE EntityName='Classes'
+			GROUP BY EntityId,EntityName
+		)
+		SELECT Top(@TopProducts) 
+			C.Id,C.[Name],C.[ClassPhotoUrl] as PhotoUrl,
+			COUNT(DISTINCT(BoardId)) as BoardCount,  
+			COUNT(DISTINCT(MediumId)) as MediumCount,  
+			COUNT(DISTINCT(StandardId)) as StandardCount,
+			COUNT(SM.SubjectId) as SubjectCount,
+			FORMAT(ISNULL(AVG(R.Ratings),0.0),'N2') as Rating
 		FROM Classes C 
-		LEFT JOIN Ratings R ON R.EntityId=C.Id AND R.EntityName='Classes'
-		LEFT JOIN Users U ON U.UserId=C.Id AND U.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
-		LEFT JOIN OrderSubjects OS ON  SMB.Id=OS.SMBId
+			LEFT JOIN StandardMediumBoardMapping SMB ON SMB.EnityId=C.Id AND SMB.ModuleId=@ModuleId
+			LEFT JOIN SubjectMapping SM ON SM.SMBId=SMB.Id
+			LEFT JOIN #TempRating R ON R.EntityId=C.Id
 		GROUP BY C.Id,C.[Name],C.[ClassPhotoUrl]
 		ORDER BY Rating DESC
 	 END
 	 ELSE IF @ModuleId=4
 	 BEGIN
-		SELECT CE.Id,
-		CE.FirstName + ' ' + CE.LastName as [Name],
-		CE.[ProfilePictureUrl] as PhotoUrl,
-		COUNT(DISTINCT(BoardId)) as BoardCount,  
-		COUNT(DISTINCT(MediumId)) as MediumCount,  
-		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(OS.SubjectId) as SubjectCount,
-		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
+		SELECT Top(@TopProducts)
+			CE.Id,
+			CE.FirstName + ' ' + CE.LastName as [Name],
+			CE.[ProfilePictureUrl] as PhotoUrl,
+			0 as BoardCount,  
+			0 as MediumCount,  
+			0 as StandardCount,  
+			0 as SubjectCount,
+			FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
 		FROM CareerExpert CE
-		LEFT JOIN Ratings R ON R.EntityId=CE.Id AND R.EntityName='CareerExpert'
-		LEFT JOIN Users U ON U.UserId=CE.Id AND U.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
-		LEFT JOIN OrderSubjects OS ON  SMB.Id=OS.SMBId
+			LEFT JOIN Ratings R ON R.EntityId=CE.Id AND R.EntityName='CareerExpert'
 		GROUP BY CE.Id,CE.[FirstName],CE.[LastName],CE.[ProfilePictureUrl]
 		ORDER BY Rating DESC
 	 END
 	 ELSE IF @ModuleId=5
 	 BEGIN
+		WITH #TempRating(EntityId, EntityName,Ratings) as (
+			SELECT 
+			EntityId,EntityName,AVG(Rating) as Ratings
+			FROM Ratings WHERE EntityName='School'
+			GROUP BY EntityId,EntityName
+		)
 		SELECT S.Id,S.[Name],S.[SchoolPhotoUrl] as PhotoUrl,
-		COUNT(DISTINCT(BoardId)) as BoardCount,  
-		COUNT(DISTINCT(MediumId)) as MediumCount,  
-		COUNT(DISTINCT(StandardId)) as StandardCount,  
-		COUNT(OS.SubjectId) as SubjectCount,
-		FORMAT(ISNULL(AVG(R.Rating),0.0),'N2') as Rating
+			COUNT(DISTINCT(BoardId)) as BoardCount,  
+			COUNT(DISTINCT(MediumId)) as MediumCount,  
+			COUNT(DISTINCT(StandardId)) as StandardCount,  
+			COUNT(SM.SubjectId) as SubjectCount,
+			FORMAT(ISNULL(AVG(R.Ratings),0.0),'N2') as Rating
 		FROM School S
-		LEFT JOIN Ratings R ON R.EntityId=S.Id AND R.EntityName='School'
-		LEFT JOIN Users U ON U.UserId=S.Id AND U.ModuleId=@ModuleId
-		LEFT JOIN StandardMediumBoardMapping SMB ON U.Id=SMB.UserId
-		LEFT JOIN OrderSubjects OS ON  SMB.Id=OS.SMBId
+		LEFT JOIN StandardMediumBoardMapping SMB ON S.Id=SMB.EnityId AND SMB.ModuleId=5
+		LEFT JOIN SubjectMapping SM ON  SMB.Id=SM.SMBId
+		LEFT JOIN #TempRating R ON R.EntityId=S.Id
 		GROUP BY S.Id,S.[Name],S.[SchoolPhotoUrl]
 		ORDER BY Rating DESC
 	 END
@@ -77,13 +94,10 @@ END
 
 GO
 CREATE PROCEDURE [ClassBook_GetDetailById]
-@Id INT,  
-@ModuleId INT  
-AS           
+	@Id INT,  
+	@ModuleId INT  
+AS
 BEGIN      
-	DECLARE @UserId INT
-	SELECT @UserId=Id from Users where UserId=@Id AND ModuleId=@ModuleId
-	
 	SELECT     
 		B.[Name] as BoardName,    
 		B.[Id] As BoardId,    
@@ -95,7 +109,7 @@ BEGIN
 		INNER JOIN Board B ON B.Id=SMB.BoardId    
 		INNER JOIN [Medium] M ON M.Id=SMB.MediumId    
 		INNER JOIN Standards S ON S.Id=SMB.StandardId   
-	WHERE SMB.UserId=@UserId
+	WHERE SMB.EnityId=@Id AND SMB.ModuleId=@ModuleId
 END
 
 GO
@@ -139,24 +153,22 @@ CREATE PROCEDURE [ClassBook_GetSubjects]
 	@StandardId INT    
 AS    
 BEGIN    
-	IF @ModuleId=3  
+	IF @ModuleId=3
 	BEGIN  
-		SELECT S.Id,S.[Name] from Classes C    
-		INNER JOIN Users U ON C.Id=U.UserId AND U.ModuleId=@ModuleId    
-		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId    
-		INNER JOIN [OrderSubjects] OS ON OS.SMBId=SMB.Id
-		INNER JOIN Subjects S ON S.Id=OS.SubjectId    
-		WHERE U.UserId=@UserId    
+		SELECT S.Id,S.[Name],SMB.Id as [SMBMappingId] from Classes C    
+		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId 
+		AND SMB.EnityId=C.Id AND SMB.ModuleId=@ModuleId
+		INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
+		INNER JOIN Subjects S ON S.Id=SM.SubjectId    
 	END  
   
 	IF @ModuleId=2  
 	BEGIN  
-		select S.Id,S.[Name] from Teacher T    
-		INNER JOIN Users U ON T.Id=U.UserId AND U.ModuleId=@ModuleId    
-		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId    
-		INNER JOIN [OrderSubjects] OS ON OS.SMBId=SMB.Id
-		INNER JOIN Subjects S ON S.Id=OS.SubjectId    
-		WHERE U.UserId=@UserId  
+		select S.Id,S.[Name],SMB.Id as [SMBMappingId] from Teacher T    
+		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
+		AND SMB.EnityId=T.Id AND SMB.ModuleId=@ModuleId
+		INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
+		INNER JOIN Subjects S ON S.Id=SM.SubjectId
 	END  
 END 
 

@@ -329,7 +329,11 @@ namespace ClassBookApplication.Controllers.API
                 favourites.UserId = singleUser.FirstOrDefault().Id;
             _context.Favourites.Add(favourites);
             _context.SaveChanges();
-            return Ok();
+            var responseModel = new ResponseModel
+            {
+                Message = "Add to Favourite Added Successfully"
+            };
+            return StatusCode((int)HttpStatusCode.OK, responseModel);
         }
 
         #endregion

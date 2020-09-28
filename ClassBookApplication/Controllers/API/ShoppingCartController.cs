@@ -50,8 +50,8 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    var message = _classBookService.SaveShoppingCart(user.Id, model);
-                    responseModel.Message = message;
+                    //var message = _classBookService.SaveShoppingCart(user.Id, model);
+                    responseModel.Message = "";
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
                 else
@@ -77,8 +77,8 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    var message = _classBookService.SaveShoppingCart(user.Id, model, true);
-                    responseModel.Message = message;
+                    //var message = _classBookService.SaveShoppingCart(user.Id, model, true);
+                    responseModel.Message = "";
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
                 else
@@ -139,7 +139,7 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    var message = _classBookService.SaveShoppingCartClassTeacher(user.Id, model);
+                    var message = _classBookService.SaveShoppingCartClassTeacher(user, model);
                     responseModel.Message = message;
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
@@ -156,7 +156,7 @@ namespace ClassBookApplication.Controllers.API
 
         // POST api/ShoppingCart/ClassTeacherRemoveFromCart
         [HttpPost("ClassTeacherRemoveFromCart")]
-        public IActionResult ClassTeacherRemoveFromCart([FromForm] AddToCartModel model)
+        public IActionResult ClassTeacherRemoveFromCart([FromForm] AddToCartModelClassTeacher model)
         {
             ResponseModel responseModel = new ResponseModel();
             if (ModelState.IsValid)
@@ -166,7 +166,7 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    var message = _classBookService.SaveShoppingCart(user.Id, model, true);
+                    var message = _classBookService.SaveShoppingCartClassTeacher(user, model, true);
                     responseModel.Message = message;
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
