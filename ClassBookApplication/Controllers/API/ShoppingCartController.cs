@@ -50,8 +50,8 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    //var message = _classBookService.SaveShoppingCart(user.Id, model);
-                    responseModel.Message = "";
+                    var message = _classBookService.SaveShoppingCart(user, model);
+                    responseModel.Message = message;
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
                 else

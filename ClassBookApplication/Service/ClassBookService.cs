@@ -276,7 +276,7 @@ namespace ClassBookApplication.Service
         //        var u = user.FirstOrDefault();
         //        if (u.ModuleId == 2)
         //        {
-                    
+
         //        }
         //    }
         //    return (string.Empty, string.Empty);
@@ -289,7 +289,7 @@ namespace ClassBookApplication.Service
             #region Save Mapping Data
 
             int mappingId;
-            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.Id && x.Active == true && x.ModuleId==user.ModuleId
+            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.Id && x.Active == true && x.ModuleId == user.ModuleId
                 && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
 
             if (retrivedMappingData == null)
@@ -355,74 +355,117 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
-        //public string SaveShoppingCart(int assignToId, AddToCartModel model, bool isRemove = false)
+        public string SaveShoppingCart(Users user, AddToCartModel model, bool isRemove = false)
+        {
+            #region Save Mapping Data
+
+            decimal DistanceLearningAmountSubject = 3000;
+            decimal DistanceLearningAmountCourse = 5000;
+            decimal DistanceLearningAmountExpertise = 5000;
+
+            decimal PhysicalLearningAmountSubject = 2500;
+            decimal PhysicalLearningAmountCourse = 5000;
+            decimal PhysicalLearningAmountExpertise = 5000;
+
+            var shoppingCartItemsData = _context.ShoppingCartItems.Where(x => x.EntityId == user.Id && x.ModuleId == user.ModuleId && x.MappingId == model.MappingId
+                && x.TypeOfMapping == model.TypeOfMapping).FirstOrDefault();
+
+            if (shoppingCartItemsData == null)
+            {
+                ShoppingCartItems shoppingCartItems = new ShoppingCartItems();
+                shoppingCartItems.MappingId = model.MappingId;
+                shoppingCartItems.TypeOfMapping = model.TypeOfMapping;
+                shoppingCartItems.Type = model.Type;
+                shoppingCartItems.EntityId = user.Id;
+                shoppingCartItems.ModuleId = user.ModuleId;
+                if (shoppingCartItems.Type == ClassBookConstant.LearningType_Distance.ToString())
+                {
+                    if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Subject.ToString())
+                    {
+                        var mappingData = _context.SubjectMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        shoppingCartItems.ActualAmount = mappingData.DistanceFees;
+                        shoppingCartItems.OurAmount = DistanceLearningAmountSubject;
+                    }
+                    else if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Course.ToString())
+                    {
+                        var mappingData = _context.CourseMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        shoppingCartItems.ActualAmount = mappingData.DistanceFees;
+                        shoppingCartItems.OurAmount = DistanceLearningAmountCourse;
+                    }
+                    else if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Expertise.ToString())
+                    {
+                        var mappingData = _context.ExpertiseMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        shoppingCartItems.ActualAmount = mappingData.DistanceFees;
+                        shoppingCartItems.OurAmount = DistanceLearningAmountExpertise;
+                    }
+                    else
+                    {
+                        return "Wrong type of Mapping";
+                    }
+                }
+                else if (shoppingCartItems.Type == ClassBookConstant.LearningType_Physical.ToString())
+                {
+                    if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Subject.ToString())
+                    {
+                        var mappingData = _context.SubjectMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        shoppingCartItems.ActualAmount = mappingData.PhysicalFees;
+                        List<int> listSmbIds = new List<int>();
+                        var query = from shop in _context.ShoppingCartItems
+                                    join sub in _context.SubjectMapping on shop.MappingId equals sub.Id
+                                    where shop.EntityId == user.Id && shop.ModuleId == user.ModuleId && shop.TypeOfMapping == "Subject" && shop.Type == "Physical"
+                                    select sub.SMBId;
+                        listSmbIds = query.ToList();
+
+                        if (!listSmbIds.Contains(mappingData.SMBId))
+                            shoppingCartItems.OurAmount = PhysicalLearningAmountSubject;
+                        else
+                            shoppingCartItems.ActualAmount = 0;
+                    }
+                    else if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Course.ToString())
+                    {
+                        var mappingData = _context.CourseMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        shoppingCartItems.ActualAmount = mappingData.PhysicalFees;
+                        shoppingCartItems.OurAmount = PhysicalLearningAmountCourse;
+                    }
+                    else if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Expertise.ToString())
+                    {
+                        var mappingData = _context.ExpertiseMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        shoppingCartItems.ActualAmount = mappingData.PhysicalFees;
+                        shoppingCartItems.OurAmount = PhysicalLearningAmountExpertise;
+                    }
+                    else
+                    {
+                        return "Wrong type of Mapping";
+                    }
+                }
+                else
+                {
+                    return "Wrong type pass";
+                }
+                _context.ShoppingCartItems.Add(shoppingCartItems);
+                _context.SaveChanges();
+                return model.TypeOfMapping + " successflly added to Cart";
+            }
+            else
+            {
+                return model.TypeOfMapping + " already Added to Cart";
+                //if (model.TypeOfMapping == ClassBookConstant.Mapping_Subject.ToString())
+                //    return "Subject already Added to Cart";
+                //else if (model.TypeOfMapping == ClassBookConstant.Mapping_Course.ToString())
+                //    return "Course already Added to Cart";
+                //else if (model.TypeOfMapping == ClassBookConstant.Mapping_Expertise.ToString())
+                //    return "Expertise already Added to Cart";
+            }
+            #endregion
+        }
+
+        //private decimal CalclulateAmount(string Type, int Mappin)
         //{
-        //    #region Save Mapping Data
-
-        //    int mappingId = 0;
-        //    var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.Id == model.SMBMappingId).FirstOrDefault();
-        //    if (retrivedMappingData != null)
-        //        mappingId = retrivedMappingData.Id;
-
-        //    if (isRemove)
+        //    if (shoppingCartItems.Type == ClassBookConstant.LearningType_Distance.ToString())
         //    {
-        //        var subjectMappingData = _context.ShoppingCartSubjects.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
-        //        if (subjectMappingData.Any())
-        //        {
-        //            var subMap = subjectMappingData.FirstOrDefault();
-        //            _context.ShoppingCartSubjects.Remove(subMap);
-        //            _context.SaveChanges();
 
-        //            var levelCart = _context.ShoppingCartSubjects.Where(x => x.UserId == assignToId && x.LevelId > subMap.LevelId).ToList();
-        //            foreach (var item in levelCart)
-        //            {
-        //                int levId = item.LevelId - 1;
-        //                item.LevelId = levId;
-        //                _context.ShoppingCartSubjects.Update(item);
-        //                _context.SaveChanges();
-        //            }
-        //            // Update the LevelIds
-        //            return "Subject Removed Successfully";
-        //        }
-        //        else
-        //        {
-        //            return "Subject is not in the cart";
-        //        }
         //    }
-        //    else
-        //    {
-        //        var shoppingCartData = _context.ShoppingCartSubjects.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
-        //        if (!shoppingCartData.Any())
-        //        {
-        //            var cartItems = _context.ShoppingCartSubjects.Where(x => x.UserId == assignToId);
-        //            var orderCartItems = from order in _context.Order
-        //                                 join oi in _context.OrderSubjects on order.Id equals oi.OrderId
-        //                                 where order.UserId == assignToId
-        //                                 select new
-        //                                 {
-        //                                     id = oi.Id
-        //                                 };
-        //            var listCount = orderCartItems.ToList().Count();
-
-        //            var levelId = cartItems.Count() + listCount + 1;
-        //            ShoppingCartSubjects shoppingCartItem = new ShoppingCartSubjects();
-        //            shoppingCartItem.SMBId = mappingId;
-        //            shoppingCartItem.UserId = assignToId;
-        //            shoppingCartItem.SubjectId = model.SubjectId;
-        //            shoppingCartItem.LevelId = levelId;
-        //            _context.ShoppingCartSubjects.Add(shoppingCartItem);
-        //            _context.SaveChanges();
-        //            return "Subject Added Successfully";
-        //        }
-        //        else
-        //        {
-        //            return "Subject is already in the cart";
-        //        }
-        //    }
-
-        //    #endregion
         //}
-
         /// <summary>
         /// Save Course Mapping Data
         /// </summary>
@@ -851,7 +894,9 @@ namespace ClassBookApplication.Service
                         {
                             Id = reader.GetValue<int>("Id"),
                             Name = reader.GetValue<string>("Name"),
-                            SMBMappingId = reader.GetValue<int>("SMBMappingId"),
+                            DistanceFees = reader.GetValue<decimal>("DistanceFees"),
+                            PhysicalFees = reader.GetValue<decimal>("PhysicalFees"),
+                            SubjectMappingId = reader.GetValue<int>("SubjectMappingId"),
                         };
                         subjectDetails.Add(ISP);
                     }

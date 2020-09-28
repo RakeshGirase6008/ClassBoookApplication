@@ -66,5 +66,21 @@
         public const string SP_ClassBook_OrderPaid = "ClassBook_OrderPaid";
 
         #endregion
+
+
+        #region TypeOfMapping
+
+        public const string Mapping_Subject = "Subject";
+        public const string Mapping_Course = "Course";
+        public const string Mapping_Expertise = "Expertise";
+
+        #endregion
+
+        #region TypeOfLearning
+
+        public const string LearningType_Distance = "Distance";
+        public const string LearningType_Physical = "Physical";
+
+        #endregion
     }
 }

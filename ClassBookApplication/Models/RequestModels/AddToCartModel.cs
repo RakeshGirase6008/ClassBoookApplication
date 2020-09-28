@@ -17,9 +17,12 @@ namespace ClassBookApplication.Models.RequestModels
     public class AddToCartModel
     {
         [Required]
-        public int SMBMappingId { get; set; }
+        public int MappingId { get; set; }
 
         [Required]
-        public int SubjectId { get; set; }
+        public string TypeOfMapping { get; set; }
+
+        [Required]
+        public string Type { get; set; }
     }
 }
