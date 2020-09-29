@@ -5,7 +5,6 @@ using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 
@@ -77,7 +76,7 @@ namespace ClassBookApplication.Controllers.API
                 if (singleUser.Any())
                 {
                     var user = singleUser.FirstOrDefault();
-                    //var message = _classBookService.SaveShoppingCart(user.Id, model, true);
+                    var message = _classBookService.RemoveShoppingCart(user, model);
                     responseModel.Message = "";
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
@@ -184,11 +183,14 @@ namespace ClassBookApplication.Controllers.API
 
         // POST api/ShoppingCart/ClassTeacherGetCartDetail
         [HttpPost("ClassTeacherGetCartDetail")]
-        public IEnumerable<CartDetailModel> ClassTeacherGetCartDetail()
+        public ActionResult ClassTeacherGetCartDetail()
         {
             string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
-            return _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId);
+            if (singleUser != null)
+                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId));
+            else
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
         }
 
 

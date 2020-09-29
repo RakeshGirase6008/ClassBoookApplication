@@ -267,20 +267,6 @@ namespace ClassBookApplication.Service
             return user;
         }
 
-        //public (string Type, string Name) GetModuleTypeName(int UserId)
-        //{
-        //    var model
-        //    var user = _context.Users.Where(x => x.Id == UserId);
-        //    if (user.Any())
-        //    {
-        //        var u = user.FirstOrDefault();
-        //        if (u.ModuleId == 2)
-        //        {
-
-        //        }
-        //    }
-        //    return (string.Empty, string.Empty);
-        //}
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
@@ -355,7 +341,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
-        public string SaveShoppingCart(Users user, AddToCartModel model, bool isRemove = false)
+        public string SaveShoppingCart(Users user, AddToCartModel model)
         {
             #region Save Mapping Data
 
@@ -449,23 +435,51 @@ namespace ClassBookApplication.Service
             else
             {
                 return model.TypeOfMapping + " already Added to Cart";
-                //if (model.TypeOfMapping == ClassBookConstant.Mapping_Subject.ToString())
-                //    return "Subject already Added to Cart";
-                //else if (model.TypeOfMapping == ClassBookConstant.Mapping_Course.ToString())
-                //    return "Course already Added to Cart";
-                //else if (model.TypeOfMapping == ClassBookConstant.Mapping_Expertise.ToString())
-                //    return "Expertise already Added to Cart";
+            }
+
+            #endregion
+        }
+
+        public string RemoveShoppingCart(Users user, AddToCartModel model)
+        {
+            #region Save Mapping Data
+
+            decimal PhysicalLearningAmountSubject = 2500;
+            var shoppingCartItems = _context.ShoppingCartItems.Where(x => x.EntityId == user.Id && x.ModuleId == user.ModuleId && x.MappingId == model.MappingId
+                && x.TypeOfMapping == model.TypeOfMapping).FirstOrDefault();
+
+            if (shoppingCartItems != null)
+            {
+                _context.ShoppingCartItems.Remove(shoppingCartItems);
+                _context.SaveChanges();
+                if (shoppingCartItems.TypeOfMapping == ClassBookConstant.Mapping_Subject.ToString())
+                {
+                    if (shoppingCartItems.OurAmount == PhysicalLearningAmountSubject)
+                    {
+                        var mappingData = _context.SubjectMapping.Where(x => x.Id == model.MappingId).FirstOrDefault();
+                        List<int> listSmbIds = new List<int>();
+                        var query = from shop in _context.ShoppingCartItems
+                                    join sub in _context.SubjectMapping on shop.MappingId equals sub.Id
+                                    where shop.EntityId == user.Id && shop.ModuleId == user.ModuleId && shop.TypeOfMapping == "Subject" && shop.Type == "Physical" && sub.SMBId == mappingData.SMBId
+                                    select shop;
+                        var shopping = query.FirstOrDefault();
+                        if (shopping != null)
+                        {
+                            shopping.OurAmount = PhysicalLearningAmountSubject;
+                            _context.ShoppingCartItems.Update(shopping);
+                            _context.SaveChanges();
+                        }
+                    }
+                }
+                return model.TypeOfMapping + " successflly removed to Cart";
+            }
+            else
+            {
+                return model.TypeOfMapping + " not in the cart";
             }
             #endregion
         }
 
-        //private decimal CalclulateAmount(string Type, int Mappin)
-        //{
-        //    if (shoppingCartItems.Type == ClassBookConstant.LearningType_Distance.ToString())
-        //    {
-
-        //    }
-        //}
         /// <summary>
         /// Save Course Mapping Data
         /// </summary>
@@ -737,9 +751,10 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public IList<CartDetailModel> GetCartDetailByUserId(int UserId, int moduleId)
+        public CartCompleteDetail GetCartDetailByUserId(int UserId, int moduleId)
         {
-            IList<CartDetailModel> cartDetailModels = new List<CartDetailModel>();
+            CartCompleteDetail cartCompleteDetail = new CartCompleteDetail();
+            List<CartDetailModel> cartDetailModels = new List<CartDetailModel>();
             SqlConnection connection = new SqlConnection(GetConnectionString());
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
@@ -753,6 +768,8 @@ namespace ClassBookApplication.Service
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@Id", SqlDbType.Int).Value = UserId;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
+                cmd.Parameters.Add("@ClassBookHandlingAmount", SqlDbType.Decimal);
+                cmd.Parameters["@ClassBookHandlingAmount"].Direction = ParameterDirection.Output;
                 var reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
@@ -760,22 +777,30 @@ namespace ClassBookApplication.Service
                     {
                         CartDetailModel cartDetailModel = new CartDetailModel()
                         {
-                            Type = reader.GetValue<string>("Type"),
+                            ProviderType = reader.GetValue<string>("ProviderType"),
+                            LearningType = reader.GetValue<string>("LearningType"),
+                            ActualFees = reader.GetValue<decimal>("ActualFees"),
                             ProviderName = reader.GetValue<string>("ProviderName"),
-                            Board = reader.GetValue<string>("BoardName"),
-                            Medium = reader.GetValue<string>("MediumName"),
-                            Standard = reader.GetValue<string>("StandardsName"),
-                            Subject = reader.GetValue<string>("SubjectName"),
-                            Amount = reader.GetValue<decimal>("Amount")
+                            BoardName = reader.GetValue<string>("BoardName"),
+                            MediumName = reader.GetValue<string>("MediumName"),
+                            StandardsName = reader.GetValue<string>("StandardsName"),
+                            EnityName = reader.GetValue<string>("EnityName"),
+                            TypeOfMapping = reader.GetValue<string>("TypeOfMapping"),
                         };
                         cartDetailModels.Add(cartDetailModel);
                     }
                 };
                 //close up the reader, we're done saving results
                 reader.Close();
+                cartCompleteDetail.CartDetailModel = cartDetailModels;
+                cartCompleteDetail.ClassBookHandlingAmount = decimal.Parse(cmd.Parameters["@ClassBookHandlingAmount"].Value.ToString());
+                cartCompleteDetail.GrandTotal = cartCompleteDetail.CartDetailModel.Sum(x => x.ActualFees) + cartCompleteDetail.ClassBookHandlingAmount;
+                cartCompleteDetail.GST = (cartCompleteDetail.GrandTotal * 18) / 100;
+                cartCompleteDetail.GrandTotal = cartCompleteDetail.GrandTotal + cartCompleteDetail.GST;
+                cartCompleteDetail.InternetHandlingCharge = (cartCompleteDetail.GrandTotal * 2) / 100;
                 //close connection
                 connection.Close();
-                return cartDetailModels;
+                return cartCompleteDetail;
             }
         }
 

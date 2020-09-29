@@ -115,33 +115,104 @@ END
 GO
 CREATE PROCEDURE [ClassBook_GetCartDetailByUserId]
 @Id INT=0,
-@ModuleId INT=0
+@ModuleId INT=0,
+@ClassBookHandlingAmount DECIMAL OUTPUT
 As
 BEGIN
-	SELECT
-		CASE
-			WHEN U.ModuleId = 2 THEN 'Teacher'
-		    WHEN U.ModuleId = 3 THEN 'Class'
-			ELSE 'Class'
-		END AS [Type],
-		ISNULL(C.[Name],T.[FirstName] + ' ' + T.[LastName]) AS ProviderName,
-		B.[Name] as BoardName,  
-		M.[Name] AS MediumName,  
-		S.[Name] AS StandardsName,  
-		Sub.[Name] AS SubjectName,
-		ISNULL(PL.Amount,0.00) As Amount
-	FROM StandardMediumBoardMapping SMB  
-		INNER JOIN Board B ON B.Id=SMB.BoardId  
-		INNER JOIN [Medium] M ON M.Id=SMB.MediumId  
-		INNER JOIN Standards S ON S.Id=SMB.StandardId  
-		INNER JOIN ShoppingCartSubjects SCS ON SCS.SMBId=SMB.Id
-		INNER JOIN USers U ON U.Id=SMB.UserId
-		INNER JOIN Subjects Sub ON Sub.Id=SCS.SubjectId
-		LEFT JOIN PackageLevel PL ON PL.EntityLevel=SCS.LevelId  AND PL.ModuleId=@ModuleId
-		LEFT JOIN Classes C ON C.Id=U.UserId AND U.ModuleId=3
-		LEFT JOIN Teacher T ON T.Id=U.UserId AND U.ModuleId=2
-	WHERE SCS.UserId=@Id
+		-- Drop the ##Temp Tables
+		DECLARE @sql nvarchar(max)        
+		SELECT	@sql = isnull(@sql+';', '') + 'drop table ' + quotename(name)        
+		FROM	tempdb..sysobjects        
+		WHERE	[name] like '##%'        
+		EXEC	(@sql)        
+
+		-- Get the SubjectMapping Data for User
+		SELECT 
+				CASE
+					WHEN SMB.ModuleId = 2 THEN 'Teacher'
+				    WHEN SMB.ModuleId = 3 THEN 'Class'
+					ELSE 'Class'
+				END AS [ProviderType],
+				SCI.[Type] as [LearningType],
+				SCI.ActualAmount AS [ActualFees],
+				ISNULL(ISNULL(C.[Name],T.[FirstName] + ' ' + T.[LastName]),'') AS ProviderName,
+				ISNULL(B.[Name],'') as BoardName,  
+				ISNULL(M.[Name],'') AS MediumName,  
+				ISNULL(S.[Name],'') AS StandardsName,  
+				ISNULL(Sub.[Name],'') AS EnityName,
+				SCI.TypeOfMapping
+				INTO ##TeMp
+		FROM 
+		ShoppingCartItems SCI 
+		INNER JOIN SubjectMapping SM ON SM.Id=SCI.MappingId AND TypeOfMapping='Subject'
+		LEFT JOIN StandardMediumBoardMapping SMB ON SMB.Id=SM.SMBId
+		LEFT JOIN Board B ON B.Id=SMB.BoardId  
+		LEFT JOIN [Medium] M ON M.Id=SMB.MediumId  
+		LEFT JOIN Standards S ON S.Id=SMB.StandardId
+		LEFT JOIN Subjects Sub ON Sub.Id=SM.SubjectId
+		LEFT JOIN Classes C ON C.Id=SMB.EnityId AND SMB.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=SMB.EnityId AND SMB.ModuleId=2
+		WHERE SCI.EntityId=1 AND SCI.ModuleId=1
+
+
+		-- Get the CourseMapping Data for User
+		SELECT
+				CASE
+					WHEN CM.ModuleId = 2 THEN 'Teacher'
+				    WHEN CM.ModuleId = 3 THEN 'Class'
+					ELSE 'Class'
+				END AS [ProviderType],
+				SCI.[Type] as [LearningType],
+				SCI.ActualAmount AS [ActualFees],
+				ISNULL(ISNULL(C.[Name],T.[FirstName] + ' ' + T.[LastName]),'') AS ProviderName,
+				'' as BoardName,  
+				'' AS MediumName,  
+				'' AS StandardsName,  
+				ISNULL(CS.[Name],'') AS EnityName,
+				SCI.TypeOfMapping
+				INTO ##TeMp1
+		FROM 
+		ShoppingCartItems SCI 
+		INNER JOIN CourseMapping CM ON CM.Id=SCI.MappingId AND SCI.TypeOfMapping='Course'
+		LEFT JOIN Courses CS ON CS.Id=CM.CourseId
+		LEFT JOIN Classes C ON C.Id=CM.EnityId AND CM.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=CM.EnityId AND CM.ModuleId=2
+		WHERE SCI.EntityId=1 AND SCI.ModuleId=1
+
+		-- Get the CareerExpertMapping Data for User
+		SELECT
+				'CareerExpert' AS [ProviderType],
+				SCI.[Type] as [LearningType],
+				SCI.ActualAmount AS [ActualFees],
+				ISNULL(CE.FirstName + ' ' + CE.LastName,'') AS ProviderName,
+				'' as BoardName,  
+				'' AS MediumName,  
+				'' AS StandardsName,  
+				ISNULL(E.[Name],'') AS EnityName,
+				SCI.TypeOfMapping
+				INTO ##TeMp2
+		FROM 
+		ShoppingCartItems SCI 
+		INNER JOIN ExpertiseMapping EM ON EM.Id=SCI.MappingId AND SCI.TypeOfMapping='Expertise'
+		LEFT JOIN Expertise E ON E.Id=EM.ExpertiseId
+		LEFT JOIN CareerExpert CE ON CE.Id=EM.EnityId AND EM.ModuleId=4
+		WHERE SCI.EntityId=@ModuleId AND SCI.ModuleId=@ModuleId
+
+		-- Show allData in one Table
+		SELECT * FROM ##TeMp
+		UNION 
+		SELECT * FROM ##TeMp1
+		UNION
+		SELECT * FROM ##TeMp2
+		ORDER BY TypeOfMapping
+
+		-- Calculate the ClassBookHandlingAmount
+		SELECT @ClassBookHandlingAmount=SUM(OurAmount) FROM ShoppingCartItems SCI
+		WHERE SCI.EntityId=@Id AND SCI.ModuleId=@ModuleId AND TypeOfMapping='Subject' AND [Type]='Physical'
 END
+
+
+
 
 
 GO

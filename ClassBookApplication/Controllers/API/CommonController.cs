@@ -156,9 +156,6 @@ namespace ClassBookApplication.Controllers.API
         public IEnumerable<object> GetCourses()
         {
             return _classBookService.GetCourses();
-            //var courses = _context.Courses.Where(x => x.Active == true).
-            //            Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) }).Take(5);
-            //return courses;
         }
 
         // GET api/Common/GetAdvertisementBanner
@@ -167,7 +164,6 @@ namespace ClassBookApplication.Controllers.API
         {
             var advertisementBanner = _context.AdvertisementBanner.Where(x => x.Active == true).
                                         Select(x => new { Name = x.Name, Id = x.Id, ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl) });
-
             return advertisementBanner;
         }
 

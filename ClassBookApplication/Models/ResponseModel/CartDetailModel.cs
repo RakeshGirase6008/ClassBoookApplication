@@ -1,13 +1,31 @@
-﻿namespace ClassBookApplication.Models.ResponseModel
+﻿using System.Collections.Generic;
+
+namespace ClassBookApplication.Models.ResponseModel
 {
     public class CartDetailModel
     {
-        public string Type { get; set; }
+        public string ProviderType { get; set; }
+        public string LearningType { get; set; }
+        public decimal ActualFees { get; set; }
         public string ProviderName { get; set; }
-        public string Board { get; set; }
-        public string Medium { get; set; }
-        public string Standard { get; set; }
-        public string Subject { get; set; }
-        public decimal Amount { get; set; }
+        public string BoardName { get; set; }
+        public string MediumName { get; set; }
+        public string StandardsName { get; set; }
+        public string EnityName { get; set; }
+        public string TypeOfMapping { get; set; }
+    }
+
+    public class CartCompleteDetail
+    {
+        public CartCompleteDetail()
+        {
+            CartDetailModel = new List<CartDetailModel>();
+        }
+        public decimal GrandTotal { get; set; }
+        public decimal ClassBookHandlingAmount { get; set; }
+        public decimal InternetHandlingCharge { get; set; }
+        public decimal GST { get; set; }
+        public List<CartDetailModel> CartDetailModel { get; set; }
+        
     }
 }
