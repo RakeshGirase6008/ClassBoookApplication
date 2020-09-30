@@ -272,10 +272,11 @@ namespace ClassBookApplication.Service
         /// </summary>
         public string SaveShoppingCartClassTeacher(Users user, AddToCartModelClassTeacher model, bool isRemove = false)
         {
+
             #region Save Mapping Data
 
             int mappingId;
-            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.Id && x.Active == true && x.ModuleId == user.ModuleId
+            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.UserId && x.Active == true && x.ModuleId == user.ModuleId
                 && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
 
             if (retrivedMappingData == null)

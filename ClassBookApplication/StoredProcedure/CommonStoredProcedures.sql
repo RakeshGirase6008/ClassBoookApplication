@@ -224,9 +224,15 @@ CREATE PROCEDURE [ClassBook_GetSubjects]
 	@StandardId INT    
 AS    
 BEGIN    
-	IF @ModuleId=3
+	DECLARE @DistanceFeesForSubject DECIMAL
+	SELECT @DistanceFeesForSubject=ISNULL([Value],0) FROM Settings WHERE [Name]='FeesSetting.DistanceFeesForSubject'
+
+	IF @ModuleId=3  
 	BEGIN  
-		SELECT S.Id,S.[Name],SMB.Id as [SMBMappingId] from Classes C    
+		SELECT S.Id,S.[Name],SM.Id as [SubjectMappingId],
+		DistanceFees + @DistanceFeesForSubject as DistanceFees,
+		PhysicalFees
+		FROM Classes C    
 		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId 
 		AND SMB.EnityId=C.Id AND SMB.ModuleId=@ModuleId
 		INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
@@ -235,8 +241,12 @@ BEGIN
   
 	IF @ModuleId=2  
 	BEGIN  
-		select S.Id,S.[Name],SMB.Id as [SMBMappingId] from Teacher T    
-		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
+		SELECT 
+		S.Id,S.[Name],SM.Id as [SubjectMappingId],
+		DistanceFees + @DistanceFeesForSubject as DistanceFees, 
+		PhysicalFees
+		FROM Teacher T    
+		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId 
 		AND SMB.EnityId=T.Id AND SMB.ModuleId=@ModuleId
 		INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
 		INNER JOIN Subjects S ON S.Id=SM.SubjectId
@@ -244,44 +254,40 @@ BEGIN
 END 
 
 GO
-CREATE PROCEDURE [ClassBook_OrderPaid] 
+CREATE PROCEDURE [ClassBook_OrderPaid]
 	@UserId INT,  
 	@ModuleId INT,  
 	@PaymentType VARCHAR(100)  
 AS    
 BEGIN   
- DECLARE @Id INT  
- DECLARE @TotalAmount DECIMAL  
+	DECLARE @Id INT  
+	DECLARE @TotalActualAmount DECIMAL
+	DECLARE @TotalOurAmount DECIMAL
 
- --Insert Data for Order Table
- INSERT INTO [Order] VALUES(@UserId,@PaymentType,GETDATE(),GETDATE(),1,0)  
- SET @Id=SCOPE_IDENTITY()
-  
- --Add the ShoppingCartData into OrderSubjects with Amount
- INSERT INTO OrderSubjects  
- SELECT @Id,SMB.Id,Sub.Id,ISNULL(PL.Amount,0)  
- FROM StandardMediumBoardMapping SMB    
- INNER JOIN ShoppingCartSubjects SCS ON SCS.SMBId=SMB.Id    
- INNER JOIN Subjects Sub ON Sub.Id=SCS.SubjectId    
- INNER JOIN PackageLevel PL ON PL.EntityLevel=SCS.LevelId AND PL.ModuleId=@ModuleId  
- WHERE SCS.UserId=@UserId    
-  
-  --Updae the TotalAmount for Order Table
- SELECT @TotalAmount=ISNULL(SUM(Amount),0)  
- FROM OrderSubjects WHERE OrderId=@Id  
-  
- UPDATE [Order]  
- SET TotalAmount=@TotalAmount  
- WHERE Id=@Id
+	--Insert Data for Order Table
+	INSERT INTO [Order] VALUES(@UserId,@ModuleId,@PaymentType,GETDATE(),GETDATE(),1,0,0)  
+	SET @Id=SCOPE_IDENTITY()  
+	 
+	--Add the ShoppingCartItems into ShoppingCartItems with Amount
+	INSERT INTO OrderCartItems  
+	SELECT @Id,MappingId,TypeOfMapping,[Type],ActualAmount,OurAmount
+	FROM ShoppingCartItems
+	WHERE EntityId=@UserId AND ModuleId=@ModuleId
+	 
+	 --Updae the TotalAmount for Order Table
+	SELECT @TotalActualAmount=ISNULL(SUM(ActualAmount),0),@TotalOurAmount=ISNULL(SUM(OurAmount),0)  
+	FROM OrderCartItems WHERE OrderId=@Id  
+	 
+	UPDATE [Order]  
+	SET TotalAmount=@TotalActualAmount +  @TotalOurAmount,OurAmount=@TotalOurAmount
+	WHERE Id=@Id
 
- --Remove the ShoppingCartSubjects Data once the Order is Paid
- DELETE FROM ShoppingCartSubjects
- WHERE UserId=@UserId
-
+	DELETE FROM ShoppingCartItems
+	WHERE EntityId=@UserId AND ModuleId=@ModuleId
 END
 
 GO
-CREATE PROCEDURE [ClassBook_GetCourses]
+CREATE PROCEDURE [ClassBook_GetCourse s]
 AS
 BEGIN	
 	SELECT 
