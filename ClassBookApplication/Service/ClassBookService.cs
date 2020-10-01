@@ -274,68 +274,153 @@ namespace ClassBookApplication.Service
         {
 
             #region Save Mapping Data
+            decimal DistanceLearningAmountSubject = 3000;
+            decimal DistanceLearningAmountCourse = 5000;
 
             int mappingId;
-            var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.UserId && x.Active == true && x.ModuleId == user.ModuleId
-                && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
-
-            if (retrivedMappingData == null)
+            if (model.CourseId == 0)
             {
+                var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.UserId && x.ModuleId == user.ModuleId
+                    && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
+                if (retrivedMappingData == null)
+                {
+                    if (isRemove)
+                        return "Subject is not in the cart";
+
+                    StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
+                    standardMediumBoardMapping.EnityId = user.UserId;
+                    standardMediumBoardMapping.ModuleId = user.ModuleId;
+                    standardMediumBoardMapping.BoardId = model.BoardId;
+                    standardMediumBoardMapping.MediumId = model.MediumId;
+                    standardMediumBoardMapping.StandardId = model.StandardId;
+                    standardMediumBoardMapping.Active = false;
+                    _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
+                    _context.SaveChanges();
+                    mappingId = standardMediumBoardMapping.Id;
+                }
+                else
+                {
+                    mappingId = retrivedMappingData.Id;
+                }
+
                 if (isRemove)
-                    return "Subject is not in the cart";
-
-                StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
-                standardMediumBoardMapping.EnityId = user.Id;
-                standardMediumBoardMapping.ModuleId = user.ModuleId;
-                standardMediumBoardMapping.BoardId = model.BoardId;
-                standardMediumBoardMapping.MediumId = model.MediumId;
-                standardMediumBoardMapping.StandardId = model.StandardId;
-                standardMediumBoardMapping.Active = false;
-                _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
-                _context.SaveChanges();
-                mappingId = standardMediumBoardMapping.Id;
-            }
-            else
-            {
-                mappingId = retrivedMappingData.Id;
-            }
-
-            if (isRemove)
-            {
-                var subjectMappingData = _context.SubjectMapping.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
-                if (subjectMappingData.Any())
                 {
-                    var subMap = subjectMappingData.FirstOrDefault();
-                    _context.SubjectMapping.Remove(subMap);
-                    _context.SaveChanges();
-                    return "Subject Removed Successfully";
+                    var subjectMappingData = _context.SubjectMapping.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                    if (subjectMappingData.Any())
+                    {
+                        var subMap = subjectMappingData.FirstOrDefault();
+                        _context.SubjectMapping.Remove(subMap);
+                        _context.SaveChanges();
+
+                        var shoppingCartItemsData = _context.ShoppingCartItems.Where(x => x.EntityId == user.Id && x.ModuleId == user.ModuleId && x.MappingId == mappingId
+                            && x.TypeOfMapping == ClassBookConstant.Mapping_Subject.ToString());
+                        if (shoppingCartItemsData.Any())
+                        {
+                            _context.ShoppingCartItems.Remove(shoppingCartItemsData.FirstOrDefault());
+                            _context.SaveChanges();
+                        }
+                        return "Subject Removed Successfully";
+                    }
+                    else
+                    {
+                        return "Subject is not in the cart";
+                    }
                 }
                 else
                 {
-                    return "Subject is not in the cart";
+                    var subjectMappingsData = _context.SubjectMapping.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
+                    if (!subjectMappingsData.Any())
+                    {
+                        SubjectMapping subjectMapping = new SubjectMapping();
+                        subjectMapping.SMBId = mappingId;
+                        subjectMapping.SubjectId = model.SubjectId;
+                        subjectMapping.DistanceFees = 0;
+                        subjectMapping.PhysicalFees = 0;
+                        subjectMapping.Active = false;
+                        _context.SubjectMapping.Add(subjectMapping);
+                        _context.SaveChanges();
+
+                        ShoppingCartItems shoppingCartItems = new ShoppingCartItems();
+                        shoppingCartItems.MappingId = subjectMapping.Id;
+                        shoppingCartItems.TypeOfMapping = ClassBookConstant.Mapping_Subject.ToString();
+                        shoppingCartItems.Type = ClassBookConstant.LearningType_Distance.ToString();
+                        shoppingCartItems.EntityId = user.UserId;
+                        shoppingCartItems.ModuleId = user.ModuleId;
+                        shoppingCartItems.ActualAmount = 0;
+                        shoppingCartItems.OurAmount = DistanceLearningAmountSubject;
+                        _context.ShoppingCartItems.Add(shoppingCartItems);
+                        _context.SaveChanges();
+                        return "Subject Added Successfully";
+                    }
+                    else
+                    {
+                        return "Subject is already in the cart";
+                    }
                 }
             }
             else
             {
-                var shoppingCartData = _context.SubjectMapping.Where(x => x.SMBId == mappingId && x.SubjectId == model.SubjectId);
-                if (!shoppingCartData.Any())
+                var retrivedMappingData = _context.CourseMapping.Where(x => x.EnityId == user.UserId && x.ModuleId == user.ModuleId
+                                                && x.CourseId == model.CourseId).FirstOrDefault();
+                if (isRemove)
                 {
-                    SubjectMapping subjectMapping = new SubjectMapping();
-                    subjectMapping.SMBId = mappingId;
-                    subjectMapping.SubjectId = model.SubjectId;
-                    subjectMapping.DistanceFees = 0;
-                    subjectMapping.PhysicalFees = 0;
-                    subjectMapping.Active = false;
-                    _context.SubjectMapping.Add(subjectMapping);
-                    _context.SaveChanges();
-                    return "Subject Added Successfully";
+                    if (retrivedMappingData != null)
+                    {
+                        var courseMap = retrivedMappingData;
+                        _context.CourseMapping.Remove(retrivedMappingData);
+                        _context.SaveChanges();
+
+                        var shoppingCartItemsData = _context.ShoppingCartItems.Where(x => x.EntityId == user.Id && x.ModuleId == user.ModuleId && x.MappingId == retrivedMappingData.Id
+                            && x.TypeOfMapping == ClassBookConstant.Mapping_Course.ToString());
+                        if (shoppingCartItemsData.Any())
+                        {
+                            _context.ShoppingCartItems.Remove(shoppingCartItemsData.FirstOrDefault());
+                            _context.SaveChanges();
+                        }
+                        return "Course Removed Successfully";
+                    }
+                    else
+                    {
+                        return "Course is not in the cart";
+                    }
                 }
                 else
                 {
-                    return "Subject is already in the cart";
-                }
-            }
 
+                    if (retrivedMappingData == null)
+                    {
+                        if (isRemove)
+                            return "Course is not in the cart";
+
+                        CourseMapping courseMapping = new CourseMapping();
+                        courseMapping.EnityId = user.Id;
+                        courseMapping.ModuleId = user.ModuleId;
+                        courseMapping.CourseId = model.CourseId;
+                        courseMapping.DistanceFees = 0;
+                        courseMapping.PhysicalFees = 0;
+                        courseMapping.Active = false;
+                        _context.CourseMapping.Add(courseMapping);
+                        _context.SaveChanges();
+
+                        ShoppingCartItems shoppingCartItems = new ShoppingCartItems();
+                        shoppingCartItems.MappingId = courseMapping.Id;
+                        shoppingCartItems.TypeOfMapping = ClassBookConstant.Mapping_Course.ToString();
+                        shoppingCartItems.Type = ClassBookConstant.LearningType_Distance.ToString();
+                        shoppingCartItems.EntityId = user.Id;
+                        shoppingCartItems.ModuleId = user.ModuleId;
+                        shoppingCartItems.ActualAmount = 0;
+                        shoppingCartItems.OurAmount = DistanceLearningAmountCourse;
+                        _context.ShoppingCartItems.Add(shoppingCartItems);
+
+                        return "Course added successfully to Cart";
+                    }
+                    else
+                    {
+                        return "Course is already in the Cart";
+                    }
+                }
+
+            }
             #endregion
         }
 
@@ -795,7 +880,8 @@ namespace ClassBookApplication.Service
                 reader.Close();
                 cartCompleteDetail.CartDetailModel = cartDetailModels;
                 cartCompleteDetail.ClassBookHandlingAmount = decimal.Parse(cmd.Parameters["@ClassBookHandlingAmount"].Value.ToString());
-                cartCompleteDetail.GrandTotal = cartCompleteDetail.CartDetailModel.Sum(x => x.ActualFees) + cartCompleteDetail.ClassBookHandlingAmount;
+                cartCompleteDetail.TotalPrice = cartCompleteDetail.CartDetailModel.Sum(x => x.ActualFees);
+                cartCompleteDetail.GrandTotal = cartCompleteDetail.TotalPrice + cartCompleteDetail.ClassBookHandlingAmount;
                 cartCompleteDetail.GST = (cartCompleteDetail.GrandTotal * 18) / 100;
                 cartCompleteDetail.GrandTotal = cartCompleteDetail.GrandTotal + cartCompleteDetail.GST;
                 cartCompleteDetail.InternetHandlingCharge = (cartCompleteDetail.GrandTotal * 2) / 100;

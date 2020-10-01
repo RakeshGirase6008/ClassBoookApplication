@@ -22,6 +22,7 @@ namespace ClassBookApplication.Models.ResponseModel
             CartDetailModel = new List<CartDetailModel>();
         }
         public decimal GrandTotal { get; set; }
+        public decimal TotalPrice { get; set; }
         public decimal ClassBookHandlingAmount { get; set; }
         public decimal InternetHandlingCharge { get; set; }
         public decimal GST { get; set; }
