@@ -14,6 +14,20 @@ namespace ClassBookApplication.Models.ResponseModel
         public string EnityName { get; set; }
         public string TypeOfMapping { get; set; }
     }
+    public class SubscriptionDetailModel
+    {
+        public string ProviderType { get; set; }
+        public string LearningType { get; set; }
+        public decimal PaidAmount { get; set; }
+        public string ProviderName { get; set; }
+        public string BoardName { get; set; }
+        public string MediumName { get; set; }
+        public string StandardsName { get; set; }
+        public string EnityName { get; set; }
+        public string TypeOfMapping { get; set; }
+        public string SubscriptionDate { get; set; }
+        public string ExpireDate { get; set; }
+    }
 
     public class CartCompleteDetail
     {

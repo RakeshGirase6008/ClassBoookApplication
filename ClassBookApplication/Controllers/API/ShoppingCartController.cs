@@ -91,7 +91,6 @@ namespace ClassBookApplication.Controllers.API
             }
         }
 
-
         // POST api/ShoppingCart/GetCartDetail
         [HttpPost("GetCartDetail")]
         public IActionResult GetCartDetail()
@@ -100,6 +99,18 @@ namespace ClassBookApplication.Controllers.API
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
             if (singleUser != null)
                 return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId));
+            else
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
+        }
+
+        // POST api/ShoppingCart/GetsubscriptionDetail
+        [HttpPost("GetSubscriptionDetail")]
+        public IActionResult GetSubscriptionDetail()
+        {
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
+            if (singleUser != null)
+                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetSubscriptionDetailByUserId(singleUser.Id, singleUser.ModuleId));
             else
                 return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
         }
