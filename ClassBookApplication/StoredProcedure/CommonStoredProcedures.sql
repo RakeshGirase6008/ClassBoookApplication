@@ -237,7 +237,7 @@ BEGIN
 	FROM StandardMediumBoardMapping SMB
 	INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
 	INNER JOIN Subjects S ON S.Id=SM.SubjectId
-	LEFT JOIN ShoppingCartItems SCI ON SCI.MappingId=SM.Id AND SCI.EntityId=1 AND SCI.ModuleId=1
+	LEFT JOIN ShoppingCartItems SCI ON SCI.MappingId=SM.Id AND SCI.EntityId=@LoginEntityId AND SCI.ModuleId=@LoginModuleId
 	WHERE SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
 	AND SMB.ModuleId=@ModuleId AND SMB.EntityId=@EntityId
 END
