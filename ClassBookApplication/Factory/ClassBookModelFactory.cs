@@ -9,7 +9,7 @@ namespace ClassBookApplication.Factory
         {
             return new
             {
-                UserId = user.UserId,
+                UserId = user.EntityId,
                 Email = user.Email,
                 AuthorizeTokenKey = user.AuthorizeTokenKey
             };

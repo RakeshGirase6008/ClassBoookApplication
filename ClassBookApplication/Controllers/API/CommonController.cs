@@ -259,7 +259,19 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("GetSubjectsByModuleId")]
         public object GetSubjectsByModuleId([FromForm] SubjectRequestDetails subjectRequestDetails)
         {
-            return _classBookService.GetSubjects(subjectRequestDetails);
+            ResponseModel responseModel = new ResponseModel();
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).AsNoTracking();
+            if (singleUser.Any())
+            {
+                var user = singleUser.FirstOrDefault();
+                return _classBookService.GetSubjects(user,subjectRequestDetails);
+            }
+            else
+            {
+                responseModel.Message = "Authorization is failed";
+                return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
+            }
         }
 
         #endregion

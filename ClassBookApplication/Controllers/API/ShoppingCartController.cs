@@ -113,7 +113,7 @@ namespace ClassBookApplication.Controllers.API
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
             if (singleUser != null)
             {
-                var status = _classBookService.OrderPaid(singleUser.UserId, singleUser.ModuleId, PaymentType);
+                var status = _classBookService.OrderPaid(singleUser.EntityId, singleUser.ModuleId, PaymentType);
                 return StatusCode((int)HttpStatusCode.OK, status);
             }
             else

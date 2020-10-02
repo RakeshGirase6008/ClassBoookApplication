@@ -251,7 +251,7 @@ namespace ClassBookApplication.Service
         {
             var password = GeneratePassword(true, true, true, false, false, 16);
             Users user = new Users();
-            user.UserId = userId;
+            user.EntityId = userId;
             user.ModuleId = (int)module;
             user.UserName = userName;
             user.Email = email;
@@ -280,7 +280,7 @@ namespace ClassBookApplication.Service
             int mappingId;
             if (model.CourseId == 0)
             {
-                var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EnityId == user.UserId && x.ModuleId == user.ModuleId
+                var retrivedMappingData = _context.StandardMediumBoardMapping.Where(x => x.EntityId == user.EntityId && x.ModuleId == user.ModuleId
                     && x.BoardId == model.BoardId && x.MediumId == model.MediumId && x.StandardId == model.StandardId).FirstOrDefault();
                 if (retrivedMappingData == null)
                 {
@@ -288,12 +288,12 @@ namespace ClassBookApplication.Service
                         return "Subject is not in the cart";
 
                     StandardMediumBoardMapping standardMediumBoardMapping = new StandardMediumBoardMapping();
-                    standardMediumBoardMapping.EnityId = user.UserId;
+                    standardMediumBoardMapping.EntityId = user.EntityId;
                     standardMediumBoardMapping.ModuleId = user.ModuleId;
                     standardMediumBoardMapping.BoardId = model.BoardId;
                     standardMediumBoardMapping.MediumId = model.MediumId;
                     standardMediumBoardMapping.StandardId = model.StandardId;
-                    standardMediumBoardMapping.Active = false;
+                    standardMediumBoardMapping.Active = true;
                     _context.StandardMediumBoardMapping.Add(standardMediumBoardMapping);
                     _context.SaveChanges();
                     mappingId = standardMediumBoardMapping.Id;
@@ -344,7 +344,7 @@ namespace ClassBookApplication.Service
                         shoppingCartItems.MappingId = subjectMapping.Id;
                         shoppingCartItems.TypeOfMapping = ClassBookConstant.Mapping_Subject.ToString();
                         shoppingCartItems.Type = ClassBookConstant.LearningType_Distance.ToString();
-                        shoppingCartItems.EntityId = user.UserId;
+                        shoppingCartItems.EntityId = user.EntityId;
                         shoppingCartItems.ModuleId = user.ModuleId;
                         shoppingCartItems.ActualAmount = 0;
                         shoppingCartItems.OurAmount = DistanceLearningAmountSubject;
@@ -360,7 +360,7 @@ namespace ClassBookApplication.Service
             }
             else
             {
-                var retrivedMappingData = _context.CourseMapping.Where(x => x.EnityId == user.UserId && x.ModuleId == user.ModuleId
+                var retrivedMappingData = _context.CourseMapping.Where(x => x.EntityId == user.EntityId && x.ModuleId == user.ModuleId
                                                 && x.CourseId == model.CourseId).FirstOrDefault();
                 if (isRemove)
                 {
@@ -393,7 +393,7 @@ namespace ClassBookApplication.Service
                             return "Course is not in the cart";
 
                         CourseMapping courseMapping = new CourseMapping();
-                        courseMapping.EnityId = user.Id;
+                        courseMapping.EntityId = user.Id;
                         courseMapping.ModuleId = user.ModuleId;
                         courseMapping.CourseId = model.CourseId;
                         courseMapping.DistanceFees = 0;
@@ -978,7 +978,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
-        public IList<SubjectDetails> GetSubjects(SubjectRequestDetails subjectRequestDetails)
+        public IList<SubjectDetails> GetSubjects(Users singleUser, SubjectRequestDetails subjectRequestDetails)
         {
             IList<SubjectDetails> subjectDetails = new List<SubjectDetails>();
             SqlConnection connection = new SqlConnection(GetConnectionString());
@@ -992,8 +992,9 @@ namespace ClassBookApplication.Service
                 cmd.CommandText = ClassBookConstant.SP_ClassBook_GetSubjects.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = singleUser.Id;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = subjectRequestDetails.ModuleId;
-                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = subjectRequestDetails.Id;
+                cmd.Parameters.Add("@EntityId", SqlDbType.Int).Value = subjectRequestDetails.EntityId;
                 cmd.Parameters.Add("@BoardId", SqlDbType.Int).Value = subjectRequestDetails.BoardId;
                 cmd.Parameters.Add("@MediumId", SqlDbType.Int).Value = subjectRequestDetails.MediumId;
                 cmd.Parameters.Add("@StandardId", SqlDbType.Int).Value = subjectRequestDetails.StandardId;
@@ -1006,6 +1007,7 @@ namespace ClassBookApplication.Service
                         {
                             Id = reader.GetValue<int>("Id"),
                             Name = reader.GetValue<string>("Name"),
+                            InCart = reader.GetValue<bool>("InCart"),
                             DistanceFees = reader.GetValue<decimal>("DistanceFees"),
                             PhysicalFees = reader.GetValue<decimal>("PhysicalFees"),
                             SubjectMappingId = reader.GetValue<int>("SubjectMappingId"),

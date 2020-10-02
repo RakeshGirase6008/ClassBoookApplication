@@ -9,7 +9,7 @@ namespace ClassBookApplication.Models.RequestModels
         public int Id { get; set; }
         public List<IFormFile> Files { get; set; }
         public List<IFormFile> Video { get; set; }
-        public int OrderSubjectId { get; set; }
+        public int OrderItemId { get; set; }
         public int TopicId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

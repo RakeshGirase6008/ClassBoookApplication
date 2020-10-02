@@ -2,7 +2,7 @@
 {
     public class StandardMediumBoardMapping : BaseEntity
     { 
-        public int EnityId { get; set; }
+        public int EntityId { get; set; }
         public int ModuleId { get; set; }
         public int BoardId { get; set; }
         public int MediumId { get; set; }

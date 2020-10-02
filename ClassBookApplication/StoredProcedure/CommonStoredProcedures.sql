@@ -1,8 +1,9 @@
 CREATE PROCEDURE [ClassBook_GetModuleDataByModuleId]
-@ModuleId INT    
+	@ModuleId INT    
 AS     
 BEGIN    
 	DECLARE @TopProducts INT
+	DECLARE @EntityName VARCHAR(20)
 	SET @TopProducts=5
 
 	 IF @ModuleId=2
@@ -23,7 +24,7 @@ BEGIN
 			COUNT(SM.SubjectId) as SubjectCount,
 			FORMAT(ISNULL(AVG(R.Ratings),0.0),'N2') as Rating
 		FROM Teacher T
-			LEFT JOIN StandardMediumBoardMapping SMB ON SMB.EnityId=T.Id AND SMB.ModuleId=2
+			LEFT JOIN StandardMediumBoardMapping SMB ON SMB.EntityId=T.Id AND SMB.ModuleId=@ModuleId
 			LEFT JOIN SubjectMapping SM ON  SMB.Id=SM.SMBId
 			LEFT JOIN #TempRating R ON R.EntityId=T.Id
 		GROUP BY T.Id,T.[FirstName],T.LastName,T.[ProfilePictureUrl]
@@ -47,7 +48,7 @@ BEGIN
 			COUNT(SM.SubjectId) as SubjectCount,
 			FORMAT(ISNULL(AVG(R.Ratings),0.0),'N2') as Rating
 		FROM Classes C 
-			LEFT JOIN StandardMediumBoardMapping SMB ON SMB.EnityId=C.Id AND SMB.ModuleId=@ModuleId
+			LEFT JOIN StandardMediumBoardMapping SMB ON SMB.EntityId=C.Id AND SMB.ModuleId=@ModuleId
 			LEFT JOIN SubjectMapping SM ON SM.SMBId=SMB.Id
 			LEFT JOIN #TempRating R ON R.EntityId=C.Id
 		GROUP BY C.Id,C.[Name],C.[ClassPhotoUrl]
@@ -84,7 +85,7 @@ BEGIN
 			COUNT(SM.SubjectId) as SubjectCount,
 			FORMAT(ISNULL(AVG(R.Ratings),0.0),'N2') as Rating
 		FROM School S
-		LEFT JOIN StandardMediumBoardMapping SMB ON S.Id=SMB.EnityId AND SMB.ModuleId=5
+		LEFT JOIN StandardMediumBoardMapping SMB ON S.Id=SMB.EntityId AND SMB.ModuleId=@ModuleId
 		LEFT JOIN SubjectMapping SM ON  SMB.Id=SM.SMBId
 		LEFT JOIN #TempRating R ON R.EntityId=S.Id
 		GROUP BY S.Id,S.[Name],S.[SchoolPhotoUrl]
@@ -92,11 +93,12 @@ BEGIN
 	 END
 END
 
+
 GO
 CREATE PROCEDURE [ClassBook_GetDetailById]
 	@Id INT,  
 	@ModuleId INT  
-AS
+AS           
 BEGIN      
 	SELECT     
 		B.[Name] as BoardName,    
@@ -109,16 +111,16 @@ BEGIN
 		INNER JOIN Board B ON B.Id=SMB.BoardId    
 		INNER JOIN [Medium] M ON M.Id=SMB.MediumId    
 		INNER JOIN Standards S ON S.Id=SMB.StandardId   
-	WHERE SMB.EnityId=@Id AND SMB.ModuleId=@ModuleId
+	WHERE SMB.EntityId=@Id AND SMB.ModuleId=@ModuleId
 END
 
 GO
 CREATE PROCEDURE [ClassBook_GetCartDetailByUserId]
-@Id INT=0,
-@ModuleId INT=0,
-@ClassBookHandlingAmount DECIMAL OUTPUT
+	@Id INT=0,
+	@ModuleId INT=0,
+	@ClassBookHandlingAmount DECIMAL OUTPUT
 As
-BEGIN
+	BEGIN
 		-- Drop the ##Temp Tables
 		DECLARE @sql nvarchar(max)        
 		SELECT	@sql = isnull(@sql+';', '') + 'drop table ' + quotename(name)        
@@ -150,8 +152,8 @@ BEGIN
 		LEFT JOIN [Medium] M ON M.Id=SMB.MediumId  
 		LEFT JOIN Standards S ON S.Id=SMB.StandardId
 		LEFT JOIN Subjects Sub ON Sub.Id=SM.SubjectId
-		LEFT JOIN Classes C ON C.Id=SMB.EnityId AND SMB.ModuleId=3
-		LEFT JOIN Teacher T ON T.Id=SMB.EnityId AND SMB.ModuleId=2
+		LEFT JOIN Classes C ON C.Id=SMB.EntityId AND SMB.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=SMB.EntityId AND SMB.ModuleId=2
 		WHERE SCI.EntityId=1 AND SCI.ModuleId=1
 
 
@@ -175,8 +177,8 @@ BEGIN
 		ShoppingCartItems SCI 
 		INNER JOIN CourseMapping CM ON CM.Id=SCI.MappingId AND SCI.TypeOfMapping='Course'
 		LEFT JOIN Courses CS ON CS.Id=CM.CourseId
-		LEFT JOIN Classes C ON C.Id=CM.EnityId AND CM.ModuleId=3
-		LEFT JOIN Teacher T ON T.Id=CM.EnityId AND CM.ModuleId=2
+		LEFT JOIN Classes C ON C.Id=CM.EntityId AND CM.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=CM.EntityId AND CM.ModuleId=2
 		WHERE SCI.EntityId=1 AND SCI.ModuleId=1
 
 		-- Get the CareerExpertMapping Data for User
@@ -195,7 +197,7 @@ BEGIN
 		ShoppingCartItems SCI 
 		INNER JOIN ExpertiseMapping EM ON EM.Id=SCI.MappingId AND SCI.TypeOfMapping='Expertise'
 		LEFT JOIN Expertise E ON E.Id=EM.ExpertiseId
-		LEFT JOIN CareerExpert CE ON CE.Id=EM.EnityId AND EM.ModuleId=4
+		LEFT JOIN CareerExpert CE ON CE.Id=EM.EntityId AND EM.ModuleId=4
 		WHERE SCI.EntityId=@ModuleId AND SCI.ModuleId=@ModuleId
 
 		-- Show allData in one Table
@@ -207,103 +209,113 @@ BEGIN
 		ORDER BY TypeOfMapping
 
 		-- Calculate the ClassBookHandlingAmount
-		SELECT @ClassBookHandlingAmount=SUM(OurAmount) FROM ShoppingCartItems SCI
+		SELECT @ClassBookHandlingAmount=ISNULL(SUM(OurAmount),0) FROM ShoppingCartItems SCI
 		WHERE SCI.EntityId=@Id AND SCI.ModuleId=@ModuleId AND TypeOfMapping='Subject' AND [Type]='Physical'
+
 END
-
-
-
-
-
 GO
 CREATE PROCEDURE [ClassBook_GetSubjects]
+	@UserId INT,
 	@ModuleId INT,    
-	@UserId INT,    
+	@EntityId INT,    
 	@BoardId INT,    
 	@MediumId INT,    
 	@StandardId INT    
 AS    
 BEGIN    
+	DECLARE @LoginEntityId INT
+	DECLARE @LoginModuleId INT
+
+	SELECT @LoginEntityId=EntityId,@LoginModuleId=ModuleId FROM Users WHERE Id=@UserId
+	
 	DECLARE @DistanceFeesForSubject DECIMAL
 	SELECT @DistanceFeesForSubject=ISNULL([Value],0) FROM Settings WHERE [Name]='FeesSetting.DistanceFeesForSubject'
 
-	IF @ModuleId=3  
-	BEGIN  
-		SELECT S.Id,S.[Name],SM.Id as [SubjectMappingId],
-		DistanceFees + @DistanceFeesForSubject as DistanceFees,
-		PhysicalFees
-		FROM Classes C    
-		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId 
-		AND SMB.EnityId=C.Id AND SMB.ModuleId=@ModuleId
-		INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
-		INNER JOIN Subjects S ON S.Id=SM.SubjectId    
-	END  
-  
-	IF @ModuleId=2  
-	BEGIN  
-		SELECT 
-		S.Id,S.[Name],SM.Id as [SubjectMappingId],
-		DistanceFees + @DistanceFeesForSubject as DistanceFees, 
-		PhysicalFees
-		FROM Teacher T    
-		INNER JOIN StandardMediumBoardMapping SMB ON SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId 
-		AND SMB.EnityId=T.Id AND SMB.ModuleId=@ModuleId
-		INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
-		INNER JOIN Subjects S ON S.Id=SM.SubjectId
-	END  
-END 
+	SELECT S.Id,S.[Name],SM.Id as [SubjectMappingId],IIF(SCI.Id IS NULL,0,1) as InCart,
+	DistanceFees as DistanceFees,
+	PhysicalFees
+	FROM StandardMediumBoardMapping SMB
+	INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
+	INNER JOIN Subjects S ON S.Id=SM.SubjectId
+	LEFT JOIN ShoppingCartItems SCI ON SCI.MappingId=SM.Id AND SCI.EntityId=1 AND SCI.ModuleId=1
+	WHERE SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
+	AND SMB.ModuleId=@ModuleId AND SMB.EntityId=@EntityId
+END
+
 
 GO
 CREATE PROCEDURE [ClassBook_OrderPaid]
-	@UserId INT,  
-	@ModuleId INT,  
-	@PaymentType VARCHAR(100)  
-AS    
-BEGIN   
-	DECLARE @Id INT  
-	DECLARE @TotalActualAmount DECIMAL
-	DECLARE @TotalOurAmount DECIMAL
+ @UserId INT,    
+ @ModuleId INT,    
+ @PaymentType VARCHAR(100)    
+AS      
+BEGIN     
+ DECLARE @Id INT    
+ DECLARE @TotalActualAmount DECIMAL  
+ DECLARE @TotalOurAmount DECIMAL  
+  
+ --Insert Data for Order Table  
+ INSERT INTO [Order] VALUES(@UserId,@ModuleId,@PaymentType,GETDATE(),GETDATE(),1,0,0)    
+ SET @Id=SCOPE_IDENTITY()    
+    
+ --Add the ShoppingCartItems into ShoppingCartItems with Amount  
+ INSERT INTO OrderCartItems    
+ SELECT @Id,MappingId,TypeOfMapping,[Type],ActualAmount,OurAmount  
+ FROM ShoppingCartItems  
+ WHERE EntityId=@UserId AND ModuleId=@ModuleId  
+    
+  --Updae the TotalAmount for Order Table  
+ SELECT @TotalActualAmount=ISNULL(SUM(ActualAmount),0),@TotalOurAmount=ISNULL(SUM(OurAmount),0)    
+ FROM OrderCartItems WHERE OrderId=@Id    
+    
+ UPDATE [Order]    
+ SET TotalAmount=@TotalActualAmount +  @TotalOurAmount,OurAmount=@TotalOurAmount  
+ WHERE Id=@Id  
+  
+ DELETE FROM ShoppingCartItems  
+ WHERE EntityId=@UserId AND ModuleId=@ModuleId
 
-	--Insert Data for Order Table
-	INSERT INTO [Order] VALUES(@UserId,@ModuleId,@PaymentType,GETDATE(),GETDATE(),1,0,0)  
-	SET @Id=SCOPE_IDENTITY()  
-	 
-	--Add the ShoppingCartItems into ShoppingCartItems with Amount
-	INSERT INTO OrderCartItems  
-	SELECT @Id,MappingId,TypeOfMapping,[Type],ActualAmount,OurAmount
-	FROM ShoppingCartItems
-	WHERE EntityId=@UserId AND ModuleId=@ModuleId
-	 
-	 --Updae the TotalAmount for Order Table
-	SELECT @TotalActualAmount=ISNULL(SUM(ActualAmount),0),@TotalOurAmount=ISNULL(SUM(OurAmount),0)  
-	FROM OrderCartItems WHERE OrderId=@Id  
-	 
-	UPDATE [Order]  
-	SET TotalAmount=@TotalActualAmount +  @TotalOurAmount,OurAmount=@TotalOurAmount
-	WHERE Id=@Id
+ IF @ModuleId=2 OR @ModuleId=3
+ BEGIN
+	--Update SubjectMapping
+	UPDATE SubjectMapping
+	SET Active=1 
+	WHERE Id in(
+	SELECT SM.Id FROM [Order] O 
+	INNER JOIN OrderCartItems OCI ON O.Id=OCI.OrderId
+	INNER JOIN SubjectMapping SM ON OCI.MappingId=SM.Id AND OCI.TypeOfMapping='Subject'
+	WHERE O.Id=@Id)
 
-	DELETE FROM ShoppingCartItems
-	WHERE EntityId=@UserId AND ModuleId=@ModuleId
+	UPDATE CourseMapping
+	SET Active=1 
+	WHERE Id in(
+	SELECT CM.Id FROM [Order] O 
+	INNER JOIN OrderCartItems OCI ON O.Id=OCI.OrderId
+	INNER JOIN CourseMapping CM ON OCI.MappingId=CM.Id AND OCI.TypeOfMapping='Course'
+	WHERE O.Id=@Id)
+ END
 END
 
+
 GO
-CREATE PROCEDURE [ClassBook_GetCourse s]
-AS
-BEGIN	
-	SELECT 
-		CASE
-			WHEN CM.ModuleId = 2 THEN 'Teacher'
-		    WHEN CM.ModuleId = 3 THEN 'Class'
-			ELSE 'Class'
-		END AS [Type],
-		CS.[Name] as CourseName,
-		ISNULL(C.Name,T.[FirstName] + ' ' + T.[LastName]) as CourseProviderName,
-		CS.ImageUrl,
-		0 As Rating,
-		CC.[Name] as CategoryName
-	FROM Courses CS
-	INNER JOIN CourseCategory CC ON CS.CategoryId=CC.Id
-	LEFT JOIN CourseMapping CM ON CM.CourseId=CS.Id
-	LEFT JOIN Classes C ON C.Id=CM.EntityId AND CM.ModuleId=3
-	LEFT JOIN Teacher T ON T.Id=CM.EntityId AND CM.ModuleId=2
+CREATE PROCEDURE [ClassBook_GetCourses]
+AS  
+BEGIN   
+
+ SELECT   
+	CASE  
+		WHEN CM.ModuleId = 2 THEN 'Teacher'  
+		WHEN CM.ModuleId = 3 THEN 'Class'  
+		ELSE 'Not Assign'  
+	END AS [Type],  
+	CS.[Name] as CourseName,  
+	ISNULL(C.Name,T.[FirstName] + ' ' + T.[LastName]) as CourseProviderName,  
+	CS.ImageUrl,  
+	0 As Rating,  
+	CC.[Name] as CategoryName  
+ FROM Courses CS  
+	INNER JOIN CourseCategory CC ON CS.CategoryId=CC.Id  
+	LEFT JOIN CourseMapping CM ON CM.CourseId=CS.Id  
+	LEFT JOIN Classes C ON C.Id=CM.EntityId AND CM.ModuleId=3  
+	LEFT JOIN Teacher T ON T.Id=CM.EntityId AND CM.ModuleId=2  
 END

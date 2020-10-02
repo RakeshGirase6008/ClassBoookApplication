@@ -2,7 +2,7 @@
 {
     public class ExpertiseMapping : BaseEntity
     {
-        public int EnityId { get; set; }
+        public int EntityId { get; set; }
         public int ModuleId { get; set; }
         public int ExpertiseId { get; set; }
         public decimal DistanceFees { get; set; }

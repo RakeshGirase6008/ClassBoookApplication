@@ -50,7 +50,7 @@ namespace ClassBookApplication.Controllers.API
                 {
                     // Adding New Topic
                     Topic topic = new Topic();
-                    topic.OrderSubjectId = model.OrderSubjectId;
+                    topic.OrderItemId = model.OrderItemId;
                     topic.Name = model.Name;
                     topic.Description = model.Description;
                     topic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
@@ -129,7 +129,7 @@ namespace ClassBookApplication.Controllers.API
         public IEnumerable<object> GetTopicData(int id)
         {
             List<TopicResponseModel> allTopicList = new List<TopicResponseModel>();
-            var allTopics = _context.Topic.Where(x => x.OrderSubjectId == id).ToList();
+            var allTopics = _context.Topic.Where(x => x.OrderItemId == id).ToList();
             if (allTopics != null)
             {
                 foreach (var topic in allTopics)

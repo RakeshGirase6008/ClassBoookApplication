@@ -2,7 +2,7 @@
 {
     public class Topic : BaseEntity
     {
-        public int OrderSubjectId { get; set; }
+        public int OrderItemId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string ImageUrl { get; set; }

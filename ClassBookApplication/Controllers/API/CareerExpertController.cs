@@ -89,7 +89,7 @@ namespace ClassBookApplication.Controllers.API
                 CareerExpert CareerExpertData = JsonConvert.DeserializeObject<CareerExpert>(model.Data.ToString());
                 if (CareerExpertData != null)
                 {
-                    if (_context.Users.Count(x => x.Email == CareerExpertData.Email && x.UserId != CareerExpertData.Id) > 0)
+                    if (_context.Users.Count(x => x.Email == CareerExpertData.Email && x.EntityId != CareerExpertData.Id) > 0)
                     {
                         responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
                         return StatusCode((int)HttpStatusCode.Conflict, responseModel);

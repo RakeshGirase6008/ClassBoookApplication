@@ -2,7 +2,7 @@
 {
     public class SubjectTopicMapping : BaseEntity
     {
-        public int OrderSubjectId { get; set; }
+        public int OrderItemId { get; set; }
 
         public int TopicId { get; set; }
 

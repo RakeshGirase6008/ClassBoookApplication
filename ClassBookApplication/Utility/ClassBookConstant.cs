@@ -67,7 +67,6 @@
 
         #endregion
 
-
         #region TypeOfMapping
 
         public const string Mapping_Subject = "Subject";

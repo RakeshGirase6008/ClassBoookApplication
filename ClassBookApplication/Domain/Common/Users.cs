@@ -4,7 +4,7 @@ namespace ClassBookApplication.Domain.Common
 {
     public class Users : BaseEntity
     {
-        public int UserId { get; set; }
+        public int EntityId { get; set; }
         public int ModuleId { get; set; }
         public string UserName { get; set; }
         public string Email { get; set; }

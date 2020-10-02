@@ -88,7 +88,7 @@ namespace ClassBookApplication.Controllers.API
                 Student studentData = JsonConvert.DeserializeObject<Student>(model.Data.ToString());
                 if (studentData != null)
                 {
-                    if (_context.Users.Count(x => x.Email == studentData.Email && x.UserId != studentData.Id) > 0)
+                    if (_context.Users.Count(x => x.Email == studentData.Email && x.EntityId != studentData.Id) > 0)
                     {
                         responseModel.Message = ClassBookConstantString.Validation_EmailExist.ToString();
                         return StatusCode((int)HttpStatusCode.Conflict, responseModel);
