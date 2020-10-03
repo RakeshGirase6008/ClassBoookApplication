@@ -29,6 +29,19 @@ namespace ClassBookApplication.Models.ResponseModel
         public string ExpireDate { get; set; }
     }
 
+
+    public class TranscationDetailModel
+    {
+        public string ProviderType { get; set; }
+        public string LearningType { get; set; }
+        public decimal PaidAmount { get; set; }
+        public string ProviderName { get; set; }
+        public string EnityName { get; set; }
+        public string TypeOfMapping { get; set; }
+        public string OrderDate { get; set; }
+        public string ExpireDate { get; set; }
+    }
+
     public class CartCompleteDetail
     {
         public CartCompleteDetail()

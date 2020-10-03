@@ -61,6 +61,7 @@
         public const string SP_ClassBook_GetModuleDataByModuleId = "ClassBook_GetModuleDataByModuleId";
         public const string SP_ClassBook_GetCartDetailByUserId = "ClassBook_GetCartDetailByUserId";
         public const string SP_ClassBook_GetSubscrptionDetailByUserId = "ClassBook_GetSubscrptionDetailByUserId";
+        public const string SP_ClassBook_GetTranscationDetailByUserId = "ClassBook_GetTranscationDetailByUserId";
         public const string SP_ClassBook_GetDetailById = "ClassBook_GetDetailById";
         public const string SP_ClassBook_GetSubjects = "ClassBook_GetSubjects";
         public const string SP_ClassBook_GetCourses = "ClassBook_GetCourses";

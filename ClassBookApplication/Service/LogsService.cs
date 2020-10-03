@@ -51,7 +51,7 @@ namespace ClassBookApplication.Service
             logs.APIName = APIName;
             logs.UserId = userId;
             logs.CreatedOnDate = DateTime.Now;
-            _context.Logs.Add(logs);
+            _context.Logs.Add(logs); 
             _context.SaveChanges();
         }
 

@@ -941,6 +941,52 @@ namespace ClassBookApplication.Service
         }
 
         /// <summary>
+        /// Get All Transcation Data
+        /// </summary>
+        public List<TranscationDetailModel> GetTranscationDetailByUserId(int UserId, int moduleId)
+        {
+            List<TranscationDetailModel> transcationDetailModel = new List<TranscationDetailModel>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetTranscationDetailByUserId.ToString();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@Id", SqlDbType.Int).Value = UserId;
+                cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = moduleId;
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        TranscationDetailModel subscriptionDetailModel = new TranscationDetailModel()
+                        {
+                            ProviderType = reader.GetValue<string>("ProviderType"),
+                            LearningType = reader.GetValue<string>("LearningType"),
+                            PaidAmount = reader.GetValue<decimal>("PaidAmount"),
+                            ProviderName = reader.GetValue<string>("ProviderName"),
+                            EnityName = reader.GetValue<string>("EnityName"),
+                            TypeOfMapping = reader.GetValue<string>("TypeOfMapping"),
+                            OrderDate = reader.GetValue<string>("OrderDate"),
+                            ExpireDate = reader.GetValue<string>("ExpireDate"),
+                        };
+                        transcationDetailModel.Add(subscriptionDetailModel);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return transcationDetailModel;
+            }
+        }
+
+        /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
         public IList<BoardMediumStandardModel> GetDetailById(int Id, int moduleId)

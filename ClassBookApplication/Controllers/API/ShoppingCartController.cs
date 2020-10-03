@@ -115,6 +115,18 @@ namespace ClassBookApplication.Controllers.API
                 return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
         }
 
+        // POST api/ShoppingCart/GetTranscationDetail
+        [HttpPost("GetTranscationDetail")]
+        public IActionResult GetTranscationDetail()
+        {
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
+            if (singleUser != null)
+                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetTranscationDetailByUserId(singleUser.Id, singleUser.ModuleId));
+            else
+                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
+        }
+
 
         // POST api/ShoppingCart/CompleteOrder
         [HttpPost("CompleteOrder")]

@@ -1,4 +1,11 @@
 ﻿using ClassBookApplication.DataContext;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
 
 namespace ClassBookApplication.Service
 {
@@ -21,8 +28,8 @@ namespace ClassBookApplication.Service
         //    string senderKey = string.Empty;
         //    string toKey = string.Empty;
         //    string severKey = "AAAA7dBWBD8:APA91bFUv8yE_DOeUXGdpdWSPtenFEtDf9-6sZJWVncsQC76bA4hsx2oRsC0g4rwSOOQTrhjwEsOTqCTV7FrDxgCiA73sgI7kVQeUUuzqwt9NBBdezJ1PVhrMybAzEtoW_AwIJU7iywa";
-        //    var senderUser = _context.User.Where(x => x.Id == userId).AsNoTracking().SingleOrDefault();
-        //    var adminuser = _context.User.Where(x => x.Type == "Admin").AsNoTracking().SingleOrDefault();
+        //    var senderUser = _context.Users.Where(x => x.Id == userId).AsNoTracking().SingleOrDefault();
+        //    var adminuser = _context.Users.Where(x => x.Type == "Admin").AsNoTracking().SingleOrDefault();
         //    var item = _context.Item.Where(x => x.Id == itemId).AsNoTracking().SingleOrDefault();
         //    if (senderUser != null)
         //        senderKey = senderUser.TokenKey;
