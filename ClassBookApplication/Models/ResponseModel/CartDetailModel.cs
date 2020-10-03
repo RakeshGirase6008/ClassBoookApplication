@@ -32,6 +32,7 @@ namespace ClassBookApplication.Models.ResponseModel
 
     public class TranscationDetailModel
     {
+        public int TranscatioNo { get; set; }
         public string ProviderType { get; set; }
         public string LearningType { get; set; }
         public decimal PaidAmount { get; set; }

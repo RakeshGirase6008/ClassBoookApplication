@@ -966,6 +966,7 @@ namespace ClassBookApplication.Service
                     {
                         TranscationDetailModel subscriptionDetailModel = new TranscationDetailModel()
                         {
+                            TranscatioNo = reader.GetValue<int>("TranscatioNo"),
                             ProviderType = reader.GetValue<string>("ProviderType"),
                             LearningType = reader.GetValue<string>("LearningType"),
                             PaidAmount = reader.GetValue<decimal>("PaidAmount"),

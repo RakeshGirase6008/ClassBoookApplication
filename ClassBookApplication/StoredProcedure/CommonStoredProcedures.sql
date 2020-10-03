@@ -422,3 +422,109 @@ BEGIN
 		SELECT * FROM ##TeMp2
 		ORDER BY TypeOfMapping
 END
+
+GO
+CREATE PROCEDURE [ClassBook_GetTranscationDetailByUserId]
+	@Id INT=0,
+	@ModuleId INT=0
+As
+BEGIN
+		-- Drop the ##Temp Tables
+		DECLARE @sql nvarchar(max)        
+		SELECT	@sql = isnull(@sql+';', '') + 'drop table ' + quotename(name)        
+		FROM	tempdb..sysobjects        
+		WHERE	[name] like '##%'        
+		EXEC	(@sql)        
+
+		-- Get the SubjectMapping Data for User
+		SELECT 
+				OCI.Id as TranscatioNo,
+				CASE
+					WHEN SMB.ModuleId = 2 THEN 'Teacher'
+				    WHEN SMB.ModuleId = 3 THEN 'Class'
+					ELSE 'Class'
+				END AS [ProviderType],
+				OCI.[Type] as [LearningType],
+				OCI.ActualAmount AS [PaidAmount],
+				ISNULL(ISNULL(C.[Name],T.[FirstName] + ' ' + T.[LastName]),'') AS ProviderName,
+				ISNULL(B.[Name],'') as BoardName,  
+				ISNULL(M.[Name],'') AS MediumName,  
+				ISNULL(S.[Name],'') AS StandardsName,  
+				ISNULL(Sub.[Name],'') AS EnityName,
+				OCI.TypeOfMapping,
+				CONVERT(varchar, PaidDate, 106) as OrderDate,
+				CONVERT(varchar, DATEADD(year, 1, O.PaidDate), 106) as [ExpireDate]
+				INTO ##TeMp
+		FROM 
+		OrderCartItems OCI
+		INNER JOIN [Order] O ON OCI.OrderId=O.Id
+		INNER JOIN SubjectMapping SM ON SM.Id=OCI.MappingId AND TypeOfMapping='Subject'
+		LEFT JOIN StandardMediumBoardMapping SMB ON SMB.Id=SM.SMBId
+		LEFT JOIN Board B ON B.Id=SMB.BoardId  
+		LEFT JOIN [Medium] M ON M.Id=SMB.MediumId  
+		LEFT JOIN Standards S ON S.Id=SMB.StandardId
+		LEFT JOIN Subjects Sub ON Sub.Id=SM.SubjectId
+		LEFT JOIN Classes C ON C.Id=SMB.EntityId AND SMB.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=SMB.EntityId AND SMB.ModuleId=2
+		WHERE O.EntityId=@Id AND O.ModuleId=@ModuleId
+
+
+		-- Get the CourseMapping Data for User
+		SELECT
+				OCI.Id as TranscatioNo,
+				CASE
+					WHEN CM.ModuleId = 2 THEN 'Teacher'
+				    WHEN CM.ModuleId = 3 THEN 'Class'
+					ELSE 'Class'
+				END AS [ProviderType],
+				OCI.[Type] as [LearningType],
+				OCI.ActualAmount AS [PaidAmount],
+				ISNULL(ISNULL(C.[Name],T.[FirstName] + ' ' + T.[LastName]),'') AS ProviderName,
+				'' as BoardName,  
+				'' AS MediumName,  
+				'' AS StandardsName,  
+				ISNULL(CS.[Name],'') AS EnityName,
+				OCI.TypeOfMapping,
+				CONVERT(varchar, PaidDate, 106) as OrderDate,
+				CONVERT(varchar, DATEADD(year, 1, O.PaidDate), 106) as [ExpireDate]
+				INTO ##TeMp1
+		FROM 
+		OrderCartItems OCI
+		INNER JOIN [Order] O ON OCI.OrderId=O.Id
+		INNER JOIN CourseMapping CM ON CM.Id=OCI.MappingId AND OCI.TypeOfMapping='Course'
+		LEFT JOIN Courses CS ON CS.Id=CM.CourseId
+		LEFT JOIN Classes C ON C.Id=CM.EntityId AND CM.ModuleId=3
+		LEFT JOIN Teacher T ON T.Id=CM.EntityId AND CM.ModuleId=2
+		WHERE O.EntityId=@Id AND O.ModuleId=@ModuleId
+
+		-- Get the CareerExpertMapping Data for User
+		SELECT
+				OCI.Id as TranscatioNo,
+				'CareerExpert' AS [ProviderType],
+				OCI.[Type] as [LearningType],
+				OCI.ActualAmount AS [PaidAmount],
+				ISNULL(CE.FirstName + ' ' + CE.LastName,'') AS ProviderName,
+				'' as BoardName,  
+				'' AS MediumName,  
+				'' AS StandardsName,  
+				ISNULL(E.[Name],'') AS EnityName,
+				OCI.TypeOfMapping,
+				CONVERT(varchar, PaidDate, 106) as OrderDate,
+				CONVERT(varchar, DATEADD(year, 1, O.PaidDate), 106) as [ExpireDate]
+				INTO ##TeMp2
+		FROM 
+		OrderCartItems OCI
+		INNER JOIN [Order] O ON OCI.OrderId=O.Id
+		INNER JOIN ExpertiseMapping EM ON EM.Id=OCI.MappingId AND OCI.TypeOfMapping='Expertise'
+		LEFT JOIN Expertise E ON E.Id=EM.ExpertiseId
+		LEFT JOIN CareerExpert CE ON CE.Id=EM.EntityId AND EM.ModuleId=4
+		WHERE O.EntityId=@Id AND O.ModuleId=@ModuleId
+
+		-- Show allData in one Table
+		SELECT * FROM ##TeMp
+		UNION 
+		SELECT * FROM ##TeMp1
+		UNION
+		SELECT * FROM ##TeMp2
+		ORDER BY TypeOfMapping
+END
