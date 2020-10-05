@@ -269,8 +269,7 @@ namespace ClassBookApplication.Controllers.API
             }
             else
             {
-                responseModel.Message = "Authorization is failed";
-                return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
+                return _classBookService.GetSubjects(null, subjectRequestDetails);
             }
         }
 

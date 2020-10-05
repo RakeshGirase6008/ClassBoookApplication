@@ -24,5 +24,6 @@ namespace ClassBookApplication.Models.ResponseModel
         public decimal DistanceFees { get; set; }
         public decimal PhysicalFees { get; set; }
         public int SubjectMappingId { get; set; }
+        public int OrderCartItemId { get; set; }
     }
 }

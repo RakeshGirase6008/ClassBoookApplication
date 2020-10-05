@@ -27,7 +27,7 @@ namespace ClassBookApplication.Service
         //{
         //    string senderKey = string.Empty;
         //    string toKey = string.Empty;
-        //    string severKey = "AAAA7dBWBD8:APA91bFUv8yE_DOeUXGdpdWSPtenFEtDf9-6sZJWVncsQC76bA4hsx2oRsC0g4rwSOOQTrhjwEsOTqCTV7FrDxgCiA73sgI7kVQeUUuzqwt9NBBdezJ1PVhrMybAzEtoW_AwIJU7iywa";
+        //    string severKey = "AAAAX7kcx1M:APA91bEm8m-e28Rd6_ieuiZbRonHKJEBr9dbysm-ovQ_sujuZfRUfZMtd9CdpxVvMLdjrPMYkawM_BMAY7MEl1-q0VxZcmM1cK-1ddcBE5aWUr_W6Dp4DMrJODBmuZk2rT4XmfGmoxcX";
         //    var senderUser = _context.Users.Where(x => x.Id == userId).AsNoTracking().SingleOrDefault();
         //    var adminuser = _context.Users.Where(x => x.Type == "Admin").AsNoTracking().SingleOrDefault();
         //    var item = _context.Item.Where(x => x.Id == itemId).AsNoTracking().SingleOrDefault();
@@ -36,8 +36,8 @@ namespace ClassBookApplication.Service
         //    if (adminuser != null)
         //        toKey = adminuser.TokenKey;
 
-        //    var bodyString = senderUser.Username.ToString() + " has  " + Enum.GetName(typeof(Status), statusId).ToString() + " " + quantity + " quantity for " + item.Name.ToString();
-        //    var titlePart = Enum.GetName(typeof(Status), statusId).ToString() + " Quantity";
+        //    //var bodyString = senderUser.Username.ToString() + " has  " + Enum.GetName(typeof(Status), statusId).ToString() + " " + quantity + " quantity for " + item.Name.ToString();
+        //    //var titlePart = Enum.GetName(typeof(Status), statusId).ToString() + " Quantity";
         //    //string senderkey = "dVvsprMj6_k:APA91bFl9xP6ST3zJv1UR7uQ4as5kJZfeGxyn61Q1l_tv4aNdWZyrSR48Z52zbn_NcDOrraoujIgEHq4pbhwnwb1oriNhEZnC-C7wUZnwwUMF6eS9qmTLyTbjtzcGV6NzER1hLluRlTk";
         //    //string toKey = "ei9HpkbBrec:APA91bHr9q1sOkGS3PAsvre0ZmMMxts1fMPpPnyyGbKYe0WVSr9AbjhY4TFerqkOUs_Xjw70qIBbuYiPXuJJ3kRRR4ksqKl227mg9IJMFIYsl6xH0a6AwCi_lcoImKy_RJqAls1Cozmh";
         //    WebRequest tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
@@ -54,8 +54,8 @@ namespace ClassBookApplication.Service
         //        content_available = true,
         //        notification = new
         //        {
-        //            body = bodyString,
-        //            title = titlePart,
+        //            body = "Testing the notification",
+        //            title = "Testing",
         //            badge = 1
         //        },
         //        data = new

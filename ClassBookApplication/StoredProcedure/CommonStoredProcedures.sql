@@ -226,17 +226,20 @@ BEGIN
 	DECLARE @LoginEntityId INT
 	DECLARE @LoginModuleId INT
 
-	SELECT @LoginEntityId=EntityId,@LoginModuleId=ModuleId FROM Users WHERE Id=@UserId
-	
+	SELECT @LoginEntityId=ISNULL(EntityId,0),@LoginModuleId=ISNULL(ModuleId,0) FROM Users WHERE Id=@UserId
+
 	DECLARE @DistanceFeesForSubject DECIMAL
 	SELECT @DistanceFeesForSubject=ISNULL([Value],0) FROM Settings WHERE [Name]='FeesSetting.DistanceFeesForSubject'
 
-	SELECT S.Id,S.[Name],SM.Id as [SubjectMappingId],IIF(SCI.Id IS NULL,0,1) as InCart,
-	DistanceFees as DistanceFees,
+	SELECT S.Id,S.[Name],SM.Id as [SubjectMappingId],
+	OCI.Id as [OrderCartItemId],
+	IIF(SCI.Id IS NULL,0,1) as InCart,
+	DistanceFees,
 	PhysicalFees
 	FROM StandardMediumBoardMapping SMB
 	INNER JOIN [SubjectMapping] SM ON SM.SMBId=SMB.Id
 	INNER JOIN Subjects S ON S.Id=SM.SubjectId
+	LEFT JOIN OrderCartItems OCI ON SM.Id=OCI.MappingId AND OCI.TypeOfMapping='Subject'
 	LEFT JOIN ShoppingCartItems SCI ON SCI.MappingId=SM.Id AND SCI.EntityId=@LoginEntityId AND SCI.ModuleId=@LoginModuleId
 	WHERE SMB.BoardId=@BoardId AND SMB.MediumId=@MediumId AND SMB.StandardId=@StandardId
 	AND SMB.ModuleId=@ModuleId AND SMB.EntityId=@EntityId

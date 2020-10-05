@@ -1087,7 +1087,7 @@ namespace ClassBookApplication.Service
                 cmd.CommandText = ClassBookConstant.SP_ClassBook_GetSubjects.ToString();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
-                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = singleUser.Id;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = singleUser == null ? 0 : singleUser.Id;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = subjectRequestDetails.ModuleId;
                 cmd.Parameters.Add("@EntityId", SqlDbType.Int).Value = subjectRequestDetails.EntityId;
                 cmd.Parameters.Add("@BoardId", SqlDbType.Int).Value = subjectRequestDetails.BoardId;
@@ -1106,6 +1106,7 @@ namespace ClassBookApplication.Service
                             DistanceFees = reader.GetValue<decimal>("DistanceFees"),
                             PhysicalFees = reader.GetValue<decimal>("PhysicalFees"),
                             SubjectMappingId = reader.GetValue<int>("SubjectMappingId"),
+                            OrderCartItemId = reader.GetValue<int>("OrderCartItemId"),
                         };
                         subjectDetails.Add(ISP);
                     }
