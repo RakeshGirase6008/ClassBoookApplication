@@ -1,15 +1,14 @@
 ﻿using ClassBookApplication.DataContext;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 
 namespace ClassBookApplication.Service
 {
-    public class NotificationService 
+    public class NotificationService
     {
         #region Variable
         private readonly ClassBookManagementContext _context;
@@ -23,67 +22,56 @@ namespace ClassBookApplication.Service
         #endregion
 
         #region Method
-        //public string SendNotificationFromFirebaseCloud(int userId, int statusId, int itemId, int quantity)
-        //{
-        //    string senderKey = string.Empty;
-        //    string toKey = string.Empty;
-        //    string severKey = "AAAAX7kcx1M:APA91bEm8m-e28Rd6_ieuiZbRonHKJEBr9dbysm-ovQ_sujuZfRUfZMtd9CdpxVvMLdjrPMYkawM_BMAY7MEl1-q0VxZcmM1cK-1ddcBE5aWUr_W6Dp4DMrJODBmuZk2rT4XmfGmoxcX";
-        //    var senderUser = _context.Users.Where(x => x.Id == userId).AsNoTracking().SingleOrDefault();
-        //    var adminuser = _context.Users.Where(x => x.Type == "Admin").AsNoTracking().SingleOrDefault();
-        //    var item = _context.Item.Where(x => x.Id == itemId).AsNoTracking().SingleOrDefault();
-        //    if (senderUser != null)
-        //        senderKey = senderUser.TokenKey;
-        //    if (adminuser != null)
-        //        toKey = adminuser.TokenKey;
+        public string SendNotificationFromFirebaseCloud()
+        {
+            var toKeys = new List<string>();
+            toKeys.Add("e-vq6lNhQhaHE9Y9CtrNZo:APA91bFi0wQrvdbwDdI5Gvpk2NIUGPb8d8CtwpnyXgxeNSCEu_LmZOst8OzrD_TFhosN56pl6cih2hZNuGd72lmSStqTItndt7hADybl4fqAIUOpwQslO486NxHM6S1li6C67whm0dCA");
+            string severKey = "AAAAX7kcx1M:APA91bEm8m-e28Rd6_ieuiZbRonHKJEBr9dbysm-ovQ_sujuZfRUfZMtd9CdpxVvMLdjrPMYkawM_BMAY7MEl1-q0VxZcmM1cK-1ddcBE5aWUr_W6Dp4DMrJODBmuZk2rT4XmfGmoxcX";
+            string senderKey = "411127564115";
+            WebRequest tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
+            tRequest.Method = "post";
+            //serverKey - Key from Firebase cloud messaging server  
+            tRequest.Headers.Add(string.Format("Authorization: key={0}", severKey.ToString()));
+            //Sender Id - From firebase project setting  
+            tRequest.Headers.Add(string.Format("Sender: id={0}", senderKey.ToString()));
+            tRequest.ContentType = "application/json";
+            var payload = new
+            {
+                registration_ids = toKeys,
+                priority = "high",
+                content_available = true,
+                notification = new
+                {
+                    body = "Testing the notification",
+                    title = "Testing Multiple",
+                    badge = 1
+                },
+                data = new
+                {
+                    key1 = "value1",
+                    key2 = "value2"
+                }
+            };
 
-        //    //var bodyString = senderUser.Username.ToString() + " has  " + Enum.GetName(typeof(Status), statusId).ToString() + " " + quantity + " quantity for " + item.Name.ToString();
-        //    //var titlePart = Enum.GetName(typeof(Status), statusId).ToString() + " Quantity";
-        //    //string senderkey = "dVvsprMj6_k:APA91bFl9xP6ST3zJv1UR7uQ4as5kJZfeGxyn61Q1l_tv4aNdWZyrSR48Z52zbn_NcDOrraoujIgEHq4pbhwnwb1oriNhEZnC-C7wUZnwwUMF6eS9qmTLyTbjtzcGV6NzER1hLluRlTk";
-        //    //string toKey = "ei9HpkbBrec:APA91bHr9q1sOkGS3PAsvre0ZmMMxts1fMPpPnyyGbKYe0WVSr9AbjhY4TFerqkOUs_Xjw70qIBbuYiPXuJJ3kRRR4ksqKl227mg9IJMFIYsl6xH0a6AwCi_lcoImKy_RJqAls1Cozmh";
-        //    WebRequest tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
-        //    tRequest.Method = "post";
-        //    //serverKey - Key from Firebase cloud messaging server  
-        //    tRequest.Headers.Add(string.Format("Authorization: key={0}", severKey.ToString()));
-        //    //Sender Id - From firebase project setting  
-        //    tRequest.Headers.Add(string.Format("Sender: id={0}", senderKey.ToString()));
-        //    tRequest.ContentType = "application/json";
-        //    var payload = new
-        //    {
-        //        to = toKey.ToString(),
-        //        priority = "high",
-        //        content_available = true,
-        //        notification = new
-        //        {
-        //            body = "Testing the notification",
-        //            title = "Testing",
-        //            badge = 1
-        //        },
-        //        data = new
-        //        {
-        //            key1 = "value1",
-        //            key2 = "value2"
-        //        }
-        //    };
-
-        //    string postbody = JsonConvert.SerializeObject(payload).ToString();
-        //    Byte[] byteArray = Encoding.UTF8.GetBytes(postbody);
-        //    tRequest.ContentLength = byteArray.Length;
-        //    using (Stream dataStream = tRequest.GetRequestStream())
-        //    {
-        //        dataStream.Write(byteArray, 0, byteArray.Length);
-        //        using (WebResponse tResponse = tRequest.GetResponse())
-        //        {
-        //            using (Stream dataStreamResponse = tResponse.GetResponseStream())
-        //            {
-        //                if (dataStreamResponse != null) using (StreamReader tReader = new StreamReader(dataStreamResponse))
-        //                    {
-        //                        String sResponseFromServer = tReader.ReadToEnd();
-        //                    }
-        //            }
-        //        }
-        //    }
-        //    return string.Empty;
-        //}
+            string postbody = JsonConvert.SerializeObject(payload).ToString();
+            Byte[] byteArray = Encoding.UTF8.GetBytes(postbody);
+            tRequest.ContentLength = byteArray.Length;
+            using (Stream dataStream = tRequest.GetRequestStream())
+            {
+                dataStream.Write(byteArray, 0, byteArray.Length);
+                using (WebResponse tResponse = tRequest.GetResponse())
+                {
+                    using (Stream dataStreamResponse = tResponse.GetResponseStream())
+                    {
+                        if (dataStreamResponse != null) using (StreamReader tReader = new StreamReader(dataStreamResponse))
+                            {
+                                String sResponseFromServer = tReader.ReadToEnd();
+                            }
+                    }
+                }
+            }
+            return string.Empty;
+        }
 
         #endregion
     }
