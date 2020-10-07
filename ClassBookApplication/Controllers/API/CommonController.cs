@@ -265,7 +265,7 @@ namespace ClassBookApplication.Controllers.API
             if (singleUser.Any())
             {
                 var user = singleUser.FirstOrDefault();
-                return _classBookService.GetSubjects(user,subjectRequestDetails);
+                return _classBookService.GetSubjects(user, subjectRequestDetails);
             }
             else
             {
@@ -327,20 +327,43 @@ namespace ClassBookApplication.Controllers.API
         [HttpPost("AddToFavourite")]
         public IActionResult AddToFavourite([FromForm] AddToFavouriteRequestModel model)
         {
+            var responseModel = new ResponseModel();
             string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).AsNoTracking();
-            Favourites favourites = new Favourites();
-            favourites.EntityId = model.EntityId;
-            favourites.EntityName = model.EntityName;
             if (singleUser.Any())
-                favourites.UserId = singleUser.FirstOrDefault().Id;
-            _context.Favourites.Add(favourites);
-            _context.SaveChanges();
-            var responseModel = new ResponseModel
             {
-                Message = "Add to Favourite Added Successfully"
-            };
-            return StatusCode((int)HttpStatusCode.OK, responseModel);
+                var user = singleUser.FirstOrDefault();
+                if (_context.Favourites.Any(x => x.EntityId == model.EntityId && x.EntityName == model.EntityName && x.UserId == user.Id))
+                {
+                    responseModel.Message = "Already added to Favourite list";
+                }
+                else
+                {
+                    Favourites favourites = new Favourites();
+                    favourites.EntityId = model.EntityId;
+                    favourites.EntityName = model.EntityName;
+                    favourites.UserId = user.Id;
+                    _context.Favourites.Add(favourites);
+                    _context.SaveChanges();
+                    responseModel.Message = "Add to Favourite Added Successfully";
+                }
+                
+                return StatusCode((int)HttpStatusCode.OK, responseModel);
+            }
+            else
+            {
+                responseModel.Message = "no authorization";
+                return StatusCode((int)HttpStatusCode.Unauthorized, responseModel);
+            }
+        }
+
+        // POST api/Common/GetFavourite
+        [HttpGet("GetFavourite")]
+        public object GetFavourite()
+        {
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).AsNoTracking();
+            return _classBookService.GetFavourite(singleUser.FirstOrDefault().Id);
         }
 
         #endregion

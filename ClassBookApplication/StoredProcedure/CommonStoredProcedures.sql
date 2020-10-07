@@ -531,3 +531,25 @@ BEGIN
 		SELECT * FROM ##TeMp2
 		ORDER BY TypeOfMapping
 END
+
+GO
+CREATE PROCEDURE [ClassBook_GetFavourites]
+	@UserId INT
+AS
+BEGIN
+	SELECT 
+		CASE
+			WHEN F.EntityName = 'Class'   THEN C.[Name]
+		    WHEN F.EntityName = 'Teacher' THEN T.FirstName + ' ' + T.LastName
+			WHEN F.EntityName = 'Course' THEN CS.[Name]
+			WHEN F.EntityName = 'CareerExpert' THEN CE.FirstName + ' ' + CE.LastName
+			ELSE ''
+		END AS [Name],F.EntityName
+		FROM Favourites F
+		LEFT JOIN Classes C ON C.Id=F.EntityId AND F.EntityName='Class'
+		LEFT JOIN Teacher T ON T.Id=F.EntityId AND F.EntityName='Teacher'
+		LEFT JOIN Courses CS ON CS.Id=F.EntityId AND F.EntityName='Course'
+		LEFT JOIN CareerExpert CE ON CE.Id=F.EntityId AND F.EntityName='CareerExpert'
+	WHERE UserId=@UserId
+	ORDER BY F.EntityName
+END

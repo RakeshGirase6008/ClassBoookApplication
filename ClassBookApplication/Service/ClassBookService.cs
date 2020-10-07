@@ -1122,6 +1122,46 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Get All Moduel Data by Module Id
         /// </summary>
+        public IList<FavouriteDetailModel> GetFavourite(int UserId)
+        {
+            IList<FavouriteDetailModel> favouriteDetailModel = new List<FavouriteDetailModel>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetFavourites.ToString();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
+                var reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        FavouriteDetailModel ISP = new FavouriteDetailModel()
+                        {
+                            Name = reader.GetValue<string>("Name"),
+                            EntityName = reader.GetValue<string>("EntityName"),
+
+                        };
+                        favouriteDetailModel.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return favouriteDetailModel;
+            }
+        }
+
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
         public bool OrderPaid(int UserId, int ModuleId, string PaymentType)
         {
             SqlConnection connection = new SqlConnection(GetConnectionString());
