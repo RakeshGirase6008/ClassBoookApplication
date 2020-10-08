@@ -77,7 +77,7 @@ namespace ClassBookApplication.Controllers.API
                 {
                     var user = singleUser.FirstOrDefault();
                     var message = _classBookService.RemoveShoppingCart(user, model);
-                    responseModel.Message = "";
+                    responseModel.Message = message;
                     return StatusCode((int)HttpStatusCode.OK, responseModel);
                 }
                 else
