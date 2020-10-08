@@ -4,6 +4,7 @@ namespace ClassBookApplication.Models.ResponseModel
 {
     public class CartDetailModel
     {
+        public int MappingId { get; set; }
         public string ProviderType { get; set; }
         public string LearningType { get; set; }
         public decimal ActualFees { get; set; }

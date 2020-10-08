@@ -863,6 +863,7 @@ namespace ClassBookApplication.Service
                     {
                         CartDetailModel cartDetailModel = new CartDetailModel()
                         {
+                            MappingId= reader.GetValue<int>("MappingId"),
                             ProviderType = reader.GetValue<string>("ProviderType"),
                             LearningType = reader.GetValue<string>("LearningType"),
                             ActualFees = reader.GetValue<decimal>("ActualFees"),
