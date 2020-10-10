@@ -15,6 +15,7 @@
         public const string ImagePath_Classes = "image\\Classes";
         public const string ImagePath_CareerExpert = "image\\CareerExpert";
         public const string ImagePath_School = "image\\School";
+        public const string ImagePath_ChannelPartner = "image\\CareerExpert";
         public const string ImagePath_Topic = "image\\Topic";
         public const string ImagePath_Courses = "image\\Courses";
         public const string ImagePath_CourseCategory = "image\\CourseCategory";
