@@ -667,3 +667,128 @@ BEGIN
 		SET @ChannelPartnerId=@ParentId
 	END
 END
+
+GO
+CREATE PROCEDURE [Classbook_CalculateCommision]
+	@OrderId INT,
+	@ChannelPartnerId INT
+AS
+BEGIN
+
+
+	DECLARE @ResidualPercentageAchieve DECIMAL=4
+	DECLARE @ResidualPercentageNotAchieve DECIMAL=2
+	DECLARE @DefaultPercentage INT=10
+	DECLARE @LevelId INT=0
+
+	DECLARE @LevelDifferntPercentage INT=0
+	DECLARE @TotalSpendLevelDifferntPercentage INT=0
+	DECLARE @OurAmount DECIMAL=0
+	DECLARE @PartnerAmount DECIMAL=0
+	DECLARE @ParentId INT=-1
+	DECLARE @CurrentCount INT
+	DECLARE @LoopCount INT=0
+	DECLARE @GenerationCount INT=1
+	DECLARE @PreviousChannelPartnerPercentage INT=0
+	DECLARE @ResidualLevelId INT=0
+	
+	DECLARE @CalculativePercentage INT=0
+	DECLARE @StartResidual BIT=0
+	DECLARE @TargetToReach INT=0
+
+	DECLARE @StartResidualChannerlPartnerId INT=0
+	SELECT @OurAmount=OurAmount FROM [Order] WHERE Id=@OrderId
+
+	WHILE (@ParentId!=0)
+	BEGIN
+		
+		SELECT
+				@ParentId=CPM.ParentId ,
+				@LevelId=CPM.LevelId,
+				@LevelDifferntPercentage=PC.[Percentage],
+				@CurrentCount=CurrentCount 
+			FROM ChannelPartnerMapping CPM
+			INNER JOIN PromotionalCycle PC ON CPM.LevelId =PC.LevelId
+			WHERE ChannelPartnerId=@ChannelPartnerId
+		
+		SELECT @TargetToReach=ISNULL(AchievementCount,-1) FROM PromotionalCycle WHERE LevelId=(@LevelId+1)
+		
+		--Start Level Difference
+		IF @TotalSpendLevelDifferntPercentage!=25
+		BEGIN
+
+			IF @LoopCount=0
+			BEGIN
+				
+				SET @PartnerAmount=(@OurAmount*@LevelDifferntPercentage)/100;
+				INSERT INTO CommissionHistory VALUES(@OrderId,@ChannelPartnerId,@LevelId,@PartnerAmount,'Direct','LevelDiff')
+				SET @TotalSpendLevelDifferntPercentage=@TotalSpendLevelDifferntPercentage+@LevelDifferntPercentage;
+			END
+			ELSE
+			BEGIN
+				IF @LevelDifferntPercentage > @PreviousChannelPartnerPercentage
+				BEGIN
+
+					SET @CalculativePercentage=@LevelDifferntPercentage-@PreviousChannelPartnerPercentage;
+					SET @PartnerAmount=(@OurAmount*@CalculativePercentage)/100;
+					INSERT INTO CommissionHistory VALUES(@OrderId,@ChannelPartnerId,@LevelId,@PartnerAmount,'InDirect','LevelDiff')
+					SET @TotalSpendLevelDifferntPercentage=@TotalSpendLevelDifferntPercentage+@CalculativePercentage;
+
+				END
+			END
+			SET @PreviousChannelPartnerPercentage=@LevelDifferntPercentage	
+			SET @LoopCount=@LoopCount+1
+		END
+		--End Level Difference
+
+
+		--Start Residual
+		IF @TotalSpendLevelDifferntPercentage=25 AND @GenerationCount < 4
+		BEGIN
+			IF @StartResidual=1
+			BEGIN 
+				IF @LevelId >= @ResidualLevelId+@GenerationCount
+				BEGIN
+					SET @CalculativePercentage=@ResidualPercentageAchieve
+				END
+				ELSE
+				BEGIN
+					SET @CalculativePercentage=@ResidualPercentageNotAchieve
+				END
+				SET @PartnerAmount=(@OurAmount*@CalculativePercentage)/100;
+				INSERT INTO CommissionHistory VALUES(@OrderId,@ChannelPartnerId,@LevelId,@PartnerAmount,'InDirect','Residual')
+				SET @GenerationCount=@GenerationCount+1
+			END
+			ELSE
+			BEGIN
+				SET @StartResidual=1
+				SET @ResidualLevelId=@LevelId
+			END
+		END
+		--End Residual
+
+
+		-- Start Increase Count & Level Up
+		UPDATE ChannelPartnerMapping
+		SET CurrentCount=CurrentCount+1,
+		TotalCount=TotalCount+1
+		WHERE ChannelPartnerId=@ChannelPartnerId
+
+		IF @CurrentCount+1=@TargetToReach
+		BEGIN
+			
+			UPDATE ChannelPartnerMapping
+			SET LevelId=@LevelId+1,CurrentCount=0
+			WHERE ChannelPartnerId=@ChannelPartnerId
+
+			INSERT INTO PromotionHistory VALUES(@ChannelPartnerId,@LevelId+1,'Self',GETDATE())
+
+		END
+		-- End
+
+		SET @ChannelPartnerId=@ParentId
+	END
+	SELECT * FROM ChannelPartnerMapping
+	SELECT * FROM CommissionHistory ORDER by Id Desc
+	SELECT * FROM PromotionHistory ORDER by Id Desc
+END
