@@ -792,3 +792,176 @@ BEGIN
 	SELECT * FROM CommissionHistory ORDER by Id Desc
 	SELECT * FROM PromotionHistory ORDER by Id Desc
 END
+
+GO
+
+CREATE PROCEDURE [Classbook_CalculateCommision_MonthEnd]
+AS
+BEGIN
+	
+	-- Drop the ##Temp Tables
+		DECLARE @sql nvarchar(max)        
+		SELECT	@sql = isnull(@sql+';', '') + 'drop table ' + quotename(name)        
+		FROM	tempdb..sysobjects
+		WHERE	[name] like '##%'        
+		EXEC	(@sql)
+
+	--Start the Bonus Amount
+	SELECT ChannelPartnerId,CONVERT(DECIMAL(10,2),SUM(Amount) )as DirectAmount,
+	CASE
+		WHEN SUM(Amount) BETWEEN 0 AND  20000 THEN 2
+		WHEN SUM(Amount) BETWEEN 20001 AND  40000 THEN 4
+		WHEN SUM(Amount) BETWEEN 40001 AND  60000 THEN 6
+		WHEN SUM(Amount) BETWEEN 60001 AND  80000 THEN 8
+		WHEN SUM(Amount) BETWEEN 80001 AND  40000 THEN 10
+		ELSE 10
+	END AS [Percentage]
+	INTO ##Temp
+	FROM CommissionHistory CH
+	WHERE [Status]='Direct'
+	AND GETDATE() BETWEEN dateadd(d,-(day(getdate()-1)),getdate()) 
+	AND dateadd(d,-(day(dateadd(m,1,getdate()))),dateadd(m,1,getdate()))
+	GROUP BY ChannelPartnerId
+
+	INSERT INTO BonusHistory
+	SELECT ChannelPartnerId,DirectAmount,[Percentage],
+	CONVERT(DECIMAL(10,2),(DirectAmount*[Percentage]/100)) as BonusAmount,
+	GETDATE() FROM ##Temp
+	--End the Bonus Amount
+
+	--Level the Royalty
+	DECLARE @ChannelPartnerId INT;
+	DECLARE @RunningTotal BIGINT = 0;
+	DECLARE @DirectTotal INT = 0;
+	DECLARE @TotalCount INT = 0;
+
+ 
+	DECLARE CUR_TEST CURSOR FAST_FORWARD FOR
+		SELECT ChannelPartnerId
+		FROM  ChannelPartnerMapping
+		WHERE LevelId=6
+		ORDER BY ChannelPartnerId desc;
+ 
+		OPEN CUR_TEST
+		FETCH NEXT FROM CUR_TEST INTO @ChannelPartnerId
+ 
+		WHILE @@FETCH_STATUS = 0
+		BEGIN
+
+			--Delete ##Temp Tables
+			
+			IF EXISTS(SELECT	*
+			FROM	tempdb..sysobjects
+			WHERE	[name] like '##TempStage1' )
+			BEGIN
+				DROP TABLE ##TempStage1
+			END
+
+			IF EXISTS(SELECT	*
+			FROM	tempdb..sysobjects
+			WHERE	[name] like '##TempStage2' )
+			BEGIN
+				DROP TABLE ##TempStage2
+			END
+
+
+			DECLARE @AchieveStage1 BIT=0
+			DECLARE @MappingId INT=0
+
+
+			SELECT @DirectTotal=ISNULL(COUNT(*),0)
+			FROM CommissionHistory CH
+			WHERE [Status]='Direct'
+			AND GETDATE() BETWEEN dateadd(d,-(day(getdate()-1)),getdate()) 
+			AND dateadd(d,-(day(dateadd(m,1,getdate()))),dateadd(m,1,getdate()))
+			GROUP BY ChannelPartnerId
+
+
+			SELECT @ChannelPartnerId as ChannelPartnerId,ChannelPartnerId as SupportiveCPId,
+			CASE
+				WHEN TotalCount > 72 THEN 72
+				ELSE TotalCount
+			END AS [TotalCount]
+			INTO ##TempStage1
+			FROM ChannelPartnerMapping
+			WHERE ParentId=@ChannelPartnerId
+
+
+			SELECT @ChannelPartnerId as ChannelPartnerId,ChannelPartnerId as SupportiveCPId,
+			CASE
+				WHEN TotalCount > 144 THEN 144
+				ELSE TotalCount
+			END AS [TotalCount]
+			INTO ##TempStage2
+			FROM ChannelPartnerMapping
+			WHERE ParentId=@ChannelPartnerId
+
+
+			IF NOT EXISTS(SELECT * FROM RoyaltyMapping WHERE ChannelPartnerId=@ChannelPartnerId AND [Status]='Stage-1')
+			BEGIN
+
+				SELECT @RunningTotal=ISNULL(SUM(TotalCount),0) FROM ##TempStage1
+				WHERE ChannelPartnerId=@ChannelPartnerId
+				GROUP BY ChannelPartnerId
+
+				SET @TotalCount=@RunningTotal+@DirectTotal
+
+				IF @TotalCount >= 128
+				BEGIN
+					SET @AchieveStage1=1
+					INSERT INTO RoyaltyMapping VALUES(@ChannelPartnerId,'Stage-1',GETDATE(),0)
+
+					SET @MappingId=SCOPE_IDENTITY()
+					
+					INSERT INTO RoyaltyAchievementSupport
+					SELECT @MappingId,SupportiveCPId,TotalCount
+					FROM ##TempStage1
+
+				END
+			END
+			SET @TotalCount=0
+			SET @RunningTotal=0
+
+			IF EXISTS(SELECT * FROM RoyaltyMapping WHERE ChannelPartnerId=@ChannelPartnerId AND [Status]='Stage-1') AND
+				NOT EXISTS(SELECT * FROM RoyaltyMapping WHERE ChannelPartnerId=@ChannelPartnerId AND [Status]='Stage-2')
+			BEGIN
+
+				SELECT @RunningTotal=ISNULL(SUM(TotalCount),0) FROM ##TempStage2
+				WHERE ChannelPartnerId=@ChannelPartnerId
+				GROUP BY ChannelPartnerId
+
+				SET @TotalCount=@RunningTotal+@DirectTotal
+
+				IF @AchieveStage1=1
+				BEGIN
+					IF @TotalCount >= 384
+					BEGIN
+						INSERT INTO RoyaltyMapping VALUES(@ChannelPartnerId,'Stage-2',GETDATE(),0)
+
+						SET @MappingId=SCOPE_IDENTITY()
+					
+						INSERT INTO RoyaltyAchievementSupport
+						SELECT @MappingId,SupportiveCPId,TotalCount
+						FROM ##TempStage2
+					END
+				END
+				ELSE
+				BEGIN
+					IF @TotalCount >= 256
+					BEGIN
+						INSERT INTO RoyaltyMapping VALUES(@ChannelPartnerId,'Stage-2',GETDATE(),0)
+
+						SET @MappingId=SCOPE_IDENTITY()
+
+						INSERT INTO RoyaltyAchievementSupport
+						SELECT @MappingId,SupportiveCPId,TotalCount
+						FROM ##TempStage2
+					END
+				END
+			END
+		FETCH NEXT FROM CUR_TEST INTO @ChannelPartnerId
+	END
+	CLOSE CUR_TEST
+	DEALLOCATE CUR_TEST
+	--End the Royalty
+END
