@@ -1,5 +1,4 @@
 ﻿using ClassBookApplication.Domain.CareerExpert;
-using ClassBookApplication.Domain.ChannelPartner;
 using ClassBookApplication.Domain.Classes;
 using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Domain.School;
@@ -47,7 +46,6 @@ namespace ClassBookApplication.DataContext
         public DbSet<Favourites> Favourites { get; set; }
         public DbSet<Expertise> Expertise { get; set; }
         public DbSet<ExpertiseMapping> ExpertiseMapping { get; set; }
-        public DbSet<ChannelPartnerMapping> ChannelPartnerMapping { get; set; }
         
         #endregion
 
@@ -58,7 +56,7 @@ namespace ClassBookApplication.DataContext
         public DbSet<Teacher> Teacher { get; set; }
         public DbSet<CareerExpert> CareerExpert { get; set; }
         public DbSet<School> School { get; set; }
-        public DbSet<ChannelPartner> ChannelPartner { get; set; }
+
         #endregion
 
         #region OnModelCreating

@@ -1,6 +1,5 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.CareerExpert;
-using ClassBookApplication.Domain.ChannelPartner;
 using ClassBookApplication.Domain.Classes;
 using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Domain.School;
@@ -1333,109 +1332,6 @@ namespace ClassBookApplication.Service
             _context.CareerExpert.Update(CareerExpert);
             _context.SaveChanges();
             return CareerExpert.Id;
-        }
-
-        #endregion
-
-
-        #region ChannelPartner
-
-        /// <summary>
-        /// Save the ChannelPartner Record
-        /// </summary>
-        public (int ChannelPartnerId, string UniqueNo) SaveChannelPartner(ChannelPartner ChannelPartnerData, List<IFormFile> files)
-        {
-            ChannelPartner ChannelPartner = new ChannelPartner();
-            ChannelPartner.FirstName = ChannelPartnerData.FirstName;
-            ChannelPartner.LastName = ChannelPartnerData.LastName;
-            ChannelPartner.Email = ChannelPartnerData.Email;
-            ChannelPartner.ContactNo = ChannelPartnerData.ContactNo;
-            ChannelPartner.AlternateContact = ChannelPartnerData.AlternateContact;
-            ChannelPartner.Gender = ChannelPartnerData.Gender;
-            if (files?.Count > 0)
-                ChannelPartner.ProfilePictureUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_ChannelPartner);
-            ChannelPartner.DOB = ChannelPartnerData.DOB;
-            ChannelPartner.Address = ChannelPartnerData.Address;
-            ChannelPartner.StateId = ChannelPartnerData.StateId;
-            ChannelPartner.CityId = ChannelPartnerData.StateId;
-            ChannelPartner.Pincode = ChannelPartnerData.Pincode;
-            ChannelPartner.ApproveStatus = ChannelPartnerData.ApproveStatus;
-            ChannelPartner.ApprovalDate = ChannelPartnerData.ApprovalDate;
-            ChannelPartner.TeachingExperience = ChannelPartnerData.TeachingExperience;
-            ChannelPartner.Description = ChannelPartnerData.Description;
-            ChannelPartner.ReferCode = GenerateReferecode();
-            var previousUnique = _context.CareerExpert.OrderByDescending(x => x.Id).Select(x => x.UniqueNo).FirstOrDefault();
-            ChannelPartner.UniqueNo = GenerateUniqueNo(previousUnique, ChannelPartnerData.FirstName, ChannelPartnerData.Email);
-            ChannelPartner.RegistrationFromTypeId = ChannelPartnerData.RegistrationFromTypeId;
-            ChannelPartner.RegistrationByTypeId = ChannelPartnerData.RegistrationByTypeId;
-            ChannelPartner.CreatedDate = DateTime.Now;
-            ChannelPartner.CreatedBy = 0;
-            ChannelPartner.Active = true;
-            ChannelPartner.Deleted = false;
-            _context.ChannelPartner.Add(ChannelPartner); 
-            _context.SaveChanges();
-
-            // Save Channel Partner Mapping
-            ChannelPartnerMapping channelPartnerMapping = new ChannelPartnerMapping();
-            channelPartnerMapping.ChannelPartnerId = ChannelPartner.Id;
-            channelPartnerMapping.LevelId = 0;
-            channelPartnerMapping.CurrentCount = 0;
-            channelPartnerMapping.TotalCount = 0;
-            if (!string.IsNullOrEmpty(ChannelPartnerData.ReferCode))
-            {
-                var channelPartners = _context.ChannelPartner.Where(x => x.ReferCode == ChannelPartnerData.ReferCode);
-                if (channelPartners.Any())
-                    channelPartnerMapping.ParentId = channelPartners.FirstOrDefault().Id;
-                else
-                    channelPartnerMapping.ParentId = 0;
-            }
-            _context.ChannelPartnerMapping.Add(channelPartnerMapping);
-            _context.SaveChanges();
-
-            return (ChannelPartner.Id, ChannelPartner.UniqueNo);
-        }
-
-        private string GenerateReferecode()
-        {
-            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            var random = new Random();
-            var result = new string(
-                Enumerable.Repeat(chars, 8)
-                          .Select(s => s[random.Next(s.Length)])
-                          .ToArray());
-            return result;
-        }
-        
-        /// <summary>
-        /// Update the ChannelPartner Record
-        /// </summary>
-        public int UpdateChannelPartner(ChannelPartner ChannelPartnerData, ChannelPartner ChannelPartner, List<IFormFile> files)
-        {
-            ChannelPartner.FirstName = ChannelPartnerData.FirstName;
-            ChannelPartner.LastName = ChannelPartnerData.LastName;
-            ChannelPartner.Email = ChannelPartnerData.Email;
-            ChannelPartner.ContactNo = ChannelPartnerData.ContactNo;
-            ChannelPartner.AlternateContact = ChannelPartnerData.AlternateContact;
-            ChannelPartner.Gender = ChannelPartnerData.Gender;
-            if (files?.Count > 0)
-            {
-                ChannelPartner.ProfilePictureUrl = _fileService.SaveFile(files, ClassBookConstant.ImagePath_ChannelPartner);
-            }
-            ChannelPartner.DOB = ChannelPartnerData.DOB;
-            ChannelPartner.Address = ChannelPartnerData.Address;
-            ChannelPartner.StateId = ChannelPartnerData.StateId;
-            ChannelPartner.CityId = ChannelPartnerData.StateId;
-            ChannelPartner.Pincode = ChannelPartnerData.Pincode;
-            ChannelPartner.ApproveStatus = ChannelPartnerData.ApproveStatus;
-            ChannelPartner.ApprovalDate = ChannelPartnerData.ApprovalDate;
-            ChannelPartner.TeachingExperience = ChannelPartnerData.TeachingExperience;
-            ChannelPartner.Description = ChannelPartnerData.Description;
-            ChannelPartner.ReferCode = ChannelPartnerData.ReferCode;
-            ChannelPartner.UpdatedDate = DateTime.Now;
-            ChannelPartner.UpdatedBy = 0;
-            _context.ChannelPartner.Update(ChannelPartner);
-            _context.SaveChanges();
-            return ChannelPartner.Id;
         }
 
         #endregion

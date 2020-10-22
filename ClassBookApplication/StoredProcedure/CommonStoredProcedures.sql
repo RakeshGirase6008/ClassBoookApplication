@@ -675,7 +675,6 @@ CREATE PROCEDURE [Classbook_CalculateCommision]
 AS
 BEGIN
 
-
 	DECLARE @ResidualPercentageAchieve DECIMAL=4
 	DECLARE @ResidualPercentageNotAchieve DECIMAL=2
 	DECLARE @DefaultPercentage INT=10
