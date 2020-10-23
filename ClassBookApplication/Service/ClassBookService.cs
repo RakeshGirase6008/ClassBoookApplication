@@ -424,6 +424,22 @@ namespace ClassBookApplication.Service
             #endregion
         }
 
+        public string GetReferCode(int UserId, int ModuleId)
+        {
+            string referCode = string.Empty;
+            if (ModuleId == (int)Module.Student)
+                referCode = _context.Student.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
+            else if(ModuleId == (int)Module.Classes)
+                referCode = _context.Classes.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
+            else if (ModuleId == (int)Module.Teacher)
+                referCode = _context.Teacher.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
+            else if (ModuleId == (int)Module.School)
+                referCode = _context.School.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
+            else if (ModuleId == (int)Module.CareerExpert)
+                referCode = _context.CareerExpert.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
+            return referCode;
+        }
+
         /// <summary>
         /// Save All Mapping Data
         /// </summary>
@@ -1165,6 +1181,7 @@ namespace ClassBookApplication.Service
         /// </summary>
         public bool OrderPaid(int UserId, int ModuleId, string PaymentType)
         {
+            var referCode = GetReferCode(UserId, ModuleId);
             SqlConnection connection = new SqlConnection(GetConnectionString());
             if (connection.State == ConnectionState.Closed)
                 connection.Open();
@@ -1179,6 +1196,7 @@ namespace ClassBookApplication.Service
                 cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = UserId;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = ModuleId;
                 cmd.Parameters.Add("@PaymentType", SqlDbType.VarChar).Value = PaymentType;
+                cmd.Parameters.Add("@ReferCode", SqlDbType.VarChar).Value = referCode;
                 var reader = cmd.ExecuteNonQuery();
                 //close connection
                 connection.Close();

@@ -19,6 +19,7 @@ namespace ClassBookApplication.Domain.School
         public string TeachingExperience { get; set; }
         public string Description { get; set; }
         public string RegistrationNo { get; set; }
+        public string ReferCode { get; set; }
         public string UniqueNo { get; set; }
         public string QRcodeImageURL { get; set; }
         public int RegistrationFromTypeId { get; set; }
