@@ -176,6 +176,13 @@ namespace ClassBookApplication.Controllers.API
             var teacherData = query.FirstOrDefault();
             return teacherData;
         }
+
+        // GET api/Teacher/GetTeacherInformationByReferCode
+        [HttpGet("GetTeacherInformationByReferCode")]
+        public object GetTeacherInformationByReferCode(string referCode)
+        {
+            return _context.Teacher.Where(x => x.ReferCode == referCode).ToList();
+        }
         #endregion
     }
 }

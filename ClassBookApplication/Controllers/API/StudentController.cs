@@ -153,6 +153,12 @@ namespace ClassBookApplication.Controllers.API
             return students;
         }
 
+        // GET api/Student/GetSchoolInformationByReferCode
+        [HttpGet("GetStudentInformationByReferCode")]
+        public object GetStudentInformationByReferCode(string referCode)
+        {
+            return _context.Student.Where(x => x.ReferCode == referCode).ToList();
+        }
         #endregion
     }
 }

@@ -154,6 +154,20 @@ namespace ClassBookApplication.Controllers.API
             var careerExpertData = query.FirstOrDefault();
             return careerExpertData;
         }
+
+        // GET api/CareerExpert/GetTeacherInformationByReferCode
+        [HttpGet("GetCareerExpertInformationByReferCode")]
+        public object GetCareerExpertInformationByReferCode(string referCode)
+        {
+            var query = from careerExpert in _context.CareerExpert
+                        where careerExpert.ReferCode == referCode && careerExpert.Active == true
+                        select new
+                        {
+                            Name = careerExpert.FirstName + " " + careerExpert.LastName,
+                            UniqueId = careerExpert.UniqueNo
+                        };
+            return query.ToList();
+        }
         #endregion
     }
 }

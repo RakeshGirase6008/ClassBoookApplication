@@ -175,6 +175,29 @@ namespace ClassBookApplication.Controllers.API
             return ClassData;
         }
 
+        // GET api/Classes/GetClassInformationByReferCode
+        [HttpGet("GetClassInformationByReferCode")]
+        public object GetClassInformationByReferCode(string referCode)
+        {
+            var query = from classes in _context.Classes
+                        where classes.ReferCode == referCode && classes.Active == true
+                        select new
+                        {
+                            Name = classes.Name,
+                            UniqueId = classes.UniqueNo
+                        };
+            return query.ToList();
+        }
+
+
+        //// GET api/Classes/GetClassStatistics/5
+        //[HttpGet("GetClassStatistics/{id:int}")]
+        //public object GetClassStatistics(int id)
+        //{
+
+
+        //}
+
         #endregion
     }
 }

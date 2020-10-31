@@ -155,6 +155,20 @@ namespace ClassBookApplication.Controllers.API
             return schoolData;
 
         }
+
+        // GET api/School/GetSchoolInformationByReferCode
+        [HttpGet("GetSchoolInformationByReferCode")]
+        public object GetSchoolInformationByReferCode(string referCode)
+        {
+            var query = from school in _context.School
+                        where school.ReferCode == referCode && school.Active == true
+                        select new
+                        {
+                            Name = school.Name,
+                            UniqueId = school.UniqueNo
+                        };
+            return query.ToList();
+        }
         #endregion
     }
 }
