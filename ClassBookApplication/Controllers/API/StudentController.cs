@@ -147,7 +147,7 @@ namespace ClassBookApplication.Controllers.API
                             Pincode = pincode.Name,
                             BoardName = board.Name,
                             MediumName = medium.Name,
-                            StandardName = standard.Name,
+                            StandardName = standard.Name
                         };
             var students = query.FirstOrDefault();
             return students;

@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,6 +31,7 @@ namespace ClassBookApplication.Service
         #region Fields
 
         private readonly ClassBookManagementContext _context;
+        private readonly ChannelPartnerManagementContext _channelPartnerManagementContext;
         private readonly FileService _fileService;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _env;
@@ -41,6 +43,7 @@ namespace ClassBookApplication.Service
         #region Ctor
 
         public ClassBookService(ClassBookManagementContext context,
+            ChannelPartnerManagementContext channelPartnerManagementContext,
             FileService fileService,
             IConfiguration configuration,
             IWebHostEnvironment env,
@@ -48,6 +51,7 @@ namespace ClassBookApplication.Service
             ClassBookModelFactory classBookModelFactory)
         {
             this._context = context;
+            this._channelPartnerManagementContext = channelPartnerManagementContext;
             this._fileService = fileService;
             this._configuration = configuration;
             this._env = env;
@@ -429,7 +433,7 @@ namespace ClassBookApplication.Service
             string referCode = string.Empty;
             if (ModuleId == (int)Module.Student)
                 referCode = _context.Student.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
-            else if(ModuleId == (int)Module.Classes)
+            else if (ModuleId == (int)Module.Classes)
                 referCode = _context.Classes.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
             else if (ModuleId == (int)Module.Teacher)
                 referCode = _context.Teacher.Where(x => x.Id == UserId).FirstOrDefault().ReferCode;
@@ -1352,6 +1356,21 @@ namespace ClassBookApplication.Service
             return CareerExpert.Id;
         }
 
+        /// <summary>
+        /// Get IntoducerName
+        /// </summary>
+        public CareerExpertData GetIntoducerName(string referCode, int ModuleId)
+        {
+            var query = from careerExpert in _context.CareerExpert
+                        where careerExpert.ReferCode == referCode && careerExpert.Active == true
+                        select new CareerExpertData
+                        {
+                            Name = careerExpert.FirstName + " " + careerExpert.LastName,
+                            UniqueId = careerExpert.UniqueNo
+                        };
+            return query.FirstOrDefault();
+
+        }
         #endregion
 
         #region School
@@ -1425,6 +1444,36 @@ namespace ClassBookApplication.Service
             return School.Id;
         }
 
+        #endregion
+
+        #region SendRegister
+         
+        public IRestResponse RegisterMethod(CommonRegistrationModel model, string ApiName)
+        {
+            var secretKey = _channelPartnerManagementContext.Settings.Where(x => x.Name == "ApplicationSetting.SecretKey").AsNoTracking().FirstOrDefault();
+            var client = new RestClient(ClassBookConstant.ChannelPartnerWebSite_HostURL.ToString() + ApiName.ToString());
+            client.Timeout = -1;
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("Secret_Key", secretKey.Value.ToString());
+            request.AddHeader("AuthorizeTokenKey", "Default");
+            request.AddParameter("data", model.Data);
+            request.AddParameter("DeviceId", model.DeviceId);
+            request.AddParameter("FCMId", model.FCMId);
+            IRestResponse response = client.Execute(request);
+            return response;
+        }
+
+        public IRestResponse GetCommonFromChannelPartner(string ApiName)
+        {
+            var secretKey = _channelPartnerManagementContext.Settings.Where(x => x.Name == "ApplicationSetting.SecretKey").AsNoTracking().FirstOrDefault();
+            var client = new RestClient(ClassBookConstant.ChannelPartnerWebSite_HostURL.ToString() + ApiName.ToString());
+            client.Timeout = -1;
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("Secret_Key", secretKey.Value.ToString());
+            request.AddHeader("AuthorizeTokenKey", _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"]);
+            IRestResponse response = client.Execute(request);
+            return response;
+        }
         #endregion
     }
 }

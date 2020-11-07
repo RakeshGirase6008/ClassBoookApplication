@@ -60,6 +60,7 @@ namespace ClassBookApplication.Controllers.API
                         string UserName = schoolData.Name + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.School, SchoolId, schoolData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(SchoolId, Module.School, UserName, schoolData.Email, model.FCMId, model.DeviceId);
+                        var rest = _classBookService.RegisterMethod(model, "/api/v1/ChannelPartner/register");
                         await Task.Run(() => _classBookService.SendVerificationLinkEmail(schoolData.Email, user.Password, Module.School.ToString()));
                         responseModel.Message = ClassBookConstantString.Register_School_Success.ToString();
                         responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);

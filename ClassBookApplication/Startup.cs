@@ -38,6 +38,9 @@ namespace ClassBookApplication
             services.AddDbContext<ClassBookLogsContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("ClassBookManagementeDatabase")));
 
+            services.AddDbContext<ChannelPartnerManagementContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("ChannelPartnerManagementeDatabase")));
+
             #endregion
 
             #region Inject Filters

@@ -10,7 +10,7 @@
 
         CareerExpert = 4,
 
-        School = 5,
+        School = 5, 
 
         ChannelPartner = 6
 

@@ -58,8 +58,9 @@ namespace ClassBookApplication.Controllers.API
                         string UserName = classesData.Name + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.Classes, classesId, classesData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(classesId, Module.Classes, UserName, classesData.Email, model.FCMId, model.DeviceId);
+                        var rest = _classBookService.RegisterMethod(model, "/api/v1/ChannelPartner/register");
                         await Task.Run(() => _classBookService.SendVerificationLinkEmail(classesData.Email, user.Password, Module.Classes.ToString()));
-                        responseModel.Message = ClassBookConstantString.Login_Success.ToString();
+                        responseModel.Message = ClassBookConstantString.Register_Classes_Success.ToString();
                         responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
                         return StatusCode((int)HttpStatusCode.OK, responseModel);
                     }
@@ -169,7 +170,7 @@ namespace ClassBookApplication.Controllers.API
                             UniqueNo = classes.UniqueNo,
                             StateName = state.Name,
                             CityName = city.Name,
-                            Pincode = pincode.Name,
+                            Pincode = pincode.Name
                         };
             var ClassData = query.FirstOrDefault();
             return ClassData;

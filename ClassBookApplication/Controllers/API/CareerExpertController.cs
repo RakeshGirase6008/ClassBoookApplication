@@ -59,6 +59,7 @@ namespace ClassBookApplication.Controllers.API
                         string UserName = CareerExpertData.FirstName + uniqueNo;
                         //_classBookService.SaveMappingData((int)Module.CareerExpert, CareerExpertId, CareerExpertData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(CareerExpertId, Module.CareerExpert, UserName, CareerExpertData.Email, model.FCMId, model.DeviceId);
+                        var rest = _classBookService.RegisterMethod(model, "/api/v1/ChannelPartner/register");
                         await Task.Run(() => _classBookService.SendVerificationLinkEmail(CareerExpertData.Email, user.Password, Module.CareerExpert.ToString()));
                         responseModel.Message = ClassBookConstantString.Register_CareerExpert_Success.ToString();
                         responseModel.Data = _classBookModelFactory.PrepareUserDetail(user);
@@ -149,7 +150,7 @@ namespace ClassBookApplication.Controllers.API
                             ReferCode = careerExpert.ReferCode,
                             StateName = state.Name,
                             CityName = city.Name,
-                            Pincode = pincode.Name,
+                            Pincode = pincode.Name
                         };
             var careerExpertData = query.FirstOrDefault();
             return careerExpertData;
