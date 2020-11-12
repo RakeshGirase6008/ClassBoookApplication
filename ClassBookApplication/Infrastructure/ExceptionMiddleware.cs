@@ -14,9 +14,16 @@ namespace ClassBookApplication.Infrastructure
 {
     public class ExceptionMiddleware
     {
+        #region Fields
+
         private readonly RequestDelegate _next;
         private readonly LogsService _logsService;
         private readonly ClassBookManagementContext _context;
+
+        #endregion
+
+        #region Ctor
+
         public ExceptionMiddleware(RequestDelegate next, LogsService logsService,
             ClassBookManagementContext context)
         {
@@ -24,6 +31,10 @@ namespace ClassBookApplication.Infrastructure
             _logsService = logsService;
             _context = context;
         }
+
+        #endregion
+
+        #region Method
         public async Task InvokeAsync(HttpContext httpContext)
         {
             try
@@ -62,6 +73,22 @@ namespace ClassBookApplication.Infrastructure
                 StatusCode = context.Response.StatusCode,
                 Message = exception?.Message
             }.ToString());
+
+            //if (context.Request.Path.Value.Contains("api"))
+            //{
+            //}
+            //context.Response.Redirect("/Home/Errorpage");
+            //if (context.Request.Path.Value.ToLower() == "")
+            //{
+            //}
+            ////return context.Response.WriteAsync(new ErrorDetails()
+            ////{
+            ////    StatusCode = context.Response.StatusCode,
+            ////    Message = exception?.Message
+            ////}.ToString());
+            //return await context.Response.Redirect("/Home/Errorpage");
         }
+
+        #endregion
     }
 }

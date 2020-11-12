@@ -100,7 +100,14 @@ namespace ClassBookApplication
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-            app.ConfigureCustomExceptionMiddleware();
+            app.UseWhen(context => context.Request.Path.Value.Contains("/api"), appBuilder =>
+            {
+                appBuilder.UseMiddleware<ExceptionMiddleware>();
+            });
+            app.UseWhen(context => !context.Request.Path.Value.Contains("/api"), appBuilder =>
+            {
+                appBuilder.UseMiddleware<WebsiteExceptionMiddleware>();
+            });
             app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthorization();
