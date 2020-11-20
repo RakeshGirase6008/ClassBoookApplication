@@ -11,15 +11,13 @@ namespace ClassBookApplication.Components
     {
         #region Fields
 
-        private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
 
         #endregion
 
         #region Ctor
-        public HomePageCategoryView(ClassBookManagementContext context, ClassBookService classBookService)
+        public HomePageCategoryView(ClassBookService classBookService)
         {
-            this._context = context;
             this._classBookService = classBookService;
         }
 
@@ -28,7 +26,7 @@ namespace ClassBookApplication.Components
         #region Method
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var courseCategory = await _classBookService.GetItemsAsync();
+            var courseCategory = await _classBookService.GetCategories();
             return View(courseCategory);
         }
         #endregion

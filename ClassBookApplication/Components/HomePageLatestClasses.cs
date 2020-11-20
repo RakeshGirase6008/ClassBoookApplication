@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClassBookApplication.Service;
+using ClassBookApplication.Utility;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace ClassBookApplication.Components
@@ -6,13 +8,23 @@ namespace ClassBookApplication.Components
     [ViewComponent(Name = "HomePageLatestClasses")]
     public class HomePageLatestClasses : ViewComponent
     {
-        public HomePageLatestClasses()
-        {
+        #region Fields
 
+        private readonly ClassBookService _classBookService;
+
+        #endregion
+
+        #region Ctor
+        public HomePageLatestClasses(ClassBookService classBookService)
+        {
+            this._classBookService = classBookService;
         }
+
+        #endregion
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            return await Task.FromResult((IViewComponentResult)View("Default"));
+            var courseCategory = await _classBookService.GetAllClasses((int)Module.Classes);
+            return View(courseCategory);
         }
     }
 }

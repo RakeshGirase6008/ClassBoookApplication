@@ -1,4 +1,5 @@
-﻿<section class="sptb ">
+﻿@model List<ListingModel>
+<section class="sptb ">
     <div class="container">
         <div class="section-title center-block text-center">
             <h2>Latest Classes</h2>
@@ -6,280 +7,63 @@
             <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
         </div>
         <div id="myCarousel1" class="owl-carousel owl-carousel-icons2">
-            <div class="item">
-                <div class="card mb-0">
-                    <div class="power-ribbon power-ribbon-top-left text-warning"><span class="bg-warning"><i class="fa fa-bolt"></i></span></div>
-                    <div class="item-card2-img">
-                        <a href="page-details.html"></a>
-                        <img src="../assets/images/media/pictures/6.jpg" alt="img" class="cover-image">
-                        <div class="item-tag">
-                        </div>
-                        <div class="item-overly-trans">
-                            <div class="rating-stars d-flex">
-                                <span class="text-white mr-1 pl-1">5.0</span>
-                                <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="5">
-                                <div class="rating-stars-container">
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
+            @foreach (var item in Model)
+            {
+                <div class="item">
+                    <div class="card mb-0">
+                        <div class="power-ribbon power-ribbon-top-left text-warning"><span class="bg-warning"><i class="fa fa-bolt"></i></span></div>
+                        <div class="item-card2-img">
+                            <a href="page-details.html"></a>
+                            <img src="@item.Image" alt="@item.Title" class="cover-image">
+                            <div class="item-tag">
+                            </div>
+                            <div class="item-overly-trans">
+                                <div class="rating-stars d-flex">
+                                    <span class="text-white mr-1 pl-1">@item.Rating</span>
+                                    <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="5">
+                                    <div class="rating-stars-container">
+                                        <div class="rating-star sm is--active">
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="rating-star sm is--active">
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="rating-star sm is--active">
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="rating-star sm">
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="rating-star sm">
+                                            <i class="fa fa-star"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="item-card2-icons">
-                        <a href="page-details.html" class="item-card2-icons-l"> <i class="fa fa-share-alt"></i></a>
-                        <a href="page-details.html" class="item-card2-icons-l"> <i class="fa fa-heart text-danger"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="item-card2">
-                            <div class="item-card2-desc">
-                                <div class="item-card2-text mb-3">
-                                    <a href="page-details.html" class="text-dark"><h4 class="mb-2">Coding Classes</h4></a>
-                                </div>
-                                <p class="">At vero eos et accusamus et iusto odio dignissimos ducimus </p>
+                        <div class="item-card2-icons">
+                            <a href="page-details.html" class="item-card2-icons-l"> <i class="fa fa-share-alt"></i></a>
+                            <a href="page-details.html" class="item-card2-icons-l"> <i class="fa fa-heart text-danger"></i></a>
+                        </div>
+                        <div class="card-body">
+                            <div class="item-card2">
+                                <div class="item-card2-desc">
+                                    <div class="item-card2-text mb-3">
+                                        <a href="page-details.html" class="text-dark"><h4 class="mb-2">@item.Title</h4></a>
+                                    </div>
+                                    <p class="">At vero eos et accusamus et iusto odio dignissimos ducimus </p>
 
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="item-card2-footer">
-                            <a class="btn btn-primary text-white float-right"><span class="font-weight-bold"> Subscribe</span></a>
+                        <div class="card-footer">
+                            <div class="item-card2-footer">
+                                <a class="btn btn-primary text-white float-right"><span class="font-weight-bold"> Subscribe</span></a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="item">
-                <div class="card mb-0">
-                    <div class="power-ribbon power-ribbon-top-left text-warning"><span class="bg-warning"><i class="fa fa-bolt"></i></span></div>
-                    <div class="item-card2-img">
-                        <a href="page-details.html"></a>
-                        <img src="../assets/images/media/pictures/5.jpg" alt="img" class="cover-image">
-                        <div class="item-tag">
-
-                        </div>
-                        <div class="item-overly-trans">
-                            <div class="rating-stars d-flex">
-                                <span class="text-white mr-1 pl-1">4.3</span>
-                                <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="4">
-                                <div class="rating-stars-container">
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item-card2-icons">
-                        <a href="#" class="item-card2-icons-l"> <i class="fa fa-share-alt"></i></a>
-                        <a href="page-details.html" class="item-card2-icons-l "> <i class="fa fa-heart-o"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="item-card2">
-                            <div class="item-card2-desc">
-                                <div class="item-card2-text mb-3">
-                                    <a href="page-details.html" class="text-dark"><h4 class="mb-2">Guitar classes at home</h4></a>
-                                </div>
-                                <p class="">At vero eos et accusamus et iusto odio dignissimos ducimus </p>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="item-card2-footer">
-                            <a class="btn btn-primary text-white float-right"><span class="font-weight-bold"> Subscribe</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="item">
-                <div class="card mb-0">
-                    <div class="item-card2-img">
-                        <a href="page-details.html"></a>
-                        <img src="../assets/images/media/pictures/1.jpg" alt="img" class="cover-image">
-                        <div class="item-tag">
-
-                        </div>
-                        <div class="item-overly-trans">
-                            <div class="rating-stars d-flex">
-                                <span class="text-white mr-1 pl-1">3.9</span>
-                                <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="3">
-                                <div class="rating-stars-container">
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item-card2-icons">
-                        <a href="#" class="item-card2-icons-l"> <i class="fa fa-share-alt"></i></a>
-                        <a href="page-details.html" class="item-card2-icons-l "> <i class="fa fa-heart-o"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="item-card2">
-                            <div class="item-card2-desc">
-                                <div class="item-card2-text mb-3">
-                                    <a href="page-details.html" class="text-dark"><h4 class="mb-2">HTML Classes</h4></a>
-                                </div>
-                                <p class="">At vero eos et accusamus et iusto odio dignissimos ducimus </p>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="item-card2-footer">
-                            <a class="btn btn-primary text-white float-right"><span class="font-weight-bold">Subscribe</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="item">
-                <div class="card mb-0">
-                    <div class="item-card2-img">
-                        <a href="page-details.html"></a>
-                        <img src="../assets/images/media/pictures/18.jpg" alt="img" class="cover-image">
-                        <div class="item-tag">
-
-                        </div>
-                        <div class="item-overly-trans">
-                            <div class="rating-stars d-flex">
-                                <span class="text-white mr-1 pl-1">4.8</span>
-                                <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="4">
-                                <div class="rating-stars-container">
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item-card2-icons">
-                        <a href="#" class="item-card2-icons-l"> <i class="fa fa-share-alt"></i></a>
-                        <a href="page-details.html" class="item-card2-icons-l "> <i class="fa fa-heart-o"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="item-card2">
-                            <div class="item-card2-desc">
-                                <div class="item-card2-text">
-                                    <a href="page-details.html" class="text-dark"><h4 class="mb-2">3D Animation Trainig</h4></a>
-                                </div>
-                                <p class="">At vero eos et accusamus et iusto odio dignissimos ducimus </p>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="item-card2-footer">
-                            <a class="btn btn-primary text-white float-right"><span class="font-weight-bold">Subscribe</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="item">
-                <div class="card mb-0">
-                    <div class="power-ribbon power-ribbon-top-left text-warning"><span class="bg-warning"><i class="fa fa-bolt"></i></span></div>
-                    <div class="item-card2-img">
-                        <a href="page-details.html"></a>
-                        <img src="../assets/images/media/pictures/12.jpg" alt="img" class="cover-image">
-                        <div class="item-tag">
-
-                        </div>
-                        <div class="item-overly-trans">
-                            <div class="rating-stars d-flex">
-                                <span class="text-white mr-1 pl-1">4.0</span>
-                                <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="4">
-                                <div class="rating-stars-container">
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm is--active">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                    <div class="rating-star sm">
-                                        <i class="fa fa-star"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="item-card2-icons">
-                        <a href="#" class="item-card2-icons-l"> <i class="fa fa-share-alt"></i></a>
-                        <a href="page-details.html" class="item-card2-icons-l "> <i class="fa fa-heart-o"></i></a>
-                    </div>
-                    <div class="card-body">
-                        <div class="item-card2">
-                            <div class="item-card2-desc">
-                                <div class="item-card2-text mb-3">
-                                    <a href="page-details.html" class="text-dark"><h4 class="mb-2">Digital Marketing</h4></a>
-                                </div>
-                                <p class="">At vero eos et accusamus et iusto odio dignissimos ducimus </p>
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-footer">
-                        <div class="item-card2-footer">
-                            <a class="btn btn-primary text-white float-right"><span class="font-weight-bold">Subscribe</span></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </section>

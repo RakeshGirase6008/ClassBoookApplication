@@ -1482,7 +1482,7 @@ namespace ClassBookApplication.Service
 
         #region Website
 
-        public Task<List<CourseCategoryModel>> GetItemsAsync()
+        public Task<List<CourseCategoryModel>> GetCategories()
         {
             return _context.CourseCategory.Where(x => x.Active == true).
                 Select(x => new CourseCategoryModel
@@ -1492,6 +1492,11 @@ namespace ClassBookApplication.Service
                     Count = 25,
                     CategoryUrl = x.Name.ToLower().Replace(" ", "-")
                 }).ToListAsync();
+        }
+
+        public Task<IList<ListingModel>> GetAllClasses(int moduleId)
+        {
+            return Task.Run(() => GetModuleDataByModuleId(moduleId));
         }
         #endregion
     }
