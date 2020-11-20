@@ -16,8 +16,8 @@ namespace ClassBookApplication.Controllers
 
         public IActionResult Index()
         {
-            int model = 0;
-            int newModal = 10 / model;
+            //int model = 0;
+            //int newModal = 10 / model;
             return View();
         }
 

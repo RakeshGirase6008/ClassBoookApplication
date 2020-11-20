@@ -7,6 +7,7 @@ using ClassBookApplication.Domain.Student;
 using ClassBookApplication.Domain.Teacher;
 using ClassBookApplication.Extension;
 using ClassBookApplication.Factory;
+using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Utility;
@@ -23,6 +24,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Threading.Tasks;
 
 namespace ClassBookApplication.Service
 {
@@ -1447,7 +1449,7 @@ namespace ClassBookApplication.Service
         #endregion
 
         #region SendRegister
-         
+
         public IRestResponse RegisterMethod(CommonRegistrationModel model, string ApiName)
         {
             var secretKey = _channelPartnerManagementContext.Settings.Where(x => x.Name == "ApplicationSetting.SecretKey").AsNoTracking().FirstOrDefault();
@@ -1473,6 +1475,23 @@ namespace ClassBookApplication.Service
             request.AddHeader("AuthorizeTokenKey", _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"]);
             IRestResponse response = client.Execute(request);
             return response;
+        }
+        #endregion
+
+
+
+        #region Website
+
+        public Task<List<CourseCategoryModel>> GetItemsAsync()
+        {
+            return _context.CourseCategory.Where(x => x.Active == true).
+                Select(x => new CourseCategoryModel
+                {
+                    Name = x.Name,
+                    ImageUrl = _classBookModelFactory.PrepareURL(x.ImageUrl),
+                    Count = 25,
+                    CategoryUrl = x.Name.ToLower().Replace(" ", "-")
+                }).ToListAsync();
         }
         #endregion
     }
