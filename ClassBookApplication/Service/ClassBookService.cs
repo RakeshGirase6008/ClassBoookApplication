@@ -1498,6 +1498,26 @@ namespace ClassBookApplication.Service
         {
             return Task.Run(() => GetModuleDataByModuleId(moduleId));
         }
+
+        public Task<IList<CoursesModel>> GetAllCourses()
+        {
+            return Task.Run(() => GetAllCourses11());
+        }
+
+        public IList<CoursesModel> GetAllCourses11()
+        {
+            var course = from s in _context.CourseCategory
+                         join c in _context.Courses on s.Id equals c.CategoryId
+                         select new CoursesModel
+                         {
+                             CourseName = c.Name,
+                             CourseImageUrl = _classBookModelFactory.PrepareURL(c.ImageUrl),
+                             Description = c.Description,
+                             Category = s.Name,
+                             CategoryUrl = s.Name.ToLower().Replace(" ", "-")
+                         };
+            return course.ToList();
+        }
         #endregion
     }
 }

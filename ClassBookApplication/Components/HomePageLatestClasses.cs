@@ -21,10 +21,14 @@ namespace ClassBookApplication.Components
         }
 
         #endregion
+
+        #region Method
         public async Task<IViewComponentResult> InvokeAsync()
         {
             var courseCategory = await _classBookService.GetAllClasses((int)Module.Classes);
             return View(courseCategory);
         }
+
+        #endregion
     }
 }
