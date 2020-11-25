@@ -1,0 +1,420 @@
+﻿@model RegisterModel
+@{
+    ViewData["Title"] = "Student Register";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<section>
+    <div class="bannerimg">
+        <div class="header-text mb-0 mt-5">
+            <div class="container">
+                <div class="text-center text-black">
+                    <h1>Student Registeration</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="sptb">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 col-md-12">
+                <div class="card ">
+                    <div class="card-body">
+                        <form asp-action="Register" asp-controller="Student">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <label asp-for="FirstName" class="form-label text-dark"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="LastName" class="form-label text-dark"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Email" class="form-label text-dark"></label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ContactNo" class="form-label text-dark"></label>
+                                <input asp-for="ContactNo" class="form-control" />
+                                <span asp-validation-for="ContactNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Address" class="form-label text-dark"></label>
+                                <input asp-for="Address" class="form-control" />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DOB" class="form-label text-dark"></label>
+                                <input asp-for="DOB" class="form-control" />
+                                <span asp-validation-for="DOB" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="GenderId" class="form-label text-dark"></label>
+                                <br />
+                                @{
+                                    foreach (var item in Model.GenderList)
+                                    {
+                                        @Html.RadioButtonFor(m => m.GenderId, item.Value)@item.Text
+                                    }
+                                }
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="StateId" class="form-label text-dark"></label>
+                                <select asp-for="StateId"
+                                        asp-items="@(new SelectList(Model.States,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="CityId" class="form-label text-dark"></label>
+                                <select asp-for="CityId"
+                                        asp-items="@(new SelectList(Model.Cities,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PincodeId" class="control-label"></label>
+                                <select asp-for="PincodeId"
+                                        asp-items="@(new SelectList(Model.Pincodes,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BoardId" class="control-label"></label>
+                                <select asp-for="BoardId"
+                                        asp-items="@(new SelectList(Model.BoardList,"Value","Text"))" class="form-control">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="MediumId" class="control-label"></label>
+                                <select asp-for="MediumId"
+                                        asp-items="@(new SelectList(Model.MediumList,"Value","Text"))" class="form-control">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="StandardId" class="control-label"></label>
+                                <select asp-for="StandardId"
+                                        asp-items="@(new SelectList(Model.StandardList,"Value","Text"))" class="form-control">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ImagePath" class="control-label"></label>
+                                <div class="col-md-10">
+                                    <input type="file" name="ImageFile" required />
+                                </div>
+                            </div>
+                            @*<div class="form-group">
+            @Html.LabelFor(model => model.RoleIds, new { @class = "control-label" })<br />
+            @Html.ListBoxFor(model => model.RoleIds, new MultiSelectList(Model.RoleList, "Value", "Text"), new { @class = "form-control", multiple = "multiple", id = "RoleIds" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.HobbyIds, new { @class = "control-label" })<br />
+            @Html.ListBoxFor(model => model.HobbyIds, new MultiSelectList(Model.HobbiesList, "Value", "Text"), new { @class = "form-control", multiple = "multiple", id = "HobbyIds" })
+        </div>*@
+                            <div class="form-group">
+                                <input type="submit" value="Submit" class="btn btn-default btn-danger" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="col-lg-8 col-md-12 col-md-12">
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label text-dark">First Name</label>
+                            <input type="text" class="form-control" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Last Name</label>
+                            <input type="text" class="form-control" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Mobile Number</label>
+                            <input type="number" class="form-control" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Alternate Mobile Number</label>
+                            <input type="number" class="form-control" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Email Id</label>
+                            <input type="email" class="form-control" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Date Of Birth</label>
+                            <input type="date" class="form-control" placeholder="">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label text-dark">Select Gender</label>
+                            <select class="form-control custom-select">
+                                <option>Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Address</label>
+                            <input type="text" class="form-control" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Select State </label>
+                            <select class="form-control custom-select">
+                                <option>Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Select Pin Code</label>
+                            <select class="form-control custom-select">
+                                <option>Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Select Board Details</label>
+                            <select class="form-control custom-select">
+                                <option>Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Select Medium Details </label>
+                            <select class="form-control custom-select">
+                                <option>Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label text-dark">Select Standard Details</label>
+                            <select class="form-control custom-select">
+                                <option>Select</option>
+                                <option value="1">Male</option>
+                                <option value="2">Female</option>
+
+                            </select>
+                        </div>-->
+            <!--
+                <div class="form-group">
+                    <label class="form-label text-dark">Types of Regsiter</label>
+                    <div class="d-md-flex ad-post-details">
+                        <label class="custom-control custom-radio mb-2 mr-4">
+                            <input type="radio" class="custom-control-input" name="radios1" value="option1" checked="">
+                            <span class="custom-control-label"><a href="#" class="text-muted">Corporate Training</a></span>
+                        </label>
+                        <label class="custom-control custom-radio  mb-2">
+                            <input type="radio" class="custom-control-input" name="radios1" value="option2" >
+                            <span class="custom-control-label"><a href="#" class="text-muted">Become An Instructor</a></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label text-dark">Type of mode</label>
+                    <div class="d-md-flex ad-post-details">
+                        <label class="custom-control custom-radio mb-2 mr-4">
+                            <input type="radio" class="custom-control-input" name="radios2" value="option1" checked="">
+                            <span class="custom-control-label"><a href="#" class="text-muted">Online </a></span>
+                        </label>
+                        <label class="custom-control custom-radio  mb-2">
+                            <input type="radio" class="custom-control-input" name="radios2" value="option2" >
+                            <span class="custom-control-label"><a href="#" class="text-muted">Offline</a></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label text-dark">Description</label>
+                    <textarea class="form-control" name="example-textarea-input" rows="6" placeholder="text here.."></textarea>
+                </div>
+            -->
+            <!--<div class="p-2 border mb-4 form-group">
+                <form>
+                    <label>Select Profile Image</label>
+                    <input id="demo" type="file" name="files" accept=".jpg, .png, image/jpeg, image/png, html, zip, css,js" multiple>
+                </form>
+            </div>-->
+            <!--
+                <div class="form-group">
+                    <label class="form-label">Upload Video URL</label>
+                    <input type="text" class="form-control" placeholder="https://videos.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Institute Name</label>
+                    <input type="text" class="form-control" placeholder="Institute Name">
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control" placeholder="Name">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" placeholder="Email Coursesdress">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label">Phone Number</label>
+                            <input type="number" class="form-control" placeholder="Number">
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-6">
+                        <div class="form-group mb-0">
+                            <label class="form-label">Coursesdress</label>
+                            <input type="text" class="form-control" placeholder="Coursesdress">
+                        </div>
+                    </div>
+                </div>
+            -->
+            <!--</div>
+                    <div class="card-footer ">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </div>
+            </div>-->
+            <div class="col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Benefits Of Premium Courses</h3>
+                    </div>
+                    <div class="card-body pb-2">
+                        <ul class="list-unstyled widget-spec vertical-scroll mb-0">
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium Courses Active
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads are displayed on top
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads will be Show in Google results
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium Courses Active
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads are displayed on top
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads will be Show in Google results
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium Courses Active
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads are displayed on top
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads will be Show in Google results
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium Courses Active
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads are displayed on top
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads will be Show in Google results
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium Courses Active
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads are displayed on top
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads will be Show in Google results
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Terms And Conditions</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled widget-spec  mb-0">
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Money Not Refundable
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>You can renew your Premium ad after experted.
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i>Premium ads are active for depend on package.
+                            </li>
+                            <li class="ml-5 mb-0">
+                                <a href="tips.html"> View more..</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mb-xl-0">
+                    <div class="card-header">
+                        <h3 class="card-title">Safety Tips For Buyers</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled widget-spec  mb-0">
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i> Meet Seller at public Place
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i> Check item before you buy
+                            </li>
+                            <li>
+                                <i class="fa fa-check text-success" aria-hidden="true"></i> Pay only after collecting item
+                            </li>
+                            <li class="ml-5 mb-0">
+                                <a href="tips.html"> View more..</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        $("#StateId").change(function () {
+            var id = $(this).val();
+            $("#CityId").empty();
+            $.get("/Student/GetCities", { stateId: id }, function (data) {
+                var v = "<option value='0'>---Select City---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#CityId").html(v);
+            });
+        });
+        $("#CityId").change(function () {
+            var id = $(this).val();
+            $("#PincodeId").empty();
+            $.get("/Student/GetPincodes", { cityId: id }, function (data) {
+                var v = "<option value='0'>---Select Pincodes---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#PincodeId").html(v);
+            });
+        });
+    });
+</script>

@@ -253,7 +253,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// SaveUserData
         /// </summary>
-        public Users SaveUserData(int userId, Module module, string userName, string email, string FCMId, string deviceId)
+        public Users SaveUserData(int userId, Module module, string userName, string email, string FCMId = "", string deviceId = "")
         {
             var password = GeneratePassword(true, true, true, false, false, 16);
             Users user = new Users();
@@ -269,7 +269,8 @@ namespace ClassBookApplication.Service
             user.FCMId = FCMId;
             _context.Users.Add(user);
             _context.SaveChanges();
-            SaveDeviceAuthorizationData(user, deviceId);
+            if (!string.IsNullOrEmpty(deviceId))
+                SaveDeviceAuthorizationData(user, deviceId);
             return user;
         }
 
