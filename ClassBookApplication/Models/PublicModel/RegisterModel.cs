@@ -41,7 +41,8 @@ namespace ClassBookApplication.Models.PublicModel
         public string Address { get; set; }
 
         [Display(Name = "Select Gender")]
-        [Required(ErrorMessage = "Gender is required")]
+        //[Required(ErrorMessage = "Gender is required")]
+        [Required, Range(1, int.MaxValue, ErrorMessage = "Gender is required")]
         public int GenderId { get; set; }
 
         [Display(Name = "Select State")]
