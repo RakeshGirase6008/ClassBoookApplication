@@ -1,6 +1,6 @@
-﻿@model StudentRegisterModel
+﻿@model ClassRegisterModel
 @{
-    ViewData["Title"] = "Teacher Register";
+    ViewData["Title"] = "Class Register";
 }
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <section>
@@ -8,7 +8,7 @@
         <div class="header-text mb-0 mt-5">
             <div class="container">
                 <div class="text-center text-black">
-                    <h1>Student Registeration</h1>
+                    <h1>Class Registration</h1>
                 </div>
             </div>
         </div>
@@ -20,17 +20,12 @@
             <div class="col-lg-8 col-md-12 col-md-12">
                 <div class="card ">
                     <div class="card-body">
-                        <form asp-action="Register" asp-controller="Student" enctype="multipart/form-data" method="post">
+                        <form asp-action="Register" asp-controller="Class" enctype="multipart/form-data" method="post">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="form-group">
-                                <label asp-for="FirstName" class="form-label text-dark"></label>
-                                <input asp-for="FirstName" class="form-control" />
-                                <span asp-validation-for="FirstName" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="LastName" class="form-label text-dark"></label>
-                                <input asp-for="LastName" class="form-control" />
-                                <span asp-validation-for="LastName" class="text-danger"></span>
+                                <label asp-for="Name" class="form-label text-dark"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label asp-for="Email" class="form-label text-dark"></label>
@@ -43,25 +38,19 @@
                                 <span asp-validation-for="ContactNo" class="text-danger"></span>
                             </div>
                             <div class="form-group">
+                                <label asp-for="AlternateContact" class="form-label text-dark"></label>
+                                <input asp-for="AlternateContact" class="form-control" />
+                                <span asp-validation-for="AlternateContact" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
                                 <label asp-for="Address" class="form-label text-dark"></label>
                                 <input asp-for="Address" class="form-control" />
                                 <span asp-validation-for="Address" class="text-danger"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="DOB" class="form-label text-dark"></label>
-                                <input asp-for="DOB" class="form-control" />
-                                <span asp-validation-for="DOB" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="GenderId" class="form-label text-dark"></label>
-                                <br />
-                                @{
-                                    foreach (var item in Model.GenderList)
-                                    {
-                                        @Html.RadioButtonFor(m => m.GenderId, item.Value)@item.Text
-                                    }
-                                }
-                                <span asp-validation-for="GenderId" class="text-danger"></span>
+                                <label asp-for="EstablishmentDate" class="form-label text-dark"></label>
+                                <input asp-for="EstablishmentDate" class="form-control" />
+                                <span asp-validation-for="EstablishmentDate" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label asp-for="StateId" class="form-label text-dark"></label>
@@ -85,22 +74,14 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label asp-for="BoardId" class="control-label"></label>
-                                <select asp-for="BoardId"
-                                        asp-items="@(new SelectList(Model.BoardList,"Value","Text"))" class="form-control">
-                                </select>
+                                <label asp-for="TeachingExperience" class="form-label text-dark"></label>
+                                <input asp-for="TeachingExperience" class="form-control" placeholder="1.2 Years" />
+                                <span asp-validation-for="TeachingExperience" class="text-danger"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="MediumId" class="control-label"></label>
-                                <select asp-for="MediumId"
-                                        asp-items="@(new SelectList(Model.MediumList,"Value","Text"))" class="form-control">
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="StandardId" class="control-label"></label>
-                                <select asp-for="StandardId"
-                                        asp-items="@(new SelectList(Model.StandardList,"Value","Text"))" class="form-control">
-                                </select>
+                                <label asp-for="RegistrationNo" class="form-label text-dark"></label>
+                                <input asp-for="RegistrationNo" class="form-control" />
+                                <span asp-validation-for="RegistrationNo" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label asp-for="ImageFile" class="control-label"></label>
@@ -108,14 +89,6 @@
                                     <input type="file" name="ImageFile" />
                                 </div>
                             </div>
-                            @*<div class="form-group">
-            @Html.LabelFor(model => model.RoleIds, new { @class = "control-label" })<br />
-            @Html.ListBoxFor(model => model.RoleIds, new MultiSelectList(Model.RoleList, "Value", "Text"), new { @class = "form-control", multiple = "multiple", id = "RoleIds" })
-        </div>
-        <div class="form-group">
-            @Html.LabelFor(model => model.HobbyIds, new { @class = "control-label" })<br />
-            @Html.ListBoxFor(model => model.HobbyIds, new MultiSelectList(Model.HobbiesList, "Value", "Text"), new { @class = "form-control", multiple = "multiple", id = "HobbyIds" })
-        </div>*@
                             <div class="form-group">
                                 <input type="submit" value="Submit" class="btn btn-default btn-danger" />
                             </div>
@@ -124,9 +97,7 @@
                 </div>
             </div>
             <div class="col-lg-4 col-md-12">
-                <div class="col-lg-4 col-md-12">
-                    @await Component.InvokeAsync("RegistrationSide")
-                </div>
+                @await Component.InvokeAsync("RegistrationSide")
             </div>
         </div>
     </div>

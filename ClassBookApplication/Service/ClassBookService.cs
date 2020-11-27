@@ -739,7 +739,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save the Classes Record
         /// </summary>
-        public (int classId, string UniqueNo) SaveClasses(Classes classesData, List<IFormFile> files, List<IFormFile> video)
+        public (int classId, string UniqueNo) SaveClasses(Classes classesData, List<IFormFile> files, List<IFormFile> video = null)
         {
             Classes classes = new Classes();
             classes.Name = classesData.Name;
@@ -1218,7 +1218,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save the Teacher Record
         /// </summary>
-        public (int teacherId, string UniqueNo) SaveTeacher(Teacher teacherData, List<IFormFile> files, List<IFormFile> video)
+        public (int teacherId, string UniqueNo) SaveTeacher(Teacher teacherData, List<IFormFile> files, List<IFormFile> video = null)
         {
             Teacher teachers = new Teacher();
             teachers.FirstName = teacherData.FirstName;

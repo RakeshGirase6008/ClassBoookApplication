@@ -1,5 +1,5 @@
 ﻿using ClassBookApplication.DataContext;
-using ClassBookApplication.Domain.Student;
+using ClassBookApplication.Domain.Classes;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Service;
@@ -13,9 +13,9 @@ using System.Linq;
 
 namespace ClassBookApplication.Controllers
 {
-    public class StudentController : Controller
+    public class ClassController : Controller
     {
-        #region Ctor
+        #region Fields
 
         private readonly ClassBookModelFactory _classBookModelFactory;
         private readonly LogsService _logsService;
@@ -26,7 +26,7 @@ namespace ClassBookApplication.Controllers
 
         #region Ctor
 
-        public StudentController(ClassBookModelFactory classBookModelFactory,
+        public ClassController(ClassBookModelFactory classBookModelFactory,
             LogsService logsService,
             ClassBookManagementContext context,
             ClassBookService classBookService)
@@ -43,13 +43,13 @@ namespace ClassBookApplication.Controllers
 
         public IActionResult Register()
         {
-            StudentRegisterModel model = new StudentRegisterModel();
+            ClassRegisterModel model = new ClassRegisterModel();
             model = LoadModel(ref model);
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult Register(StudentRegisterModel model)
+        public IActionResult Register(ClassRegisterModel model)
         {
             try
             {
@@ -62,26 +62,25 @@ namespace ClassBookApplication.Controllers
                         if (model.ImageFile != null)
                             list.Add(model.ImageFile);
 
-                        Student studentData = new Student()
+                        Classes classData = new Classes()
                         {
-                            FirstName = model.FirstName,
-                            LastName = model.LastName,
-                            Address = model.Address,
+                            Name = model.Name,
                             Email = model.Email,
-                            Gender = Enum.GetName(typeof(Gender), model.GenderId),
-                            DOB = model.DOB,
+                            AlternateContact = model.AlternateContact,
+                            ContactNo = model.ContactNo,
+                            EstablishmentDate = model.EstablishmentDate,
+                            Address = model.Address,
                             StateId = model.StateId,
                             CityId = model.CityId,
-                            ContactNo = model.ContactNo,
                             Pincode = model.PincodeId,
-                            BoardId = model.BoardId,
-                            MediumId = model.MediumId,
-                            StandardId = model.StandardId
+                            RegistrationNo = model.RegistrationNo,
+                            TeachingExperience = model.TeachingExperience
                         };
-                        (int studentId, string uniqueNo) = _classBookService.SaveStudent(studentData, list);
-                        string UserName = studentData.FirstName + studentData.LastName + uniqueNo;
-                        var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, studentData.Email);
-                        _classBookService.SendVerificationLinkEmail(studentData.Email, user.Password, Module.Student.ToString());
+                        (int studentId, string uniqueNo) = _classBookService.SaveClasses(classData, list);
+                        string UserName = classData.Name + uniqueNo;
+                        var user = _classBookService.SaveUserData(studentId, Module.Student, UserName, classData.Email);
+                        //var rest = _classBookService.RegisterMethod(model, "/api/v1/ChannelPartner/register");
+                        _classBookService.SendVerificationLinkEmail(classData.Email, user.Password, Module.Student.ToString());
                         return RedirectToAction("Register");
                     }
                     else
@@ -99,7 +98,7 @@ namespace ClassBookApplication.Controllers
             }
             catch (Exception ex)
             {
-                _logsService.InsertLogs("Student", ex, "Student", 0);
+                _logsService.InsertLogs("Classes", ex, "Classes", 0);
                 return RedirectToAction("Register");
             }
         }
@@ -108,13 +107,9 @@ namespace ClassBookApplication.Controllers
 
         #region Utilities
 
-        protected StudentRegisterModel LoadModel(ref StudentRegisterModel model)
+        protected ClassRegisterModel LoadModel(ref ClassRegisterModel model)
         {
             model.States = _classBookModelFactory.PrepareStateDropDown();
-            model.GenderList = _classBookModelFactory.PrepareGenderDropDown();
-            model.BoardList = _classBookModelFactory.PrepareBoardDropDown();
-            model.MediumList = _classBookModelFactory.PrepareMediumDropDown();
-            model.StandardList = _classBookModelFactory.PrepareStandardDropDown();
             return model;
         }
 

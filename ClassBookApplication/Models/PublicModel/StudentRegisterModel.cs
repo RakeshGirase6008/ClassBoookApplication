@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 namespace ClassBookApplication.Models.PublicModel
 {
-    public class RegisterModel
+    public class StudentRegisterModel
     {
-        public RegisterModel()
+        public StudentRegisterModel()
         {
             States = new List<SelectListItem>();
             Cities = new List<SelectListItem>();
@@ -39,9 +39,9 @@ namespace ClassBookApplication.Models.PublicModel
 
         [Required(ErrorMessage = "Address is Required")]
         public string Address { get; set; }
+        public string Description { get; set; }
 
         [Display(Name = "Select Gender")]
-        //[Required(ErrorMessage = "Gender is required")]
         [Required, Range(1, int.MaxValue, ErrorMessage = "Gender is required")]
         public int GenderId { get; set; }
 
@@ -68,8 +68,8 @@ namespace ClassBookApplication.Models.PublicModel
         public int StandardId { get; set; }
 
         [Display(Name = "Upload File")]
-        public string ImagePath { get; set; }
         public IFormFile ImageFile { get; set; }
+        public string ImagePath { get; set; }
         public List<SelectListItem> States { get; set; }
         public List<SelectListItem> Cities { get; set; }
         public List<SelectListItem> Pincodes { get; set; }
