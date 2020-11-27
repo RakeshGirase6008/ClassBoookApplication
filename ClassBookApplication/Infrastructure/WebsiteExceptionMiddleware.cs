@@ -39,14 +39,6 @@ namespace ClassBookApplication.Infrastructure
                 string controllerName = string.Empty;
                 if (endpoint != null)
                 {
-                    //StringValues secretKeyToken;
-                    //httpContext.Request.Headers.TryGetValue("AuthorizeTokenKey", out secretKeyToken).ToString();
-                    //var authorizationTokenKey = secretKeyToken.ToString();
-                    //var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizationTokenKey).AsNoTracking();
-                    //if (singleUser.Any())
-                    //{
-                    //    userId = singleUser.FirstOrDefault().Id;
-                    //}
                     var controllerActionDescriptor = endpoint.Metadata.GetMetadata<ControllerActionDescriptor>();
                     if (controllerActionDescriptor != null)
                         controllerName = controllerActionDescriptor.ControllerName;
