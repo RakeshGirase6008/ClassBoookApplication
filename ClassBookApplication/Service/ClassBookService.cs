@@ -1381,7 +1381,7 @@ namespace ClassBookApplication.Service
         /// <summary>
         /// Save the School Record
         /// </summary>
-        public (int classId, string UniqueNo) SaveSchool(School schoolData, List<IFormFile> files)
+        public (int classId, string UniqueNo) SaveSchool(School schoolData, List<IFormFile> files = null)
         {
             School School = new School();
             School.Name = schoolData.Name;

@@ -1,0 +1,143 @@
+﻿@model CareerExpertRegisterModel
+@{
+    ViewData["Title"] = "CareerExpert Register";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<section>
+    <div class="bannerimg">
+        <div class="header-text mb-0 mt-5">
+            <div class="container">
+                <div class="text-center text-black">
+                    <h1>CareerExpert Registeration</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="sptb">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-12 col-md-12">
+                <div class="card ">
+                    <div class="card-body">
+                        <form asp-action="Register" asp-controller="CareerExpert" enctype="multipart/form-data" method="post">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <label asp-for="FirstName" class="form-label text-dark"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="LastName" class="form-label text-dark"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Email" class="form-label text-dark"></label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ContactNo" class="form-label text-dark"></label>
+                                <input asp-for="ContactNo" class="form-control" />
+                                <span asp-validation-for="ContactNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="AlternateContact" class="form-label text-dark"></label>
+                                <input asp-for="AlternateContact" class="form-control" />
+                                <span asp-validation-for="AlternateContact" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Address" class="form-label text-dark"></label>
+                                <input asp-for="Address" class="form-control" />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="form-label text-dark"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DOB" class="form-label text-dark"></label>
+                                <input asp-for="DOB" class="form-control" />
+                                <span asp-validation-for="DOB" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="GenderId" class="form-label text-dark"></label>
+                                <br />
+                                @{
+                                    foreach (var item in Model.GenderList)
+                                    {
+                                        @Html.RadioButtonFor(m => m.GenderId, item.Value)@item.Text
+                                    }
+                                }
+                                <span asp-validation-for="GenderId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="StateId" class="form-label text-dark"></label>
+                                <select asp-for="StateId"
+                                        asp-items="@(new SelectList(Model.States,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="CityId" class="form-label text-dark"></label>
+                                <select asp-for="CityId"
+                                        asp-items="@(new SelectList(Model.Cities,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PincodeId" class="control-label"></label>
+                                <select asp-for="PincodeId"
+                                        asp-items="@(new SelectList(Model.Pincodes,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ImageFile" class="control-label"></label>
+                                <div class="col-md-10">
+                                    <input type="file" name="ImageFile" />
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Submit" class="btn btn-default btn-danger" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-12">
+                @await Component.InvokeAsync("RegistrationSide")
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        $("#StateId").change(function () {
+            var id = $(this).val();
+            $("#CityId").empty();
+            $.get("/Common/GetCities", { stateId: id }, function (data) {
+                var v = "<option value='0'>---Select City---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#CityId").html(v);
+            });
+        });
+        $("#CityId").change(function () {
+            var id = $(this).val();
+            $("#PincodeId").empty();
+            $.get("/Common/GetPincodes", { cityId: id }, function (data) {
+                var v = "<option value='0'>---Select Pincodes---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#PincodeId").html(v);
+            });
+        });
+    });
+</script>
