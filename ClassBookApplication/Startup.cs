@@ -2,7 +2,9 @@ using ClassBookApplication.ActionFilter;
 using ClassBookApplication.DataContext;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Infrastructure;
+using ClassBookApplication.Models;
 using ClassBookApplication.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +13,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Net;
+using System.Text;
 
 namespace ClassBookApplication
 {
@@ -26,6 +33,11 @@ namespace ClassBookApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+            });
+
             services.AddControllersWithViews();
             // Add the whole configuration object here.
             services.AddSingleton<IConfiguration>(Configuration);
@@ -53,6 +65,7 @@ namespace ClassBookApplication
             services.AddTransient<ClassBookService, ClassBookService>();
             services.AddTransient<NotificationService, NotificationService>();
             services.AddTransient<LogsService, LogsService>();
+            services.AddTransient<MyAuthencationService, MyAuthencationService>();
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ClassBookModelFactory, ClassBookModelFactory>();
@@ -86,20 +99,44 @@ namespace ClassBookApplication
             });
 
             #endregion
-            
+
+            #region Authencation
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"]))
+                };
+            });
+            IdentityModelEventSource.ShowPII = true;
+
+            services.AddAuthorization(config =>
+            {
+                config.AddPolicy(Policies.Admin, Policies.AdminPolicy());
+                config.AddPolicy(Policies.User, Policies.UserPolicy());
+            });
+            #endregion
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
-            {
                 app.UseDeveloperExceptionPage();
-            }
             else
-            {
                 app.UseExceptionHandler("/Home/Error");
-            }
+
+            #region Exception Handling for WebApplication and API
+
             app.UseWhen(context => context.Request.Path.Value.Contains("/api"), appBuilder =>
             {
                 appBuilder.UseMiddleware<ExceptionMiddleware>();
@@ -108,15 +145,52 @@ namespace ClassBookApplication
             {
                 appBuilder.UseMiddleware<WebsiteExceptionMiddleware>();
             });
+
+            #endregion
+
+            #region Authorization and Authencation
             app.UseStaticFiles();
+            app.UseCookiePolicy();
+            ////Add User session
+            app.UseSession();
+            //Add JWToken to all incoming HTTP Request Header
+            app.Use(async (context, next) =>
+            {
+                var JWToken = context.Session.GetString("JWToken");
+                if (!string.IsNullOrEmpty(JWToken))
+                {
+                    context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
+                }
+                await next();
+            });
+            app.UseStatusCodePages(async context =>
+            {
+                var request = context.HttpContext.Request;
+                var response = context.HttpContext.Response;
+                var path = request.Path.Value ?? "";
+
+                if (response.StatusCode == (int)HttpStatusCode.Unauthorized)
+                {
+                    response.Redirect("/User/Login");
+                }
+            });
+            //Add JWToken Authentication service
+            app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
+
+            #endregion
+
+            #region Routing Map
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            #endregion
 
             #region Swagger settings
 
