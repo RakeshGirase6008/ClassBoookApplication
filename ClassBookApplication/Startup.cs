@@ -33,10 +33,15 @@ namespace ClassBookApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            #region Session Management
+
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(60);
             });
+
+            #endregion
 
             services.AddControllersWithViews();
             // Add the whole configuration object here.
@@ -149,6 +154,7 @@ namespace ClassBookApplication
             #endregion
 
             #region Authorization and Authencation
+
             app.UseStaticFiles();
             app.UseCookiePolicy();
             ////Add User session

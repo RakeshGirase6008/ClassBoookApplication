@@ -51,8 +51,6 @@ namespace ClassBookApplication.Controllers.API
         [HttpGet("GetBoard")]
         public IEnumerable<object> GetBoard()
         {
-            int model = 0;
-            int newModal = 10 / model;
             var boards = _context.Board.Where(x => x.Active == true).Select(x => new { x.Name, x.Id });
             return boards;
         }
@@ -153,7 +151,7 @@ namespace ClassBookApplication.Controllers.API
             return courses;
         }
 
-        // GET api/Common/GetCourses/6
+        // GET api/Common/GetCourses
         [HttpGet("GetCourses")]
         public IEnumerable<object> GetCourses()
         {
