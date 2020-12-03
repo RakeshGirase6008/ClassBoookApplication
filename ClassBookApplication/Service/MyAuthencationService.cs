@@ -53,9 +53,9 @@ namespace ClassBookApplication.Service
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userInfo.Email),
-                new Claim("username", userInfo.Email.ToString()),
-                new Claim("role",userInfo.UserRole),
+                new Claim(JwtRegisteredClaimNames.NameId, userInfo.Email),
+                //new Claim("username", userInfo.Email.ToString()),
+                //new Claim("role",userInfo.UserRole),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             var token = new JwtSecurityToken(

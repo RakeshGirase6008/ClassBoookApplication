@@ -165,7 +165,7 @@ namespace ClassBookApplication
                 var JWToken = context.Session.GetString("JWToken");
                 if (!string.IsNullOrEmpty(JWToken))
                 {
-                    context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
+                    context.Request.Headers.Add("Authorization", JWToken);
                 }
                 await next();
             });

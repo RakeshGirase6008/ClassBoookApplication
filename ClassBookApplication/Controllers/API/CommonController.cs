@@ -167,6 +167,8 @@ namespace ClassBookApplication.Controllers.API
             return advertisementBanner;
         }
 
+        
+
         #endregion
 
         #region User API

@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 
 namespace ClassBookApplication.Controllers
 {
@@ -47,58 +49,32 @@ namespace ClassBookApplication.Controllers
             }
         }
 
+        protected string GetUserId()
+        {
+            var handler = new JwtSecurityTokenHandler();
+            string authHeader = HttpContext.Request.Headers["Authorization"];
+            if (string.IsNullOrEmpty(authHeader))
+                return string.Empty;
+            var jsonToken = handler.ReadToken(authHeader);
+            var tokenS = handler.ReadToken(authHeader) as JwtSecurityToken;
+            var emailId = tokenS.Claims.First(claim => claim.Type == "nameid").Value;
+            return emailId;
+        }
+
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public IActionResult ForgotPassword()
         {
-
-            //context.HttpContext.Request?.Headers["Basic"];
-            var xyz = HttpContext.Request?.Headers["Basic"];
-            var principal = HttpContext.User;
-            if (principal?.Claims != null)
-            {
-                foreach (var claim in principal.Claims)
-                {
-                }
-            }
-            string email = principal?.Claims?.SingleOrDefault(p => p.Type == "email")?.Value;
-
-            //string token = new JwtSecurityTokenHandler().ReadJwtToken("");
-            //JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            //tokenHandler.rea
-            //TokenValidationParameters validationParameters;
-            //SecurityToken securityToken;
-            //IPrincipal principal;
-            //try
-            //{
-            //    // token validation
-            //    principal = tokenHandler.ValidateToken(token, validationParameters, out securityToken);
-            //    // Reading the "verificationKey" claim value:
-            //    var vk = principal.Claims.SingleOrDefault(c => c.Type == "verificationKey").Value;
-            //}
-            //catch
-            //{
-            //    principal = null; // token validation error
-            //}
-            //// Cast to ClaimsIdentity.
-            //var identity = HttpContext.User.Identity as ClaimsIdentity;
-
-            //// Gets list of claims.
-            //IEnumerable<Claim> claim = identity.Claims;
-
-            //// Gets name from claims. Generally it's an email address.
-            //var usernameClaim = claim
-            //    .Where(x => x.Type == ClaimTypes.Name)
-            //    .FirstOrDefault();
-            //var user = usernameClaim.Value;
             ForgotPasswordModel model = new ForgotPasswordModel();
+            var email = GetUserId();
             return View(model);
         }
 
         [HttpGet]
         public IActionResult Login()
         {
+            var email = GetUserId();
             UserLoginModel model = new UserLoginModel();
             return View(model);
         }
@@ -112,7 +88,6 @@ namespace ClassBookApplication.Controllers
             {
                 var tokenString = _myAuthencationService.GenerateJWTToken(user);
                 HttpContext.Session.SetString("JWToken", tokenString);
-                //return RedirectToAction("List");
                 return RedirectToAction("Index", "Home");
             }
             else
@@ -120,14 +95,11 @@ namespace ClassBookApplication.Controllers
                 return RedirectToAction("Login");
             }
         }
-
         public IActionResult Logoff()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
-
-
         #endregion
     }
 }
