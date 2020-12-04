@@ -73,20 +73,6 @@ namespace ClassBookApplication.Infrastructure
                 StatusCode = context.Response.StatusCode,
                 Message = exception?.Message
             }.ToString());
-
-            //if (context.Request.Path.Value.Contains("api"))
-            //{
-            //}
-            //context.Response.Redirect("/Home/Errorpage");
-            //if (context.Request.Path.Value.ToLower() == "")
-            //{
-            //}
-            ////return context.Response.WriteAsync(new ErrorDetails()
-            ////{
-            ////    StatusCode = context.Response.StatusCode,
-            ////    Message = exception?.Message
-            ////}.ToString());
-            //return await context.Response.Redirect("/Home/Errorpage");
         }
 
         #endregion
