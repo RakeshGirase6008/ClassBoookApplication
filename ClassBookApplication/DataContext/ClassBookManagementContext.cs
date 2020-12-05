@@ -46,7 +46,8 @@ namespace ClassBookApplication.DataContext
         public DbSet<Favourites> Favourites { get; set; }
         public DbSet<Expertise> Expertise { get; set; }
         public DbSet<ExpertiseMapping> ExpertiseMapping { get; set; }
-        
+        public DbSet<ContactUs> ContactUs { get; set; }
+
         #endregion
 
         #region ClassBookMain

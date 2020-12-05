@@ -23,12 +23,20 @@ namespace ClassBookApplication
 {
     public class Startup
     {
+        #region Fields
+        public IConfiguration Configuration { get; }
+
+        #endregion
+
+        #region Ctor
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        #endregion
+
+        #region Method
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -43,9 +51,13 @@ namespace ClassBookApplication
 
             #endregion
 
+            #region Configuration Management
+
             services.AddControllersWithViews();
             // Add the whole configuration object here.
             services.AddSingleton<IConfiguration>(Configuration);
+
+            #endregion
 
             #region Inject Database
 
@@ -208,5 +220,7 @@ namespace ClassBookApplication
 
             #endregion
         }
+
+        #endregion
     }
 }
