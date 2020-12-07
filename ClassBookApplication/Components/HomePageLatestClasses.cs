@@ -1,5 +1,4 @@
 ﻿using ClassBookApplication.Service;
-using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -25,8 +24,8 @@ namespace ClassBookApplication.Components
         #region Method
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var courseCategory = await _classBookService.GetAllClasses((int)Module.Classes);
-            return View(courseCategory);
+            var getAllClasses = await _classBookService.GetAllClasses11();
+            return View(getAllClasses);
         }
 
         #endregion

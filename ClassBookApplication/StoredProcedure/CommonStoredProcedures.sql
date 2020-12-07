@@ -574,3 +574,44 @@ BEGIN
 	INNER JOIN PromotionalCycle PC ON PC.LevelId=CPM.LevelId 
 	WHERE ChannelPartnerId=@ChannelPartnerId
 END
+
+GO
+CREATE PROCEDURE [ClassBook_GetAllClasses]
+	@UserId INT=0
+AS
+BEGIN
+	DECLARE @TopProducts INT
+	DECLARE @EntityId INT
+	DECLARE @StateId INT
+	DECLARE @CityId INT
+	SET @TopProducts=5
+
+	IF EXISTS(SELECT [name] FROM tempdb.sys.tables WHERE [name] like '#TempRating%') 
+	BEGIN
+		DROP TABLE #LocalCustomer;
+	END;
+
+	SELECT @EntityId=EntityId FROM Users WHERE Id=@UserId
+	SELECT @CityId=CityId,@StateId=StateId FROM Student WHERE Id=@EntityId
+
+	;WITH #TempRating(EntityId, EntityName,Ratings) as (
+		SELECT 
+		EntityId,EntityName,AVG(Rating) as Ratings
+		FROM Ratings WHERE EntityName='Classes'
+		GROUP BY EntityId,EntityName
+	)
+
+	SELECT Top(@TopProducts) Id,[Name],[Description],C.[ClassPhotoUrl] as PhotoUrl,0 as Favourite,10 as [Ordering],
+	FORMAT(ISNULL(AVG(TR.Ratings),0.0),'N2') as Rating
+	FROM Classes C
+	LEFT JOIN #TempRating TR ON TR.EntityId=C.Id
+	WHERE C.CityId=@CityId OR C.StateId=@StateId
+	GROUP BY C.Id,C.Name,C.Description,TR.Ratings,C.[ClassPhotoUrl]
+	UNION
+	SELECT Top(@TopProducts) Id,[Name],[Description],C.[ClassPhotoUrl] as PhotoUrl,0 as Favourite,5 as [Ordering],
+	FORMAT(ISNULL(AVG(TR.Ratings),0.0),'N2') as Rating
+	FROM Classes C
+	LEFT JOIN #TempRating TR ON TR.EntityId=C.Id
+	GROUP BY C.Id,C.Name,C.Description,TR.Ratings,C.[ClassPhotoUrl]
+	ORDER BY Rating,Ordering DESC
+END

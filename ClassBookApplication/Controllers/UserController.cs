@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
 
 namespace ClassBookApplication.Controllers
 {
@@ -18,6 +16,7 @@ namespace ClassBookApplication.Controllers
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
         private readonly MyAuthencationService _myAuthencationService;
+
         #endregion
 
         #region Ctor
@@ -49,32 +48,18 @@ namespace ClassBookApplication.Controllers
             }
         }
 
-        protected string GetUserId()
-        {
-            var handler = new JwtSecurityTokenHandler();
-            string authHeader = HttpContext.Request.Headers["Authorization"];
-            if (string.IsNullOrEmpty(authHeader))
-                return string.Empty;
-            var jsonToken = handler.ReadToken(authHeader);
-            var tokenS = handler.ReadToken(authHeader) as JwtSecurityToken;
-            var emailId = tokenS.Claims.First(claim => claim.Type == "nameid").Value;
-            return emailId;
-        }
-
-
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public IActionResult ForgotPassword()
         {
             ForgotPasswordModel model = new ForgotPasswordModel();
-            var email = GetUserId();
+            var userId = _myAuthencationService.GetUserId();
             return View(model);
         }
 
         [HttpGet]
         public IActionResult Login()
         {
-            var email = GetUserId();
             UserLoginModel model = new UserLoginModel();
             return View(model);
         }

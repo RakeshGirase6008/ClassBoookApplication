@@ -1,6 +1,4 @@
-﻿using ClassBookApplication.DataContext;
-using ClassBookApplication.Factory;
-using ClassBookApplication.Service;
+﻿using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 

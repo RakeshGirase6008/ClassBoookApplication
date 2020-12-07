@@ -39,6 +39,8 @@ namespace ClassBookApplication.Service
         private readonly IWebHostEnvironment _env;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ClassBookModelFactory _classBookModelFactory;
+        private readonly MyAuthencationService _myAuthencationService;
+
 
         #endregion
 
@@ -50,7 +52,8 @@ namespace ClassBookApplication.Service
             IConfiguration configuration,
             IWebHostEnvironment env,
             IHttpContextAccessor httpContextAccessor,
-            ClassBookModelFactory classBookModelFactory)
+            ClassBookModelFactory classBookModelFactory,
+            MyAuthencationService myAuthencationService)
         {
             this._context = context;
             this._channelPartnerManagementContext = channelPartnerManagementContext;
@@ -59,6 +62,7 @@ namespace ClassBookApplication.Service
             this._env = env;
             this._httpContextAccessor = httpContextAccessor;
             this._classBookModelFactory = classBookModelFactory;
+            this._myAuthencationService = myAuthencationService;
         }
 
         #endregion
@@ -829,6 +833,7 @@ namespace ClassBookApplication.Service
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.CommandTimeout = 60;
                 cmd.Parameters.Add("@ModuleId", SqlDbType.Int).Value = ModuleId;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = _myAuthencationService.GetUserId(); ;
                 var reader = cmd.ExecuteReader();
                 var hostName = _httpContextAccessor.HttpContext.Request.Host.Value;
                 if (reader.HasRows)
@@ -854,6 +859,55 @@ namespace ClassBookApplication.Service
                 connection.Close();
                 return listingModels;
             }
+        }
+
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
+        public IList<ClassListingModel> GetAllClasses()
+        {
+            IList<ClassListingModel> listingModels = new List<ClassListingModel>();
+            SqlConnection connection = new SqlConnection(GetConnectionString());
+            if (connection.State == ConnectionState.Closed)
+                connection.Open();
+
+            //create a command object
+            using (var cmd = connection.CreateCommand())
+            {
+                //command to execute
+                cmd.CommandText = ClassBookConstant.SP_ClassBook_GetAllClasses.ToString();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = 60;
+                cmd.Parameters.Add("@UserId", SqlDbType.Int).Value = _myAuthencationService.GetUserId(); ;
+                var reader = cmd.ExecuteReader();
+                var hostName = _httpContextAccessor.HttpContext.Request.Host.Value;
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        ClassListingModel ISP = new ClassListingModel()
+                        {
+                            Id = reader.GetValue<int>("Id"),
+                            Name = reader.GetValue<string>("Name"),
+                            Image = reader.GetValue<string>("PhotoUrl") == null ? string.Empty : ClassBookConstant.WebSite_HostURL.ToString() + "/" + reader.GetValue<string>("PhotoUrl")?.Replace("\\", "/"),
+                            Rating = reader.GetValue<string>("Rating"),
+                            Description = reader.GetValue<string>("Description"),
+                            Favourite = reader.GetValue<bool>("Favourite")
+                        };
+                        listingModels.Add(ISP);
+                    }
+                };
+                //close up the reader, we're done saving results
+                reader.Close();
+                //close connection
+                connection.Close();
+                return listingModels;
+            }
+        }
+
+        public Task<IList<ClassListingModel>> GetAllClasses11()
+        {
+            return Task.Run(() => GetAllClasses());
         }
 
 

@@ -4,6 +4,8 @@ namespace ClassBookApplication.Models.PublicModel
 {
     public class UserLoginModel
     {
+        public int Id { get; set; }
+
         [EmailAddress(ErrorMessage = "The Email field is not a valid e-mail address.")]
         public string Email { get; set; }
 

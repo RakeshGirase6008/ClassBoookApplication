@@ -62,6 +62,7 @@
         #region StoredProcedure
 
         public const string SP_ClassBook_GetModuleDataByModuleId = "ClassBook_GetModuleDataByModuleId";
+        public const string SP_ClassBook_GetAllClasses = "ClassBook_GetAllClasses";
         public const string SP_ClassBook_GetCartDetailByUserId = "ClassBook_GetCartDetailByUserId";
         public const string SP_ClassBook_GetSubscrptionDetailByUserId = "ClassBook_GetSubscrptionDetailByUserId";
         public const string SP_ClassBook_GetTranscationDetailByUserId = "ClassBook_GetTranscationDetailByUserId";

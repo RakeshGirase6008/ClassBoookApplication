@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Models.PublicModel;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -10,21 +11,25 @@ using System.Text;
 
 namespace ClassBookApplication.Service
 {
-    public class MyAuthencationService 
+    public class MyAuthencationService
     {
         #region Fields
 
         private readonly IConfiguration _config;
         private readonly ClassBookManagementContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
 
         #endregion
 
         #region Ctor
         public MyAuthencationService(IConfiguration config,
-            ClassBookManagementContext context)
+            ClassBookManagementContext context,
+            IHttpContextAccessor httpContextAccessor)
         {
             this._config = config;
             this._context = context;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -37,6 +42,7 @@ namespace ClassBookApplication.Service
                        where e.Email == loginCredentials.Email && e.Password == loginCredentials.Password
                        select new UserLoginModel
                        {
+                           Id = e.Id,
                            Email = e.Email,
                            Password = e.Password,
                            UserRole = "User"
@@ -53,9 +59,9 @@ namespace ClassBookApplication.Service
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.NameId, userInfo.Email),
-                //new Claim("username", userInfo.Email.ToString()),
-                //new Claim("role",userInfo.UserRole),
+                new Claim(JwtRegisteredClaimNames.NameId, userInfo.Id.ToString()),
+                new Claim("email", userInfo.Email.ToString()),
+                new Claim("role",userInfo.UserRole),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
             var token = new JwtSecurityToken(
@@ -66,6 +72,18 @@ namespace ClassBookApplication.Service
                 signingCredentials: credentials
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public int GetUserId()
+        {
+            var handler = new JwtSecurityTokenHandler();
+            string authHeader = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            if (string.IsNullOrEmpty(authHeader))
+                return 0;
+            var jsonToken = handler.ReadToken(authHeader);
+            var tokenS = handler.ReadToken(authHeader) as JwtSecurityToken;
+            var userId = tokenS.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value;
+            return int.Parse(userId);
         }
         #endregion
     }
