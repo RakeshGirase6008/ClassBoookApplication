@@ -47,6 +47,7 @@ namespace ClassBookApplication.DataContext
         public DbSet<Expertise> Expertise { get; set; }
         public DbSet<ExpertiseMapping> ExpertiseMapping { get; set; }
         public DbSet<ContactUs> ContactUs { get; set; }
+        public DbSet<Testimonial> Testimonial { get; set; }
 
         #endregion
 

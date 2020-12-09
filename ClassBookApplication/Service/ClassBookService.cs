@@ -905,11 +905,32 @@ namespace ClassBookApplication.Service
             }
         }
 
+        /// <summary>
+        /// Get All Moduel Data by Module Id
+        /// </summary>
+        public IList<Testimonial> GetAllTestimonials(bool home = false, int pageIndex = 1, int pageSize = 5)
+        {
+            if (home)
+            {
+                var list = _context.Testimonial.OrderBy(x => x.Id).Take(5).ToList();
+                return list;
+            }
+            else
+            {
+                var list = _context.Testimonial.OrderBy(x => x.Id).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+                return list;
+            }
+        }
+
         public Task<IList<ClassListingModel>> GetAllClasses11()
         {
             return Task.Run(() => GetAllClasses());
         }
 
+        public Task<IList<Testimonial>> GetAllTestimonials11()
+        {
+            return Task.Run(() => GetAllTestimonials());
+        }
 
         /// <summary>
         /// Get All Module Data by Module Id

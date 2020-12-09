@@ -2,6 +2,7 @@
 using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.PublicModel;
+using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -13,16 +14,20 @@ namespace ClassBookApplication.Controllers
 
         private readonly ClassBookModelFactory _classBookModelFactory;
         private readonly ClassBookManagementContext _context;
+        private readonly ClassBookService _classBookService;
+
 
         #endregion
 
         #region Ctor
 
         public CommonController(ClassBookModelFactory classBookModelFactory,
-            ClassBookManagementContext context)
+            ClassBookManagementContext context,
+            ClassBookService classBookService)
         {
             _classBookModelFactory = classBookModelFactory;
             _context = context;
+            _classBookService = classBookService;
         }
 
         #endregion
@@ -66,12 +71,17 @@ namespace ClassBookApplication.Controllers
                 _context.SaveChanges();
                 return Json(new { status = "true", message = "We will contact you as soon as possible" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { status = "true", message = "Getting issue" });
             }
         }
 
+        public IActionResult Testimonial(int pageIndex, int pageSize)
+        {
+            var getAllClasses = _classBookService.GetAllTestimonials(false, pageIndex,pageSize);
+            return View(getAllClasses);
+        }
         #endregion
     }
 }
