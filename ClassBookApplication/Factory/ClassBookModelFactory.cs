@@ -1,5 +1,6 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.Common;
+using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Utility;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
@@ -41,6 +42,23 @@ namespace ClassBookApplication.Factory
             if (!string.IsNullOrEmpty(ImageUrl))
                 return ClassBookConstant.WebSite_HostURL.ToString() + "/" + ImageUrl.Replace("\\", "/");
             return string.Empty;
+        }
+        public List<Testimonial> PrepareTestimonial(IList<Testimonial> testimonial)
+        {
+            List<Testimonial> testimonials = new List<Testimonial>();
+            foreach (var test in testimonial)
+            {
+                testimonials.Add(new Testimonial()
+                {
+                    ClientName = test.ClientName,
+                    Position = test.Position,
+                    Rating = test.Rating,
+                    PhotoUrl = PrepareURL(test.PhotoUrl),
+                    Descrption = test.Descrption
+                });
+            }
+            return testimonials;
+
         }
 
         #endregion

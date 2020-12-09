@@ -1,0 +1,90 @@
+﻿@model TestimonialModel
+<section>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="banner-1 pt-0 card cover-image spacing  pb-10 bg-background2" data-image-src="../assets/images/banners/banner1.jpg" style="border:0px">
+                <div class="header-text mb-0">
+                    <div class="container">
+                        <div class="text-center text-white ">
+                            <h1 class="">Testimonials</h1>
+                            <ol class="breadcrumb text-center">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                                <li class="breadcrumb-item active text-white" aria-current="page">Testimonials</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--Section-->
+<section class="sptb">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                @foreach (var item in Model.Testimonials)
+                {
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-sm-flex team-section">
+                                <div class="team-img">
+                                    <img src="@item.PhotoUrl" class="img-thumbnail rounded-circle" alt="img">
+                                </div>
+                                <div class="ml-sm-5 mt-3 mt-sm-0">
+                                    <div class="text-warning mb-0">
+                                        <i class="fa @(item.Rating >= 1 ? "fa-star" : "")"> </i>
+                                        <i class="fa @(item.Rating >= 2 ? "fa-star" : "")"> </i>
+                                        <i class="fa @(item.Rating >= 3 ? "fa-star" : "")"> </i>
+                                        <i class="fa @(item.Rating >= 4 ? "fa-star" : "")"> </i>
+                                        <i class="fa @(item.Rating >= 5 ? "fa-star" : "")"> </i>
+                                    </div>
+                                    <h4 class="font-weight-bold dark-grey-text mt-2">@item.ClientName</h4>
+                                    <h6 class="mb-3 blue-text text-muted">@item.Position</h6>
+                                    <p class="font-weight-normal dark-grey-text mb-0">
+                                        <i class="fa fa-quote-left pr-2"></i>@item.Descrption
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                @if (Model.Pager.Pages.Any())
+                {
+                    <nav class="table-responsive">
+                        <ul class="pagination justify-content-center d-flex flex-wrap">
+                            @if (Model.Pager.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="/common/testimonial">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="/common/testimonial?p=@(Model.Pager.CurrentPage - 1)">Previous</a>
+                                </li>
+                            }
+
+                            @foreach (var p in Model.Pager.Pages)
+                            {
+                                <li class="page-item @(p == Model.Pager.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="/common/testimonial?p=@p">@p</a>
+                                </li>
+                            }
+
+                            @if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="/common/testimonial?p=@(Model.Pager.CurrentPage + 1)">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="/common/testimonial?p=@(Model.Pager.TotalPages)">Last</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+<!--/Section-->
