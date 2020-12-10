@@ -922,6 +922,27 @@ namespace ClassBookApplication.Service
             }
         }
 
+        public IList<ClassListingModel> AllClassesList(out int AllCount, int pageIndex = 1, int pageSize = 5)
+        {
+            var list = _context.Classes.OrderBy(x => x.Id).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+            AllCount = _context.Classes.Where(x => x.Active == true).Count();
+            IList<ClassListingModel> listingModel = new List<ClassListingModel>();
+            foreach (var item in list)
+            {
+                listingModel.Add(new ClassListingModel()
+                {
+                    Name = item.Name,
+                    Id = item.Id,
+                    Image = _classBookModelFactory.PrepareURL(item.ClassPhotoUrl),
+                    Description = item.Description,
+                    EstablishmentDate = item.EstablishmentDate.ToString(),
+                    Favourite = false,
+                    Rating = "5",
+                });
+            }
+            return listingModel;
+        }
+
         public Task<IList<ClassListingModel>> GetAllClasses11()
         {
             return Task.Run(() => GetAllClasses());

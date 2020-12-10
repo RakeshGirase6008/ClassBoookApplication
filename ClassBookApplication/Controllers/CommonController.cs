@@ -6,7 +6,6 @@ using ClassBookApplication.Service;
 using JW;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 
 namespace ClassBookApplication.Controllers
 {
@@ -88,7 +87,6 @@ namespace ClassBookApplication.Controllers
             model.Pager = new Pager(dummyTestimonial.Count, p, 2, 2);
             model.Testimonials = _classBookModelFactory.PrepareTestimonial(_classBookService.GetAllTestimonials(false, p, 2));
             return View(model);
-
         }
         #endregion
     }

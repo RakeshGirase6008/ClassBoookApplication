@@ -4,6 +4,7 @@ using ClassBookApplication.Factory;
 using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
+using JW;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -101,6 +102,21 @@ namespace ClassBookApplication.Controllers
                 _logsService.InsertLogs("Classes", ex, "Classes", 0);
                 return RedirectToAction("Register");
             }
+        }
+
+        [HttpGet]
+        public IActionResult AllClassesList(int p)
+        {
+            ClassListModel model = new ClassListModel();
+            if (p == 0)
+                p = 1;
+            int count = 0;
+            model.ClassModel = _classBookService.AllClassesList(out count, p, 3);
+            model.Pager = new Pager(count, p, 3);
+            return View(model);
+
+            //return View();
+
         }
 
         #endregion
