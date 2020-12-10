@@ -947,10 +947,10 @@ namespace ClassBookApplication.Service
         {
             var query = _context.Classes.AsQueryable();
             countValue = query.ToList().Count;
-            if (model.CityId > 0)
-                query = query.Where(x => x.CityId == model.CityId).AsQueryable();
             if (model.StateId > 0)
                 query = query.Where(x => x.StateId == model.StateId).AsQueryable();
+            if (model.CityId > 0)
+                query = query.Where(x => x.CityId == model.CityId).AsQueryable();
             if (model.BoardId > 0)
                 query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.BoardId == model.BoardId).Select(c => c.c);
             if (model.MediumId > 0)

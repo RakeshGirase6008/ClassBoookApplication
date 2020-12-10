@@ -49,6 +49,7 @@
                                 <label asp-for="BoardId" class="control-label"></label>
                                 <select asp-for="BoardId"
                                         asp-items="@(new SelectList(Model.BoardList,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
                                 </select>
                             </div>
                         </div>
@@ -57,6 +58,7 @@
                                 <label asp-for="MediumId" class="control-label"></label>
                                 <select asp-for="MediumId"
                                         asp-items="@(new SelectList(Model.MediumList,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
                                 </select>
                             </div>
                         </div>
@@ -65,6 +67,7 @@
                                 <label asp-for="StandardId" class="control-label"></label>
                                 <select asp-for="StandardId"
                                         asp-items="@(new SelectList(Model.StandardList,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
                                 </select>
                             </div>
                         </div>
