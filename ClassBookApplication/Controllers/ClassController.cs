@@ -108,15 +108,26 @@ namespace ClassBookApplication.Controllers
         public IActionResult AllClassesList(int p)
         {
             ClassListModel model = new ClassListModel();
+            model.States = _classBookModelFactory.PrepareStateDropDown();
+            model.BoardList = _classBookModelFactory.PrepareBoardDropDown();
+            model.MediumList = _classBookModelFactory.PrepareMediumDropDown();
+            model.StandardList = _classBookModelFactory.PrepareStandardDropDown();
             if (p == 0)
                 p = 1;
             int count = 0;
             model.ClassModel = _classBookService.AllClassesList(out count, p, 3);
             model.Pager = new Pager(count, p, 3);
             return View(model);
+        }
 
-            //return View();
-
+        [HttpPost]
+        public IActionResult AllClassesList(FilterParameter model)
+        {
+            int count;
+            ClassListModel classmodel1 = new ClassListModel();
+            classmodel1.ClassModel = _classBookService.AllClassesList(model,out count);
+            classmodel1.Pager = new Pager(count, 1, 3);
+            return View(classmodel1);
         }
 
         #endregion

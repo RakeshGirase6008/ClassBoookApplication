@@ -943,6 +943,39 @@ namespace ClassBookApplication.Service
             return listingModel;
         }
 
+        public IList<ClassListingModel> AllClassesList(FilterParameter model, out int countValue)
+        {
+            var query = _context.Classes.AsQueryable();
+            countValue = query.ToList().Count;
+            if (model.CityId > 0)
+                query = query.Where(x => x.CityId == model.CityId).AsQueryable();
+            if (model.StateId > 0)
+                query = query.Where(x => x.StateId == model.StateId).AsQueryable();
+            if (model.BoardId > 0)
+                query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.BoardId == model.BoardId).Select(c => c.c);
+            if (model.MediumId > 0)
+                query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.MediumId == model.MediumId).Select(c => c.c);
+            if (model.StandardId > 0)
+                query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.StandardId == model.StandardId).Select(c => c.c);
+            var list = query.ToList();
+
+            IList<ClassListingModel> listingModel = new List<ClassListingModel>();
+            foreach (var item in list)
+            {
+                listingModel.Add(new ClassListingModel()
+                {
+                    Name = item.Name,
+                    Id = item.Id,
+                    Image = _classBookModelFactory.PrepareURL(item.ClassPhotoUrl),
+                    Description = item.Description,
+                    EstablishmentDate = item.EstablishmentDate.ToString(),
+                    Favourite = false,
+                    Rating = "5",
+                });
+            }
+            return listingModel;
+        }
+
         public Task<IList<ClassListingModel>> GetAllClasses11()
         {
             return Task.Run(() => GetAllClasses());
