@@ -943,10 +943,9 @@ namespace ClassBookApplication.Service
             return listingModel;
         }
 
-        public IList<ClassListingModel> AllClassesList(FilterParameter model, out int countValue)
+        public IList<ClassListingModel> AllClassesListModel(FilterParameter model, out int countValue, int pageIndex = 1, int pageSize = 10)
         {
             var query = _context.Classes.AsQueryable();
-            countValue = query.ToList().Count;
             if (model.StateId > 0)
                 query = query.Where(x => x.StateId == model.StateId).AsQueryable();
             if (model.CityId > 0)
@@ -957,7 +956,8 @@ namespace ClassBookApplication.Service
                 query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.MediumId == model.MediumId).Select(c => c.c);
             if (model.StandardId > 0)
                 query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.StandardId == model.StandardId).Select(c => c.c);
-            var list = query.ToList();
+            countValue = query.ToList().Count;
+            var list = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
 
             IList<ClassListingModel> listingModel = new List<ClassListingModel>();
             foreach (var item in list)

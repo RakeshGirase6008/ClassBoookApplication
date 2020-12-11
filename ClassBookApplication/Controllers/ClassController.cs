@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClassBookApplication.Controllers
 {
@@ -22,6 +23,7 @@ namespace ClassBookApplication.Controllers
         private readonly LogsService _logsService;
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
+        private readonly IViewRenderService _viewRenderService;
 
         #endregion
 
@@ -30,12 +32,14 @@ namespace ClassBookApplication.Controllers
         public ClassController(ClassBookModelFactory classBookModelFactory,
             LogsService logsService,
             ClassBookManagementContext context,
-            ClassBookService classBookService)
+            ClassBookService classBookService,
+            IViewRenderService viewRenderService)
         {
             _classBookModelFactory = classBookModelFactory;
             _logsService = logsService;
             _context = context;
             _classBookService = classBookService;
+            _viewRenderService = viewRenderService;
         }
 
         #endregion
@@ -115,19 +119,22 @@ namespace ClassBookApplication.Controllers
             if (p == 0)
                 p = 1;
             int count = 0;
-            model.ClassModel = _classBookService.AllClassesList(out count, p, 3);
-            model.Pager = new Pager(count, p, 3);
+            FilterParameter filterParameterModel = new FilterParameter();
+            model.ClassModel = _classBookService.AllClassesListModel(filterParameterModel,out count, p);
+            model.Pager = new Pager(count, p);
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult AllClassesList(FilterParameter model)
+        public async Task<IActionResult> AllClassesList(FilterParameter model)
         {
             int count;
             ClassListModel classmodel1 = new ClassListModel();
-            classmodel1.ClassModel = _classBookService.AllClassesList(model,out count);
-            classmodel1.Pager = new Pager(count, 1, 3);
-            return View(classmodel1);
+            classmodel1.ClassModel = _classBookService.AllClassesListModel(model, out count, 1);
+            classmodel1.Pager = new Pager(count, 1);
+            var result = await _viewRenderService.RenderToStringAsync("_ClassListPartialView", classmodel1);
+            return Json(result);
+            //return View(classmodel1);
         }
 
         #endregion

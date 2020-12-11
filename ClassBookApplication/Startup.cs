@@ -86,6 +86,8 @@ namespace ClassBookApplication
 
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<ClassBookModelFactory, ClassBookModelFactory>();
+
+            services.AddScoped<IViewRenderService, ViewRenderService>();
             #endregion
 
             #region Version Management
