@@ -109,19 +109,17 @@ namespace ClassBookApplication.Controllers
         }
 
         [HttpGet]
-        public IActionResult AllClassesList(int p)
+        public IActionResult AllClassesList()
         {
+            int count = 0;
             ClassListModel model = new ClassListModel();
             model.States = _classBookModelFactory.PrepareStateDropDown();
             model.BoardList = _classBookModelFactory.PrepareBoardDropDown();
             model.MediumList = _classBookModelFactory.PrepareMediumDropDown();
             model.StandardList = _classBookModelFactory.PrepareStandardDropDown();
-            if (p == 0)
-                p = 1;
-            int count = 0;
             FilterParameter filterParameterModel = new FilterParameter();
-            model.ClassModel = _classBookService.AllClassesListModel(filterParameterModel,out count, p);
-            model.Pager = new Pager(count, p);
+            model.ClassModel = _classBookService.AllClassesListModel(filterParameterModel,out count, 1);
+            model.Pager = new Pager(count, 1);
             return View(model);
         }
 
@@ -130,11 +128,10 @@ namespace ClassBookApplication.Controllers
         {
             int count;
             ClassListModel classmodel1 = new ClassListModel();
-            classmodel1.ClassModel = _classBookService.AllClassesListModel(model, out count, 1);
-            classmodel1.Pager = new Pager(count, 1);
+            classmodel1.ClassModel = _classBookService.AllClassesListModel(model, out count, model.PageIndex);
+            classmodel1.Pager = new Pager(count, model.PageIndex);
             var result = await _viewRenderService.RenderToStringAsync("_ClassListPartialView", classmodel1);
-            return Json(result);
-            //return View(classmodel1);
+            return Content(result);
         }
 
         #endregion

@@ -7,5 +7,6 @@
         public int BoardId { get; set; }
         public int MediumId { get; set; }
         public int StandardId { get; set; }
+        public int PageIndex { get; set; }
     }
 }

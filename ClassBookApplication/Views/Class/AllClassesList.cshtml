@@ -242,6 +242,27 @@
 <!--/Coursed Listing-->
 <script>
     $(document).ready(function () {
+        function myAjaxCall(pageIndex) {
+            var filterData = {
+                StateId: $("#StateId").val(),
+                CityId: $("#CityId").val(),
+                BoardId: $("#BoardId").val(),
+                MediumId: $("#MediumId").val(),
+                StandardId: $("#StandardId").val(),
+                PageIndex: pageIndex,
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Class/AllClassesList",
+                data: filterData,
+                success: function (data) {
+                    console.log(data);
+                    $("#MainSection").html(data);
+                },
+            });
+        }
+
         $("#StateId").change(function () {
             var id = $(this).val();
             $("#CityId").empty();
@@ -267,22 +288,10 @@
             });
         });
         $("#SubmitData").click(function () {
-            var filterData = {
-                StateId: $("#StateId").val(),
-                CityId: $("#CityId").val(),
-                BoardId: $("#BoardId").val(),
-                MediumId: $("#MediumId").val(),
-                StandardId: $("#StandardId").val()
-            }
-            $.ajax({
-                type: "POST",
-                url: "/Class/AllClassesList",
-                data: filterData,
-                success: function (data) {
-                    console.log(data);
-                    $("#MainSection").html(data);
-                },
-            });
+            myAjaxCall(1);
         });
+        $(document).on("click", ".page-link", function () {
+            myAjaxCall(parseInt($(this).attr("data-page")));
+        })
     });
 </script>
