@@ -4,12 +4,14 @@ using ClassBookApplication.Factory;
 using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
+using JW;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClassBookApplication.Controllers
 {
@@ -21,6 +23,7 @@ namespace ClassBookApplication.Controllers
         private readonly LogsService _logsService;
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
+        private readonly IViewRenderService _viewRenderService;
 
         #endregion
 
@@ -29,12 +32,14 @@ namespace ClassBookApplication.Controllers
         public TeacherController(ClassBookModelFactory classBookModelFactory,
             LogsService logsService,
             ClassBookManagementContext context,
-            ClassBookService classBookService)
+            ClassBookService classBookService,
+            IViewRenderService viewRenderService)
         {
             _classBookModelFactory = classBookModelFactory;
             _logsService = logsService;
             _context = context;
             _classBookService = classBookService;
+            _viewRenderService = viewRenderService;
         }
 
         #endregion
@@ -103,6 +108,32 @@ namespace ClassBookApplication.Controllers
                 _logsService.InsertLogs("Teacher", ex, "Teacher", 0);
                 return RedirectToAction("Register");
             }
+        }
+
+        public IActionResult AllTeacherList()
+        {
+            int count = 0;
+            TeacherListModel model = new TeacherListModel();
+            model.States = _classBookModelFactory.PrepareStateDropDown();
+            model.BoardList = _classBookModelFactory.PrepareBoardDropDown();
+            model.MediumList = _classBookModelFactory.PrepareMediumDropDown();
+            model.StandardList = _classBookModelFactory.PrepareStandardDropDown();
+            FilterParameter filterParameterModel = new FilterParameter();
+            model.TeacherModel = _classBookService.AllTeacherListModel(filterParameterModel, out count, 1);
+            model.Pager = new Pager(count, 1);
+            return View(model);
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AllTeacherList(FilterParameter model)
+        {
+            int count;
+            TeacherListModel teacherModel1 = new TeacherListModel();
+            teacherModel1.TeacherModel = _classBookService.AllTeacherListModel(model, out count, model.PageIndex);
+            teacherModel1.Pager = new Pager(count, model.PageIndex);
+            var result = await _viewRenderService.RenderToStringAsync("_TeacherListPartialView", teacherModel1);
+            return Content(result);
         }
 
         #endregion

@@ -976,6 +976,39 @@ namespace ClassBookApplication.Service
             return listingModel;
         }
 
+        public IList<TeacherListingModel> AllTeacherListModel(FilterParameter model, out int countValue, int pageIndex = 1, int pageSize = 10)
+        {
+            var query = _context.Teacher.AsQueryable();
+            if (model.StateId > 0)
+                query = query.Where(x => x.StateId == model.StateId).AsQueryable();
+            if (model.CityId > 0)
+                query = query.Where(x => x.CityId == model.CityId).AsQueryable();
+            if (model.BoardId > 0)
+                query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.BoardId == model.BoardId).Select(c => c.c);
+            if (model.MediumId > 0)
+                query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.MediumId == model.MediumId).Select(c => c.c);
+            if (model.StandardId > 0)
+                query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.StandardId == model.StandardId).Select(c => c.c);
+            countValue = query.ToList().Count;
+            var list = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+
+            IList<TeacherListingModel> listingModel = new List<TeacherListingModel>();
+            foreach (var item in list)
+            {
+                listingModel.Add(new TeacherListingModel()
+                {
+                    Name = item.FirstName + " " + item.LastName,
+                    Id = item.Id,
+                    Image = _classBookModelFactory.PrepareURL(item.ProfilePictureUrl),
+                    Description = item.Description,
+                    //EstablishmentDate = item.EstablishmentDate.ToString(),
+                    Favourite = false,
+                    Rating = "5",
+                });
+            }
+            return listingModel;
+        }
+
         public Task<IList<ClassListingModel>> GetAllClasses11()
         {
             return Task.Run(() => GetAllClasses());
