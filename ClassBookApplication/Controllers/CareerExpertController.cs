@@ -1,16 +1,17 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.CareerExpert;
-using ClassBookApplication.Domain.School;
 using ClassBookApplication.Factory;
 using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
+using JW;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ClassBookApplication.Controllers
 {
@@ -22,6 +23,7 @@ namespace ClassBookApplication.Controllers
         private readonly LogsService _logsService;
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
+        private readonly IViewRenderService _viewRenderService;
 
         #endregion
 
@@ -30,12 +32,14 @@ namespace ClassBookApplication.Controllers
         public CareerExpertController(ClassBookModelFactory classBookModelFactory,
             LogsService logsService,
             ClassBookManagementContext context,
-            ClassBookService classBookService)
+            ClassBookService classBookService,
+            IViewRenderService viewRenderService)
         {
             _classBookModelFactory = classBookModelFactory;
             _logsService = logsService;
             _context = context;
             _classBookService = classBookService;
+            _viewRenderService = viewRenderService;
         }
 
         #endregion
@@ -104,6 +108,31 @@ namespace ClassBookApplication.Controllers
                 _logsService.InsertLogs("CareerExpert", ex, "CareerExpert", 0);
                 return RedirectToAction("Register");
             }
+        }
+
+        [HttpGet]
+        public IActionResult AllCareerExpertList()
+        {
+            int count = 0;
+            CareerExpertListModel model = new CareerExpertListModel();
+            model.States = _classBookModelFactory.PrepareStateDropDown();
+            model.ClassesList = _classBookModelFactory.PrepareClassesDropDown();
+            model.TeacherList = _classBookModelFactory.PrepareTeacherDropDown();
+            FilterParameter filterParameterModel = new FilterParameter();
+            model.CareerExpertModel = _classBookService.AllCareerExpertListModel(filterParameterModel, out count, 1);
+            model.Pager = new Pager(count, 1);
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AllCareerExpertList(FilterParameter model)
+        {
+            int count;
+            CareerExpertListModel classmodel1 = new CareerExpertListModel();
+            classmodel1.CareerExpertModel = _classBookService.AllCareerExpertListModel(model, out count, model.PageIndex);
+            classmodel1.Pager = new Pager(count, model.PageIndex);
+            var result = await _viewRenderService.RenderToStringAsync("_CareerExpertListPartialView", classmodel1);
+            return Content(result);
         }
 
         #endregion

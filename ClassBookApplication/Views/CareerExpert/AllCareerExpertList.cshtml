@@ -1,0 +1,131 @@
+﻿@model CareerExpertListModel
+@{
+    ViewData["Title"] = "Class Register";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<section>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="banner-1 pt-0 card cover-image spacing  pb-10 bg-background2" data-image-src="../assets/images/banners/banner1.jpg" style="border:0px">
+                <div class="header-text mb-0">
+                    <div class="container">
+                        <div class="text-center text-white ">
+                            <div class="text-center text-white text-property">
+                                <h1 class=""><span class="font-weight-bold">2000+</span> Best  Courses Available Here!</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="container mt-5">
+    <div class="row">
+        <div class="col-md-12" style="margin-top: 20px;">
+            <form asp-action="AllCareerExpertList" asp-controller="CareerExpert" enctype="multipart/form-data" method="post">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="StateId" class="form-label text-dark"></label>
+                            <select asp-for="StateId"
+                                    asp-items="@(new SelectList(Model.States,"Value","Text"))" class="form-control">
+                                <option value="0">Please Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="CityId" class="form-label text-dark"></label>
+                            <select asp-for="CityId"
+                                    asp-items="@(new SelectList(Model.Cities,"Value","Text"))" class="form-control">
+                                <option value="0">Please Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="TeacherId" class="control-label"></label>
+                            <select asp-for="TeacherId"
+                                    asp-items="@(new SelectList(Model.TeacherList,"Value","Text"))" class="form-control">
+                                <option value="0">Please Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label asp-for="ClassId" class="control-label"></label>
+                            <select asp-for="ClassId"
+                                    asp-items="@(new SelectList(Model.ClassesList,"Value","Text"))" class="form-control">
+                                <option value="0">Please Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <button type="button" class="form-control btn btn-primary btn-circled" id="SubmitData">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row" id="MainSection">
+        @await Html.PartialAsync("_CareerExpertListPartialView", Model)
+    </div>
+</section>
+<script>
+    $(document).ready(function () {
+        function myAjaxCall(pageIndex) {
+            var filterData = {
+                StateId: $("#StateId").val(),
+                CityId: $("#CityId").val(),
+                TeacherId: $("#TeacherId").val(),
+                ClassId: $("#ClassId").val(),
+                PageIndex: pageIndex,
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/CareerExpert/AllCareerExpertList",
+                data: filterData,
+                success: function (data) {
+                    console.log(data);
+                    $("#MainSection").html(data);
+                },
+            });
+        }
+
+        $("#StateId").change(function () {
+            var id = $(this).val();
+            $("#CityId").empty();
+            $.get("/Common/GetCities", { stateId: id }, function (data) {
+                var v = "<option value='0'>---Select City---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#CityId").html(v);
+            });
+        });
+        $("#CityId").change(function () {
+            var id = $(this).val();
+            $("#PincodeId").empty();
+            $.get("/Common/GetPincodes", { cityId: id }, function (data) {
+                var v = "<option value='0'>---Select Pincodes---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#PincodeId").html(v);
+            });
+        });
+        $("#SubmitData").click(function () {
+            myAjaxCall(1);
+        });
+        $(document).on("click", ".page-link", function () {
+            myAjaxCall(parseInt($(this).attr("data-page")));
+        })
+    });
+</script>

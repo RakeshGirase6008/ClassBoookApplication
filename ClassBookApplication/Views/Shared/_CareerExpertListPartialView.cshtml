@@ -1,0 +1,64 @@
+﻿@model CareerExpertListModel
+@foreach (var item in Model.CareerExpertModel)
+{
+    <div class="col-xl-4 col-md-12">
+        <a href="/CareerExpert/@item.Name.Trim()" target="_blank">
+            <div class="card">
+                <div class="card-body">
+                    <div class="team-section text-center">
+                        <div class="team-img">
+                            <img src="@item.Image"
+                                 class="img-thumbnail rounded-circle alt=" alt="img">
+                        </div>
+                        <h3 class="font-weight-bold dark-grey-text mt-4">@item.Name</h3>
+                        <h6 class="font-weight-bold blue-text ">@item.Name</h6>
+                        <p class="font-weight-normal dark-grey-text">
+                            <i class="fa fa-quote-left pr-2"></i>@item.Description
+                            tenetur.
+                        </p>
+                        <div class="text-warning">
+                            <i class="fa fa-star"> </i>
+                            <i class="fa fa-star"> </i>
+                            <i class="fa fa-star"> </i>
+                            <i class="fa fa-star"> </i>
+                            <i class="fa fa-star-o"> </i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+}
+@if (Model.Pager.Pages.Any())
+{
+    <nav class="table-responsive">
+        <ul class="pagination justify-content-center d-flex flex-wrap">
+            @if (Model.Pager.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.CurrentPage)">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.CurrentPage - 1)">Previous</a>
+                </li>
+            }
+
+            @foreach (var p in Model.Pager.Pages)
+            {
+                <li class="page-item @(p == Model.Pager.CurrentPage ? "active" : "")">
+                    <a class="page-link" data-page="@p">@p</a>
+                </li>
+            }
+
+            @if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.CurrentPage + 1)">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.TotalPages)">Last</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
