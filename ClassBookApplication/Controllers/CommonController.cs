@@ -43,6 +43,8 @@ namespace ClassBookApplication.Controllers
         {
             return View();
         }
+
+
         #endregion
 
         #region Utilities
@@ -77,7 +79,6 @@ namespace ClassBookApplication.Controllers
                 return Json(new { status = "true", message = "Getting issue" });
             }
         }
-
         public IActionResult Testimonial(int p)
         {
             TestimonialModel model = new TestimonialModel();

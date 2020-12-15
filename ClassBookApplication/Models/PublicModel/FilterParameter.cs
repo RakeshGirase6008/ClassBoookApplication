@@ -8,5 +8,8 @@
         public int MediumId { get; set; }
         public int StandardId { get; set; }
         public int PageIndex { get; set; }
+        public int CourseCategoryId { get; set; }
+        public int ClassId { get; set; }
+        public int TeacherId { get; set; }
     }
 }

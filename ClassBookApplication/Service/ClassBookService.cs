@@ -922,6 +922,9 @@ namespace ClassBookApplication.Service
             }
         }
 
+        /// <summary>
+        /// Get All Classes List by FilterParameters
+        /// </summary>
         public IList<ClassListingModel> AllClassesList(out int AllCount, int pageIndex = 1, int pageSize = 5)
         {
             var list = _context.Classes.OrderBy(x => x.Id).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
@@ -1000,6 +1003,39 @@ namespace ClassBookApplication.Service
                     Name = item.FirstName + " " + item.LastName,
                     Id = item.Id,
                     Image = _classBookModelFactory.PrepareURL(item.ProfilePictureUrl),
+                    Description = item.Description,
+                    //EstablishmentDate = item.EstablishmentDate.ToString(),
+                    Favourite = false,
+                    Rating = "5",
+                });
+            }
+            return listingModel;
+        }
+
+        public IList<CoursesListingModel> AllCoursesListModel(FilterParameter model, out int countValue, int pageIndex = 1, int pageSize = 10)
+        {
+            var query = _context.Courses.AsQueryable();
+            //if (model.StateId > 0)
+            //    query = query.Where(x => x.StateId == model.StateId).AsQueryable();
+            //if (model.CityId > 0)
+            //    query = query.Where(x => x.CityId == model.CityId).AsQueryable();
+            if (model.CourseCategoryId > 0)
+                query = query.Join(_context.CourseCategory, c => c.CategoryId, cc => cc.Id, (c, cc) => new { c, cc }).Where(x => x.c.CategoryId == model.CourseCategoryId).Select(c => c.c);
+            //if (model.TeacherId > 0)
+            //    query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.MediumId == model.MediumId).Select(c => c.c);
+            //if (model.ClassId > 0)
+            //    query = query.Join(_context.StandardMediumBoardMapping, c => c.Id, smb => smb.EntityId, (c, smb) => new { c, smb }).Where(x => x.smb.StandardId == model.StandardId).Select(c => c.c);
+            countValue = query.ToList().Count;
+            var list = query.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+
+            IList<CoursesListingModel> listingModel = new List<CoursesListingModel>();
+            foreach (var item in list)
+            {
+                listingModel.Add(new CoursesListingModel()
+                {
+                    Name = item.Name,
+                    Id = item.Id,
+                    Image = _classBookModelFactory.PrepareURL(item.ImageUrl),
                     Description = item.Description,
                     //EstablishmentDate = item.EstablishmentDate.ToString(),
                     Favourite = false,

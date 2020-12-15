@@ -226,6 +226,61 @@ namespace ClassBookApplication.Factory
             }
             return model;
         }
+
+        /// <summary>
+        /// Prepare the DropDownlist for Teacher
+        /// </summary>
+        public List<SelectListItem> PrepareTeacherDropDown()
+        {
+            var teacherList = _context.Teacher.Where(x => x.Active == true).ToList();
+            List<SelectListItem> model = new List<SelectListItem>();
+            foreach (var teacher in teacherList)
+            {
+                model.Add(new SelectListItem()
+                {
+                    Text = teacher.FirstName + "" + teacher.LastName,
+                    Value = teacher.Id.ToString()
+                });
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// Prepare the DropDownlist for Classes
+        /// </summary>
+        public List<SelectListItem> PrepareClassesDropDown()
+        {
+            var classesList = _context.Classes.Where(x => x.Active == true).ToList();
+            List<SelectListItem> model = new List<SelectListItem>();
+            foreach (var classes in classesList)
+            {
+                model.Add(new SelectListItem()
+                {
+                    Text = classes.Name,
+                    Value = classes.Id.ToString()
+                });
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// Prepare the DropDownlist for Course Category
+        /// </summary>
+        public List<SelectListItem> PrepareCourseCategoryDropDown()
+        {
+            var courseCategoryList = _context.CourseCategory.Where(x => x.Active == true).ToList();
+            List<SelectListItem> model = new List<SelectListItem>();
+            foreach (var courses in courseCategoryList)
+            {
+                model.Add(new SelectListItem()
+                {
+                    Text = courses.Name,
+                    Value = courses.Id.ToString()
+                });
+            }
+            return model;
+        }
+
         #endregion
     }
 }

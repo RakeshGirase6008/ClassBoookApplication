@@ -1,0 +1,164 @@
+﻿@model CoursesListModel
+<div class="tab-content">
+    <div class="tab-pane active" id="tab-11">
+        @foreach (var item in Model.CoursesModel)
+        {
+            <div class="card overflow-hidden">
+                <div class="d-md-flex">
+                    <div class="item-card9-img">
+                        <div class="item-card9-imgs">
+                            <a href="page-details.html"></a>
+                            <img src="@item.Image" alt="img" class="cover-image">
+                        </div>
+                        <div class="item-card9-icons">
+                            <a href="#" class="item-card9-icons1 bg-primary"> <i class="fa fa fa-heart"></i></a>
+                            <a href="#" class="item-card9-icons1 bg-black-trasparant"> <i class="fa fa fa-share-alt"></i></a>
+                        </div>
+                        <div class="item-overly-trans">
+                            <a href="page-details.html" class="bg-primary">Online</a>
+                        </div>
+                    </div>
+                    <div class="card border-0 mb-0">
+                        <div class="card-body ">
+                            <div class="item-card9">
+                                <a href="page-details.html" class="text-dark"><h3 class="font-weight-semibold mt-1">@item.Name</h3></a>
+                                <div class="mt-2 mb-2">
+                                    <a href="#" class="mr-4"><span class="text-muted fs-13"><i class="fa fa-briefcase mr-1"></i> Business</span></a>
+                                    <a href="#" class="mr-4"><span class="text-muted fs-13"><i class="fa fa-user text-muted mr-1"></i> Stephanie</span></a>
+                                    <a href="#" class="mr-4"><span class="text-muted fs-13"><i class="fa fa-clock-o text-muted mr-1"></i> @item.EstablishmentDate</span></a>
+                                </div>
+                                <p class="mb-0 leading-tight">@item.Description </p>
+                            </div>
+                        </div>
+                        <div class="card-footer pt-4 pb-4">
+                            <div class="item-card9-footer d-flex">
+                                <div class="item-card9-cost">
+                                    <h4 class="text-dark font-weight-semibold mb-0 mt-0">$263.99</h4>
+                                </div>
+                                <div class="ml-auto">
+                                    <div class="rating-stars block">
+                                        <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="@item.Rating">
+                                        <div class="rating-stars-container">
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="tab-pane" id="tab-12">
+        <div class="row">
+            @foreach (var item in Model.CoursesModel)
+            {
+                <div class="col-lg-6 col-md-12 col-xl-4">
+                    <div class="card overflow-hidden">
+                        <div class="item-card9-img">
+                            <div class="item-card9-imgs">
+                                <a href="page-details.html"></a>
+                                <img src="@item.Image" alt="img" class="cover-image">
+                            </div>
+                            <div class="item-card9-icons">
+                                <a href="#" class="item-card9-icons1 bg-primary"> <i class="fa fa fa-heart-o"></i></a>
+                                <a href="#" class="item-card9-icons1 bg-black-trasparant"> <i class="fa fa fa-share-alt"></i></a>
+                            </div>
+                            <div class="item-overly-trans">
+                                <a href="page-details.html" class="bg-primary">Online</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="item-card9">
+                                <span class="item-card-badge"><i class="fa fa-briefcase mr-1"></i> Business</span>
+                                <a href="page-details.html" class="text-dark mt-2"><h3 class="font-weight-semibold mt-2 mb-2">@item.Name</h3></a>
+                                <div class="item-card9-desc mb-2">
+                                    <a href="#" class="mr-4"><span class="text-muted"><i class="fa fa-user text-muted mr-1"></i> Stephanie</span></a>
+                                    <a href="#" class="mr-4"><span class="text-muted"><i class="fa fa-clock-o text-muted mr-1"></i> @item.EstablishmentDate</span></a>
+                                </div>
+                                <p class="mb-0">@item.Description </p>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="item-card9-footer d-flex">
+                                <div class="item-card9-cost">
+                                    <h4 class="text-dark font-weight-semibold mb-0 mt-0">$263.99</h4>
+                                </div>
+                                <div class="ml-auto">
+                                    <div class="rating-stars block">
+                                        <input type="number" readonly="readonly" class="rating-value star" name="rating-stars-value" value="@item.Rating">
+                                        <div class="rating-stars-container">
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                            <div class="rating-star sm">
+                                                <i class="fa fa-star"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+@if (Model.Pager.Pages.Any())
+{
+    <nav class="table-responsive">
+        <ul class="pagination justify-content-center d-flex flex-wrap">
+            @if (Model.Pager.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.CurrentPage)">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.CurrentPage - 1)">Previous</a>
+                </li>
+            }
+
+            @foreach (var p in Model.Pager.Pages)
+            {
+                <li class="page-item @(p == Model.Pager.CurrentPage ? "active" : "")">
+                    <a class="page-link" data-page="@p">@p</a>
+                </li>
+            }
+
+            @if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.CurrentPage + 1)">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" data-page="@(Model.Pager.TotalPages)">Last</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

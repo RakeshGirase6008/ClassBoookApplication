@@ -1,0 +1,277 @@
+﻿@model CoursesListModel
+@{
+    ViewData["Title"] = "Course Listing";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<section>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="banner-1 pt-0 card cover-image spacing  pb-10 bg-background2" data-image-src="../assets/images/banners/banner1.jpg" style="border:0px">
+                <div class="header-text mb-0">
+                    <div class="container">
+                        <div class="text-center text-white ">
+                            <div class="text-center text-white text-property">
+                                <h1 class=""><span class="font-weight-bold">2000+</span> Best  Courses Available Here!</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="sptb">
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <form asp-action="AllCourseList" asp-controller="Course" enctype="multipart/form-data" method="post">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="StateId" class="form-label text-dark"></label>
+                                <select asp-for="StateId"
+                                        asp-items="@(new SelectList(Model.States,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="CityId" class="form-label text-dark"></label>
+                                <select asp-for="CityId"
+                                        asp-items="@(new SelectList(Model.Cities,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="CourseCategoryId" class="control-label"></label>
+                                <select asp-for="CourseCategoryId"
+                                        asp-items="@(new SelectList(Model.CourseCategory,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="TeacherId" class="control-label"></label>
+                                <select asp-for="TeacherId"
+                                        asp-items="@(new SelectList(Model.TeacherList,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label asp-for="ClassId" class="control-label"></label>
+                                <select asp-for="ClassId"
+                                        asp-items="@(new SelectList(Model.ClassesList,"Value","Text"))" class="form-control">
+                                    <option value="0">Please Select</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="form-control btn btn-primary btn-circled" id="SubmitData">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <!--Left Side Content-->
+            <div class="col-xl-3 col-lg-4 col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="input-group">
+                            <input type="text" class="form-control br-tl-3 br-bl-3" placeholder="Search">
+                            <div class="input-group-append ">
+                                <button type="button" class="btn btn-primary br-tr-3 br-br-3">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mb-lg-0">
+                    <div class="card-header">
+                        <h3 class="card-title">Categories</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="" id="container">
+                            <div class="filter-product-checkboxs">
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox1" value="option1">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Business<span class="label label-secondary float-right">14</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox2" value="option2">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Data Science<span class="label label-secondary float-right">22</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox3" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">IT<span class="label label-secondary float-right">78</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox4" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Marketing<span class="label label-secondary float-right">35</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox5" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Beautician<span class="label label-secondary float-right">23</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox6" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Photography<span class="label label-secondary float-right">14</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Litarature <span class="label label-secondary float-right">45</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Law<span class="label label-secondary float-right">34</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Nursing<span class="label label-secondary float-right">12</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Digital Marketing<span class="label label-secondary float-right">18</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Web Designing<span class="label label-secondary float-right">02</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">Languages<span class="label label-secondary float-right">15</span></a>
+                                    </span>
+                                </label>
+                                <label class="custom-control custom-checkbox mb-3">
+                                    <input type="checkbox" class="custom-control-input" name="checkbox7" value="option3">
+                                    <span class="custom-control-label">
+                                        <a href="#" class="text-dark">App Development<span class="label label-secondary float-right">32</span></a>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="btn btn-primary btn-block">Apply Filter</a>
+                    </div>
+                </div>
+            </div>
+            <!--/Left Side Content-->
+            <!--Coursed Lists-->
+            <div class="col-xl-9 col-lg-8 col-md-12">
+                <!--Coursed lists-->
+                <div class=" mb-lg-0">
+                    <div class="">
+                        <div class="item2-gl ">
+                            <div class=" mb-0">
+                                <div class="">
+                                    <div class="p-5 bg-white item2-gl-nav d-flex">
+                                        @*<h6 class="mb-0 mt-2">Showing 1 to 10 of 30 entries</h6>*@
+                                        <ul class="nav item2-gl-menu ml-auto">
+                                            <li class=""><a href="#tab-11" class="active show" data-toggle="tab" title="List style"><i class="fa fa-list"></i></a></li>
+                                            <li><a href="#tab-12" data-toggle="tab" class="" title="Grid"><i class="fa fa-th"></i></a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="MainSection">
+                            @await Html.PartialAsync("_CoursesListPartialView", Model)
+                        </div>
+                    </div>
+                </div>
+                <!--/Coursed lists-->
+            </div>
+            <!--/Coursed Lists-->
+        </div>
+    </div>
+</section>
+<!--/Coursed Listing-->
+<script>
+    $(document).ready(function () {
+        function myAjaxCall(pageIndex) {
+            var filterData = {
+                StateId: $("#StateId").val(),
+                CityId: $("#CityId").val(),
+                CourseCategoryId: $("#CourseCategoryId").val(),
+                ClassId: $("#ClassId").val(),
+                StandardId: $("#TeacherId").val(),
+                PageIndex: pageIndex,
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Course/AllCourseList",
+                data: filterData,
+                success: function (data) {
+                    console.log(data);
+                    $("#MainSection").html(data);
+                },
+            });
+        }
+
+        $("#StateId").change(function () {
+            var id = $(this).val();
+            $("#CityId").empty();
+            $.get("/Common/GetCities", { stateId: id }, function (data) {
+                var v = "<option value='0'>---Select City---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#CityId").html(v);
+            });
+        });
+        $("#CityId").change(function () {
+            var id = $(this).val();
+            $("#PincodeId").empty();
+            $.get("/Common/GetPincodes", { cityId: id }, function (data) {
+                var v = "<option value='0'>---Select Pincodes---</option>";
+                console.log(data);
+                $.each(data, function (i, v1) {
+                    v += "<option value=" + v1.value + ">" + v1.text + "</option>";
+                });
+                $("#PincodeId").html(v);
+            });
+        });
+        $("#SubmitData").click(function () {
+            myAjaxCall(1);
+        });
+        $(document).on("click", ".page-link", function () {
+            myAjaxCall(parseInt($(this).attr("data-page")));
+        })
+    });
+</script>
