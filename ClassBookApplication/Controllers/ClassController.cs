@@ -118,7 +118,7 @@ namespace ClassBookApplication.Controllers
             model.MediumList = _classBookModelFactory.PrepareMediumDropDown();
             model.StandardList = _classBookModelFactory.PrepareStandardDropDown();
             FilterParameter filterParameterModel = new FilterParameter();
-            model.ClassModel = _classBookService.AllClassesListModel(filterParameterModel,out count, 1);
+            model.ClassModel = _classBookService.AllClassesListModel(filterParameterModel, out count, 1);
             model.Pager = new Pager(count, 1);
             return View(model);
         }
@@ -132,6 +132,52 @@ namespace ClassBookApplication.Controllers
             classmodel1.Pager = new Pager(count, model.PageIndex);
             var result = await _viewRenderService.RenderToStringAsync("_ClassListPartialView", classmodel1);
             return Content(result);
+        }
+
+        [HttpGet]
+        public IActionResult GetClass(int id)
+        {
+            var query = from classes in _context.Classes
+                        where classes.Id == id && classes.Active == true
+                        orderby classes.Id
+                        select new ClassDetailModel
+                        {
+                            Id = classes.Id,
+                            ClassName = classes.Name,
+                            Address = classes.Address,
+                            Email = classes.Email,
+                            ContactNo = classes.ContactNo,
+                            Website = "http://abcd.com/",
+                            IntroductionVideoUrl = _classBookModelFactory.PrepareURL(classes.IntroductionURL),
+                            ProfilePhoto = _classBookModelFactory.PrepareURL(classes.ClassPhotoUrl),
+                            Description = classes.Description,
+                            TotalRating = 4,
+                        };
+            ClassDetailModel classData = query.FirstOrDefault();
+            var query1 = from smb in _context.StandardMediumBoardMapping
+                         join board in _context.Board on smb.BoardId equals board.Id
+                         join medium in _context.Medium on smb.MediumId equals medium.Id
+                         join std in _context.Standards on smb.StandardId equals std.Id
+                         where smb.EntityId == id && smb.ModuleId == (int)Module.Classes
+                         select new StandardMediumBoardMappingData
+                         {
+                             BoardId = board.Id,
+                             BoardName = board.Name,
+                             MediumId = medium.Id,
+                             MediumName = medium.Name,
+                             StandardId = std.Id,
+                             StandardName = std.Name,
+                         };
+            var standardMapping = query1.ToList();
+            classData.StandardMediumBoardMapping = standardMapping;
+            Dictionary<int, int> rating = new Dictionary<int, int>();
+            rating.Add(1, 1000);
+            rating.Add(2, 2000);
+            rating.Add(3, 3000);
+            rating.Add(4, 4000);
+            rating.Add(5, 5000);
+            classData.Ratings = rating.OrderByDescending(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
+            return View(classData);
         }
 
         #endregion
