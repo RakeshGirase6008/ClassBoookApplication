@@ -1,7 +1,7 @@
-﻿@{
+﻿@model ClassDetailModel
+@{
     ViewData["Title"] = "Class Detail";
 }
-@model ClassDetailModel
 <section>
     <div class="row">
         <div class="col-md-12">
@@ -126,8 +126,8 @@
                                                     <td>@item1.MediumName</td>
                                                     <td>@item1.StandardName</td>
                                                     <td>
-                                                        <a href="myads.html"><span class="font-weight-bold">@item1.StandardId</span></a>
-                                                        <a href="myads.html" class="btn btn-secondary" style="margin-left: 20px;">
+                                                        @*<a href="myads.html"><span class="font-weight-bold">@item1.StandardId</span></a>*@
+                                                        <a href="/Subject/@item1.SmbId" class="btn btn-secondary" style="margin-left: 20px;">
                                                             <i class="fa fa-share"></i>View Topics
                                                         </a>
                                                     </td>

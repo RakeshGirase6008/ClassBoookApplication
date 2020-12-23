@@ -25,6 +25,7 @@ namespace ClassBookApplication.Models.PublicModel
     }
     public class StandardMediumBoardMappingData
     {
+        public int SmbId { get; set; }
         public int StandardId { get; set; }
         public string StandardName { get; set; }
         public int MediumId { get; set; }

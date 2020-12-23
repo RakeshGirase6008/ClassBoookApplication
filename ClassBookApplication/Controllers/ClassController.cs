@@ -161,6 +161,7 @@ namespace ClassBookApplication.Controllers
                          where smb.EntityId == id && smb.ModuleId == (int)Module.Classes
                          select new StandardMediumBoardMappingData
                          {
+                             SmbId= smb.Id,
                              BoardId = board.Id,
                              BoardName = board.Name,
                              MediumId = medium.Id,

@@ -44,6 +44,13 @@ namespace ClassBookApplication.Controllers
             return View();
         }
 
+        [HttpGet]
+        [Route("Subject/{smbId}")]
+        public IActionResult GetSubjectDetails(int smbId)
+        {
+            return View();
+        }
+
 
         #endregion
 
