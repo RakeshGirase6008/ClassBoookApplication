@@ -7,7 +7,7 @@ namespace ClassBookApplication.Controllers.API
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [ApiVersion("1")]
-    [ApiVersion("2")] 
+    [ApiVersion("2")]
     public class MainApiController : ControllerBase
     {
     }
