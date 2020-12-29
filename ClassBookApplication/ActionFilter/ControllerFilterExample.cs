@@ -48,12 +48,12 @@ namespace ClassBookApplication.ActionFilter
 
             StringValues authorizationToken;
             var status1 = context.HttpContext.Request.Headers.TryGetValue("AuthorizeTokenKey", out authorizationToken);
-            var mySringauthorizationToken = authorizationToken.ToString();
-            if (!string.IsNullOrEmpty(mySringauthorizationToken))
+            var myStringAuthorizationToken = authorizationToken.ToString();
+            if (!string.IsNullOrEmpty(myStringAuthorizationToken))
             {
-                if (mySringauthorizationToken != "Default")
+                if (myStringAuthorizationToken != "Default")
                 {
-                    var authorizationTokenKey = _context.Users.Where(x => x.AuthorizeTokenKey == mySringauthorizationToken).AsNoTracking();
+                    var authorizationTokenKey = _context.Users.Where(x => x.AuthorizeTokenKey == myStringAuthorizationToken).AsNoTracking();
                     if (!authorizationTokenKey.Any() || status1 == false)
                     {
                         var validationError = new
