@@ -49,20 +49,22 @@ namespace ClassBookApplication.ActionFilter
             StringValues authorizationToken;
             var status1 = context.HttpContext.Request.Headers.TryGetValue("AuthorizeTokenKey", out authorizationToken);
             var mySringauthorizationToken = authorizationToken.ToString();
-            if (mySringauthorizationToken != "Default")
+            if (!string.IsNullOrEmpty(mySringauthorizationToken))
             {
-                var authorizationTokenKey = _context.Users.Where(x => x.AuthorizeTokenKey == mySringauthorizationToken).AsNoTracking();
-                if (!authorizationTokenKey.Any() || status1 == false)
+                if (mySringauthorizationToken != "Default")
                 {
-                    var validationError = new
+                    var authorizationTokenKey = _context.Users.Where(x => x.AuthorizeTokenKey == mySringauthorizationToken).AsNoTracking();
+                    if (!authorizationTokenKey.Any() || status1 == false)
                     {
-                        Message = "AuthorizeTokenKey is not Valid"
-                    };
-                    context.Result = new UnauthorizedObjectResult(validationError);
-                    return;
+                        var validationError = new
+                        {
+                            Message = "AuthorizeTokenKey is not Valid"
+                        };
+                        context.Result = new UnauthorizedObjectResult(validationError);
+                        return;
+                    }
                 }
             }
-
             #endregion
         }
         public void OnActionExecuted(ActionExecutedContext context)
