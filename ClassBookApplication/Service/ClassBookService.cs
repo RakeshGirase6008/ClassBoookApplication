@@ -404,7 +404,7 @@ namespace ClassBookApplication.Service
                             return "Course is not in the cart";
 
                         CourseMapping courseMapping = new CourseMapping();
-                        courseMapping.EntityId = user.Id;
+                        courseMapping.EntityId = user.EntityId;
                         courseMapping.ModuleId = user.ModuleId;
                         courseMapping.CourseId = model.CourseId;
                         courseMapping.DistanceFees = 0;
@@ -417,11 +417,12 @@ namespace ClassBookApplication.Service
                         shoppingCartItems.MappingId = courseMapping.Id;
                         shoppingCartItems.TypeOfMapping = ClassBookConstant.Mapping_Course.ToString();
                         shoppingCartItems.Type = ClassBookConstant.LearningType_Distance.ToString();
-                        shoppingCartItems.EntityId = user.Id;
+                        shoppingCartItems.EntityId = user.EntityId;
                         shoppingCartItems.ModuleId = user.ModuleId;
                         shoppingCartItems.ActualAmount = 0;
                         shoppingCartItems.OurAmount = DistanceLearningAmountCourse;
                         _context.ShoppingCartItems.Add(shoppingCartItems);
+                        _context.SaveChanges();
 
                         return "Course added successfully to Cart";
                     }

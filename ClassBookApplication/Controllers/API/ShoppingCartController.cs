@@ -98,7 +98,7 @@ namespace ClassBookApplication.Controllers.API
             string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
             if (singleUser != null)
-                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId));
+                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.EntityId, singleUser.ModuleId));
             else
                 return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
         }
@@ -211,7 +211,7 @@ namespace ClassBookApplication.Controllers.API
             string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
             var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
             if (singleUser != null)
-                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.Id, singleUser.ModuleId));
+                return StatusCode((int)HttpStatusCode.OK, _classBookService.GetCartDetailByUserId(singleUser.EntityId, singleUser.ModuleId));
             else
                 return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorDetails { Message = "Wrong AuthorizeTokenKey OR User not Found in System", StatusCode = (int)HttpStatusCode.InternalServerError });
         }

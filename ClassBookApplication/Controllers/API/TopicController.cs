@@ -53,7 +53,8 @@ namespace ClassBookApplication.Controllers.API
                     topic.OrderItemId = model.OrderItemId;
                     topic.Name = model.Name;
                     topic.Description = model.Description;
-                    topic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
+                    if (model.Files != null && model.Files.Count > 0)
+                        topic.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_Topic);
                     topic.Deleted = false;
                     topic.Active = true;
                     _context.Topic.Add(topic);
@@ -139,7 +140,7 @@ namespace ClassBookApplication.Controllers.API
                     topicResponseModel.Description = topic.Description;
                     topicResponseModel.ImageUrl = _classBookModelFactory.PrepareURL(topic.ImageUrl);
 
-                    
+
                     var allSubjectTopics = _context.SubTopic.Where(x => x.TopicId == topic.Id).ToList();
                     if (allSubjectTopics != null)
                     {
