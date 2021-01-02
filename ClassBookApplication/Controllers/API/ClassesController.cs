@@ -55,7 +55,7 @@ namespace ClassBookApplication.Controllers.API
                     if (!singleUser.Any())
                     {
                         (int classesId, string uniqueNo) = _classBookService.SaveClasses(classesData, model.Files, model.Video);
-                        string UserName = classesData.Name + uniqueNo;
+                        string UserName = (classesData.Name + uniqueNo).Replace(" ", string.Empty);
                         //_classBookService.SaveMappingData((int)Module.Classes, classesId, classesData.MappingRequestModel);
                         var user = _classBookService.SaveUserData(classesId, Module.Classes, UserName, classesData.Email, model.FCMId, model.DeviceId);
                         var rest = _classBookService.RegisterMethod(model, "/api/v1/ChannelPartner/register");

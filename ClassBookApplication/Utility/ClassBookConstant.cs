@@ -7,6 +7,7 @@
         //public const string WebSite_HostURL = "https://classbookapplication.appspot.com";
         public const string WebSite_HostURL = "https://classbookapplication.appspot.com";
         public const string ChannelPartnerWebSite_HostURL = "https://localhost:44313";
+        //public const string ChannelPartnerWebSite_HostURL = "https://channelpartner-2968145.df.r.appspot.com";
 
         #endregion
 
