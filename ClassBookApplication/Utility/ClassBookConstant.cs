@@ -4,10 +4,20 @@
     {
         #region Common Constant
 
+        // OLD APP
         //public const string WebSite_HostURL = "https://classbookapplication.appspot.com";
-        public const string WebSite_HostURL = "https://classbookapplication.appspot.com";
-        public const string ChannelPartnerWebSite_HostURL = "https://localhost:44313";
+        // OLD APP
         //public const string ChannelPartnerWebSite_HostURL = "https://channelpartner-2968145.df.r.appspot.com";
+
+        // NEW APP
+        public const string WebSite_HostURL = "http://otgsservices-001-site1.itempurl.com";
+        // NEW APP
+        public const string ChannelPartnerWebSite_HostURL = "https://channelpartner-2968145.df.r.appspot.com";
+
+        // Local
+        //public const string WebSite_HostURL = "http://localhost:57299";
+        // Local
+        //public const string ChannelPartnerWebSite_HostURL = "https://localhost:44313/";
 
         #endregion
 

@@ -105,8 +105,13 @@ namespace ClassBookApplication
             #endregion
 
             #region Compatibality Configuration
+            
             // Compatiblity version set to Dot Net Core 3.0
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest);
+
+            // Add the compatiblity for runtime compilation of view pages
+            services.AddRazorPages().AddRazorRuntimeCompilation();
+
             #endregion
 
             #region Swagger

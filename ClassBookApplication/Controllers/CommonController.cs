@@ -6,6 +6,7 @@ using ClassBookApplication.Service;
 using JW;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 
 namespace ClassBookApplication.Controllers
 {
@@ -48,7 +49,17 @@ namespace ClassBookApplication.Controllers
         [Route("Subject/{smbId}")]
         public IActionResult GetSubjectDetails(int smbId)
         {
-            return View();
+            var model = new SubjectViewModel();
+            // First get the subjects from the SubjectMapping Id is smbId
+            var smbList = _classBookService.SubjectMappingBySMBId(smbId);
+            if (smbList != null && smbList.Count() > 0)
+            {
+                foreach (var subject in smbList)
+                {
+                    model.SubjectList.Add(subject);
+                }
+            }
+            return View(model);
         }
 
 

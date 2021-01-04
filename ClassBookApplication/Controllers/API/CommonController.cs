@@ -285,7 +285,7 @@ namespace ClassBookApplication.Controllers.API
         {
             CourseCategory courseCategory = new CourseCategory();
             courseCategory.Name = model.Name;
-            if (model.Files.Count > 0)
+            if (model.Files != null && model.Files.Count > 0)
                 courseCategory.ImageUrl = _fileService.SaveFile(model.Files, ClassBookConstant.ImagePath_CourseCategory);
             courseCategory.Active = true;
             _context.CourseCategory.Add(courseCategory);

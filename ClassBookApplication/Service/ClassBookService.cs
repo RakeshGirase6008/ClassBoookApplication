@@ -1710,7 +1710,17 @@ namespace ClassBookApplication.Service
         }
         #endregion
 
+        #region Subject
 
+        public List<SubjectMapping> SubjectMappingBySMBId(int smbId)
+        {
+            if (smbId <= 0)
+                return new List<SubjectMapping>();
+
+            return _context.SubjectMapping.Where(x => x.SMBId == smbId && x.Active == true).ToList();
+        }
+
+        #endregion
 
         #region Website
 

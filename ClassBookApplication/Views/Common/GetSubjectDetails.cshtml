@@ -1,4 +1,5 @@
-﻿@{
+﻿@model SubjectViewModel
+@{
     ViewData["Title"] = "Subject Details";
 }
 <section>
@@ -31,11 +32,15 @@
                             <div class="tabs-menus">
                                 <!-- Tabs -->
                                 <ul class="nav panel-tabs">
-                                    <li class=""><a href="#tab1" class="active" data-toggle="tab">Subject 1</a></li>
-                                    <li><a href="#tab2" data-toggle="tab">Subject 2</a></li>
-                                    <li><a href="#tab3" data-toggle="tab">Subject 3</a></li>
-                                    <li><a href="#tab5" data-toggle="tab">Subject 4</a></li>
-                                    <li><a href="#tab6" data-toggle="tab">Subject 5</a></li>
+                                    @*<li class=""><a href="#tab1" class="active" data-toggle="tab">Subject 1</a></li>*@
+
+                                    @{
+                                        foreach (var subject in Model.SubjectList)
+                                        {
+                                            <li><a href="javascript:void(0)" onclick="ChangeTab(this)" id="subject-tab-@(subject.SubjectId)" data-toggle="tab">@(subject.SubjectId)</a></li>
+                                        }
+                                    }
+
                                 </ul>
                             </div>
                             <div class="tab-content">
@@ -359,3 +364,9 @@
     </div>
 </section>
 <!--User Dashboard-->
+
+<script type="text/javascript">
+    $(document).ready(function(e){
+        alert("Hello World");
+    });
+</script>
