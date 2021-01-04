@@ -5,6 +5,7 @@ using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
 using ClassBookApplication.Utility;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -24,6 +25,7 @@ namespace ClassBookApplication.Controllers.API
         private readonly ClassBookManagementContext _context;
         private readonly ClassBookService _classBookService;
         private readonly ClassBookModelFactory _classBookModelFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
         #endregion
@@ -32,11 +34,13 @@ namespace ClassBookApplication.Controllers.API
 
         public StudentController(ClassBookManagementContext context,
             ClassBookService classBookService,
-            ClassBookModelFactory classBookModelFactory)
+            ClassBookModelFactory classBookModelFactory,
+            IHttpContextAccessor httpContextAccessor)
         {
             this._context = context;
             this._classBookService = classBookService;
             this._classBookModelFactory = classBookModelFactory;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -120,10 +124,12 @@ namespace ClassBookApplication.Controllers.API
             return students;
         }
 
-        // GET api/Student/GetStudentById/5
-        [HttpGet("GetStudentById/{id:int}")]
-        public object GetStudentById(int id)
+        // GET api/Student/GetStudentById
+        [HttpGet("GetStudentById")]
+        public object GetStudentById()
         {
+            string authorizeTokenKey = _httpContextAccessor.HttpContext.Request.Headers["AuthorizeTokenKey"];
+            var singleUser = _context.Users.Where(x => x.AuthorizeTokenKey == authorizeTokenKey).FirstOrDefault();
             var query = from stud in _context.Student
                         join board in _context.Board on stud.BoardId equals board.Id
                         join medium in _context.Medium on stud.MediumId equals medium.Id
@@ -131,7 +137,7 @@ namespace ClassBookApplication.Controllers.API
                         join state in _context.States on stud.StateId equals state.Id
                         join city in _context.City on stud.CityId equals city.Id
                         join pincode in _context.Pincode on stud.Pincode equals pincode.Id
-                        where stud.Id == id && stud.Active == true
+                        where stud.Id == singleUser.EntityId && stud.Active == true
                         orderby stud.Id
                         select new
                         {
