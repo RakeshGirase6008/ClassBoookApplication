@@ -1,6 +1,7 @@
 ﻿using ClassBookApplication.DataContext;
 using ClassBookApplication.Domain.Common;
 using ClassBookApplication.Factory;
+using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Models.RequestModels;
 using ClassBookApplication.Models.ResponseModel;
 using ClassBookApplication.Service;
@@ -369,6 +370,39 @@ namespace ClassBookApplication.Controllers.API
         }
 
         #endregion
+
+        #region Subjects, Topics, Subtopics & Videos
+
+        // GET api/Common/GetPincodeByCityId/6
+        [HttpGet("Subject/{smbId}")]
+        public IActionResult GetSubjectDetails(int smbId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+
+            var model = _classBookService.GetSubjectDetails(smbId, new SubjectViewModel());
+
+            responseModel.Data = model;
+            responseModel.Message = "Success";
+
+            return StatusCode((int)HttpStatusCode.OK, responseModel);
+        }
+        
+        // GET api/Common/GetPincodeByCityId/6
+        [HttpGet("Subtopic/{topicId}")]
+        public IActionResult GetSubtopicDetails(int topicId)
+        {
+            ResponseModel responseModel = new ResponseModel();
+
+            var model = _classBookService.GetSubtopicDetails(topicId, new List<SubtopicViewModel>());
+
+            responseModel.Data = model;
+            responseModel.Message = "Success";
+
+            return StatusCode((int)HttpStatusCode.OK, responseModel);
+        }
+
+        #endregion
+
         //#region Version Sample Only
 
         //// GET api/Common/GetBoardSample
