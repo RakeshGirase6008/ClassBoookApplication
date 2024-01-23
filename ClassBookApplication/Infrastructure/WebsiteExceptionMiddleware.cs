@@ -43,7 +43,7 @@ namespace ClassBookApplication.Infrastructure
                     if (controllerActionDescriptor != null)
                         controllerName = controllerActionDescriptor.ControllerName;
                 }
-                _logsService.InsertLogs(controllerName, ex, httpContext.Request.Path.Value, userId);
+                //_logsService.InsertLogs(controllerName, ex, httpContext.Request.Path.Value, userId);
                 await HandleExceptionAsync(httpContext);
             }
         }

@@ -6,6 +6,8 @@
         public string Password { get; set; }
         public string DeviceId { get; set; }
         public string FCMId { get; set; }
+
+        public string NewFcm { get; set; }
     }
 
     public class ForgotPassword

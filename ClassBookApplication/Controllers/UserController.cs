@@ -1,4 +1,5 @@
 ﻿using ClassBookApplication.DataContext;
+using ClassBookApplication.Models;
 using ClassBookApplication.Models.PublicModel;
 using ClassBookApplication.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +50,7 @@ namespace ClassBookApplication.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Policies.User)]
         public IActionResult ForgotPassword()
         {
             ForgotPasswordModel model = new ForgotPasswordModel();
