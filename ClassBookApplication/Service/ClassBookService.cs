@@ -1712,12 +1712,173 @@ namespace ClassBookApplication.Service
 
         #region Subject
 
-        public List<SubjectMapping> SubjectMappingBySMBId(int smbId)
+        public List<SubjectMappingModel> SubjectMappingBySMBId(int smbId)
         {
             if (smbId <= 0)
-                return new List<SubjectMapping>();
+                return new List<SubjectMappingModel>();
 
-            return _context.SubjectMapping.Where(x => x.SMBId == smbId && x.Active == true).ToList();
+            var subjectList = _context.SubjectMapping.Where(x => x.SMBId == smbId && x.Active == true).ToList();
+            List<SubjectMappingModel> result = new List<SubjectMappingModel>();
+            if (subjectList != null && subjectList.Count() > 0)
+            {
+                foreach (var subject in subjectList)
+                    result.Add(new SubjectMappingModel()
+                    {
+                        SMBId = subject.SMBId,
+                        Active = subject.Active,
+                        DistanceFees = subject.DistanceFees,
+                        PhysicalFees = subject.PhysicalFees,
+                        SubjectId = subject.SubjectId,
+                        SubjectName = _context.Subjects.Where(x => x.Id == subject.SubjectId).FirstOrDefault()?.Name
+                    });
+
+                // All good return result
+                return result;
+            }
+
+            // Something went wrong - null return empty
+            return new List<SubjectMappingModel>();
+        }
+
+        public SubjectViewModel GetSubjectDetails(int smbId, SubjectViewModel model)
+        {
+            // Get the subjects from the SubjectMapping Id is smbId
+            var smbList = SubjectMappingBySMBId(smbId);
+            if (smbList != null && smbList.Count() > 0)
+            {
+                foreach (var subject in smbList)
+                {
+                    model.SubjectList.Add(subject);
+                }
+            }
+
+            // Prepare the Topics 
+            // Get the module ID 3 from order table
+            // Get the SMB table data
+            var smb = _context.StandardMediumBoardMapping.Where(x => x.Id == smbId).FirstOrDefault();
+
+            // Prepare the title of the page Eg: DCG Classes
+            switch (smb.ModuleId)
+            {
+                case 2:
+                    var teacherEntityName = _context.Teacher.Where(x => x.Id == smb.EntityId).FirstOrDefault();
+                    model.ModeuleName = teacherEntityName.FirstName + " " + teacherEntityName.LastName;
+                    break;
+
+                case 3:
+                    model.ModeuleName = _context.Classes.Where(x => x.Id == smb.EntityId).FirstOrDefault().Name;
+                    break;
+
+                case 4:
+                    var careerEntityName = _context.CareerExpert.Where(x => x.Id == smb.EntityId).FirstOrDefault();
+                    model.ModeuleName = careerEntityName.FirstName + " " + careerEntityName.LastName;
+                    break;
+
+                case 5:
+                    model.ModeuleName = _context.School.Where(x => x.Id == smb.EntityId).FirstOrDefault().Name;
+                    break;
+
+                default:
+                    model.ModeuleName = string.Empty;
+                    break;
+            }
+
+            // As we need the entity Id as DGC classes (sample) we need to get it from somewhere
+            // Get all the data from Order table where entity Id is smb.EntityId & module ID is smb.moduleId
+
+            // Order items - we need to replace this OrderCartItems with our custom model
+            var orderCartItems = new List<OrderCartItems>();
+
+            var orderData = _context.Order.Where(x => x.EntityId == smb.EntityId && x.ModuleId == smb.ModuleId && x.PaymentStatus == true).ToList();
+            if (orderData != null && orderData.Count() > 0)
+            {
+                // Get the Order Cart Items
+                foreach (var order in orderData)
+                {
+                    var orderListItemList = _context.OrderCartItems.Where(x => x.OrderId == order.Id).ToList();
+                    if (orderListItemList != null && orderListItemList.Count() > 0)
+                    {
+                        foreach (var item in orderListItemList)
+                        {
+                            orderCartItems.Add(new OrderCartItems()
+                            {
+                                ActualAmount = item.ActualAmount,
+                                MappingId = item.MappingId,
+                                Id = item.Id,
+                                OrderId = item.OrderId,
+                                OurAmount = item.OurAmount,
+                                Type = item.Type,
+                                TypeOfMapping = item.TypeOfMapping
+                            });
+                        }
+                    }
+                }
+
+                // This is the order list based on this we will bring the Topics
+                if (orderCartItems != null && orderCartItems.Count() > 0)
+                {
+                    List<int> orderItemIdList = new List<int>();
+                    foreach (var orderCartItem in orderCartItems)
+                    {
+                        orderItemIdList.Add(orderCartItem.Id);
+                    }
+
+                    // Get the topics based on orderItemIdList
+                    var topicList = _context.Topic.Where(x => orderItemIdList.Contains(x.OrderItemId)).ToList();
+                    if (topicList != null && topicList.Count() > 0)
+                    {
+                        // Now prepare the actual topic model
+                        foreach (var topic in topicList)
+                        {
+                            model.TopicListModel.Add(new TopicModel()
+                            {
+                                TopicId = topic.Id,
+                                Active = topic.Active,
+                                Deleted = topic.Deleted,
+                                Description = topic.Description,
+                                ImageUrl = topic.ImageUrl,
+                                Name = topic.Name,
+                                OrderItemId = topic.OrderItemId
+                            });
+                        }
+                    }
+                }
+            }
+
+            return model;
+        }
+
+        #endregion
+
+        #region Topic / Subtopic
+
+        public List<SubtopicViewModel> GetSubtopicDetails(int topicId, List<SubtopicViewModel> listModel)
+        {
+            var subtopicList = _context.SubTopic.Where(x => x.TopicId == topicId).ToList();
+            if (subtopicList != null && subtopicList.Count() > 0)
+            {
+                foreach (var subTopic in subtopicList)
+                {
+                    listModel.Add(new SubtopicViewModel()
+                    {
+                        TopicId = subTopic.TopicId,
+                        Active = subTopic.Active,
+                        DateOfActivation = subTopic.DateOfActivation,
+                        DateOfUpload = subTopic.DateOfUpload,
+                        Deleted = subTopic.Deleted,
+                        Description = subTopic.Description,
+                        ImageUrl = subTopic.ImageUrl,
+                        Name = subTopic.Name,
+                        UploadedByUserId = subTopic.UploadedByUserId,
+                        VideoLink = subTopic.VideoLink
+                    });
+                }
+
+                return listModel;
+            }
+
+            // Empty list so return empty
+            return new List<SubtopicViewModel>();
         }
 
         #endregion

@@ -6,7 +6,9 @@ using ClassBookApplication.Service;
 using JW;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using ClassBookApplication.Utility;
 
 namespace ClassBookApplication.Controllers
 {
@@ -49,19 +51,19 @@ namespace ClassBookApplication.Controllers
         [Route("Subject/{smbId}")]
         public IActionResult GetSubjectDetails(int smbId)
         {
-            var model = new SubjectViewModel();
-            // First get the subjects from the SubjectMapping Id is smbId
-            var smbList = _classBookService.SubjectMappingBySMBId(smbId);
-            if (smbList != null && smbList.Count() > 0)
-            {
-                foreach (var subject in smbList)
-                {
-                    model.SubjectList.Add(subject);
-                }
-            }
+            var model = _classBookService.GetSubjectDetails(smbId, new SubjectViewModel());
+
             return View(model);
         }
 
+        [HttpGet]
+        [Route("Subtopic/{topicId}")]
+        public IActionResult GetSubtopicDetails(int topicId)
+        {
+            var model = _classBookService.GetSubtopicDetails(topicId, new List<SubtopicViewModel>());
+
+            return View(model);
+        }
 
         #endregion
 
@@ -97,6 +99,7 @@ namespace ClassBookApplication.Controllers
                 return Json(new { status = "true", message = "Getting issue" });
             }
         }
+
         public IActionResult Testimonial(int p)
         {
             TestimonialModel model = new TestimonialModel();
